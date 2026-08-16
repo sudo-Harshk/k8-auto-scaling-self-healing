@@ -8,6 +8,56 @@ All times IST.
 
 ---
 
+## 2026-08-16 — Slim monitoring stack (Day 2)
+
+**What changed**
+- Used `prometheus-community/kube-prometheus-stack` chart (v88.3.0) with a slim
+  `ops/manifests/monitoring-values.yaml` that:
+  - Disables **Alertmanager** (we feed an AI pipeline, not human alerts -> ~150 MB saved).
+  - Sets memory/CPU limits sized for the 3.6 GB Docker Desktop WSL2 VM.
+  - Sets Prometheus retention to 2h, no PVC (emptyDir).
+  - Sets Grafana admin password to `admin` (explicit, known).
+  - Disables the chart's default alerting/recording Rule groups (less CPU churn).
+- Added `ops/manifests/podinfo-service-monitor.yaml` (a `ServiceMonitor` CRD with
+  the `release: kube-prometheus-stack` label so Prometheus Operator picks it up)
+  that scrapes podinfo's `/metrics` every 15s.
+
+**Why**
+- Alertmanager is dead weight for this project (no humans to alert).
+- Default chart resources are sized for real clusters and would OOM our VM.
+- podinfo's Service needs a `ServiceMonitor` (not legacy annotation scraping)
+  because the Prometheus Operator only honors ServiceMonitors/PodMonitors.
+
+**Grafana first-boot needed two fixes** (took iteration during Day 2):
+1. **Liveness probe was too aggressive** for Grafana 13.1.3, which spends ~3-4 min
+   on FIRST boot installing its "Grafana Apps" resource manager (alerting, playlists,
+   advisor, etc.) before HTTP binds port 3000. Default chart probe
+   (`initialDelaySeconds=60, failureThreshold=10`) killed the container at ~160s.
+   Fix: bumped `grafana.livenessProbe.initialDelaySeconds` to 300 and
+   `failureThreshold` to 30 (~8 min total tolerance).
+2. **128 Mi memory limit was too tight** for the same init phase - the Go runtime's
+   `GOMEMLIMIT` was bound to the pod limit, and the first-run heap spike was OOMKilled
+   (exit 137). Fix: bumped Grafana `resources.limits.memory` to 256 Mi (request 128 Mi).
+
+After both fixes Grafana came up `3/3 Running, 0 restarts`. Subsequent boots are much
+faster (migrations cached), so the probe headroom has plenty of margin.
+
+**Known Down targets (expected, not a problem)**
+Four control-plane scrape targets in the Prometheus `/targets` page report `DOWN`:
+- `https://172.18.0.2:10257/metrics` (kube-controller-manager)
+- `http://172.18.0.2:2381/metrics` (etcd)
+- `http://172.18.0.2:10249/metrics` (kube-proxy)
+- `https://172.18.0.2:10259/metrics` (kube-scheduler)
+
+Root cause: kind runs these components with `--bind-address=127.0.0.1`, so they are
+only reachable from inside the kind node container, not from the pod network.
+**No impact on the AI pipeline**: the metrics we actually need are scraped from
+cAdvisor (`container_cpu_usage_seconds_total`), kube-state-metrics
+(`kube_deployment_status_replicas_available`), node-exporter, and podinfo's own
+`/metrics` - all of which are `UP`.
+
+---
+
 ## 2026-08-16 — Workload swap: Sock Shop -> podinfo (Day 1)
 
 **What changed**

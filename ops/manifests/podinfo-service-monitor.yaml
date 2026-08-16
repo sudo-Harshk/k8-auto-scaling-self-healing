@@ -1,0 +1,22 @@
+# ServiceMonitor that tells Prometheus Operator to scrape podinfo's /metrics.
+# The release label is required - kube-prometheus-stack's Prometheus is configured
+# (serviceMonitorSelectorNilUsesHelmValues: true) to only pick up ServiceMonitors
+# labelled release=kube-prometheus-stack.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: podinfo
+  namespace: podinfo
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: podinfo
+  namespaceSelector:
+    matchNames:
+      - podinfo
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

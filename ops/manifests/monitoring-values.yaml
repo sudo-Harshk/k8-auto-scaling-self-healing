@@ -1,0 +1,75 @@
+# Slim kube-prometheus-stack values for the AI-Driven K8 Operator project.
+# Sized for a single-node kind cluster inside Docker Desktop's ~3.6 GB WSL2 VM.
+#
+# Kept:    Prometheus, Grafana, kube-state-metrics, node-exporter.
+# Dropped: Alertmanager (we feed an AI pipeline, not human alerts -> ~150 MB saved).
+#
+# Apply:   helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+#            --namespace monitoring --create-namespace \
+#            --version 88.3.0 -f ops/manifests/monitoring-values.yaml
+
+# ---- global / common ----
+# Default alerting/recording rules ship ~100 PrometheusRules; they cost CPU/memory to keep
+# evaluated and we alert nowhere. Turn them off - we can record metrics ad-hoc on Day 14.
+defaultRules:
+  create: false
+
+# ---- Alertmanager: disabled ----
+alertmanager:
+  enabled: false
+  create: false
+
+# ---- Prometheus Operator (small control loop) ----
+prometheusOperator:
+  resources:
+    requests: { cpu: 25m,  memory: 64Mi }
+    limits:   { cpu: 100m, memory: 256Mi }
+
+# ---- Prometheus ----
+prometheus:
+  prometheusSpec:
+    retention: 2h
+    # emptyDir storage by default - data resets on pod restart, fine for our demo.
+    resources:
+      requests: { cpu: 100m, memory: 128Mi }
+      limits:   { cpu: 500m, memory: 512Mi }
+    # Pick up ServiceMonitors/PodMonitors labelled release=kube-prometheus-stack (default)
+    serviceMonitorSelectorNilUsesHelmValues: true
+    podMonitorSelectorNilUsesHelmValues: true
+
+# ---- Grafana ----
+grafana:
+  enabled: true
+  adminPassword: admin          # known password for demo/thesis screenshots
+  persistence:
+    enabled: false              # emptyDir - dashboard imports re-run on pod restart
+  resources:
+    requests: { cpu: 25m,  memory: 128Mi }
+    limits:   { cpu: 200m, memory: 256Mi }
+  # The chart ships pre-packaged Kubernetes dashboards as ConfigMaps (label:
+  # grafana_dashboard=kube-prometheus-stack). They load automatically on Grafana boot.
+  # Grafana 13.x needs ~3-4 min on FIRST boot to install its built-in "Grafana Apps"
+  # (alerting, playlists, advisor, etc.) before port 3000 binds. Default chart probe
+  # kills the container at ~160s; reconfigure to tolerate up to ~8 min.
+  livenessProbe:
+    initialDelaySeconds: 300      # 5 min grace before first liveness check
+    failureThreshold: 30          # 30 failures x 10s period = +5 min after that
+    periodSeconds: 10
+    timeoutSeconds: 30
+  readinessProbe:
+    initialDelaySeconds: 60
+    failureThreshold: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+
+# ---- kube-state-metrics ----
+kube-state-metrics:
+  resources:
+    requests: { cpu: 10m, memory: 32Mi }
+    limits:   { cpu: 100m, memory: 128Mi }
+
+# ---- node-exporter ----
+prometheus-node-exporter:
+  resources:
+    requests: { cpu: 10m,  memory: 16Mi }
+    limits:   { cpu: 50m,  memory: 64Mi }
