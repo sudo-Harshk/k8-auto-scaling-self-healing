@@ -1,0 +1,93 @@
+# AMENDMENTS — deviations from the original 14-day plan
+
+This file records every substantive change made to `tasks/day-*.md` during the build, with
+timestamp and rationale. The original day docs are edited **in place**; this file is the
+human-readable changelog so the thesis and reviewers can trace what was changed and why.
+
+All times IST.
+
+---
+
+## 2026-08-16 — Workload swap: Sock Shop -> podinfo (Day 1)
+
+**What changed**
+- Replaced Weaveworks **Sock Shop** with **stefanprodan/podinfo v6.14.1** as the workload that
+  the operator auto-scales and auto-heals.
+- Namespace changed from `sock-shop` to `podinfo`.
+- Edited in place: `README.md` (root), `tasks/README.md`, `tasks/day-01`,
+  `tasks/day-02`, `tasks/day-03`, `tasks/day-06`, `tasks/day-13`.
+  (`ops/manifests/sock-shop-*.yaml` deleted; new `ops/manifests/podinfo.yaml` added).
+
+**Why**
+1. **RAM ceiling.** Docker Desktop's WSL2 VM is capped at ~3.6 GB on this host. The slim
+   5-service Sock Shop subset (front-end + catalogue + catalogue-db + carts + carts-db) was
+   already using ~1.1 GB on Day 1 with thin headroom for Prometheus + Kafka (Days 2 & 4).
+   podinfo runs at ~30 MB image / ~30 MB RAM for 2 replicas — frees ~1 GB of VM RAM.
+2. **Broken UI.** The slim Sock Shop subset renders a **white page** because the front-end
+   (Node.js) ships product data as client-side JSON and its hydration depends on services we
+   had dropped (user/session/queue-master), so the page errors out instead of painting.
+3. **Catalogue-db image dead-ends on this kernel.** The
+   `weaveworksdemos/catalogue-db:0.3.0` image (mysql:5.7 from 2016) gets VM-OOMKilled at
+   `mysqld --verbose --help` inside the kind node on this WSL2 cgroup-v1 kernel. We worked
+   around it once via a modern `mysql:8.0` + extracted seed, but the whole stack is fragile.
+4. **Better fit for the thesis.** podinfo is a 6k-star, Apache-2.0, **actively-maintained**
+   Go microservice used by CNCF Flux and Flagger for autoscaling and progressive-delivery
+   e2e tests and workshops. Citing it is more credible than citing an abandoned 2017 demo.
+5. **Built-in fault injection.** podinfo's `POST /fault_injection/enable` makes a single
+   replica return HTTP 500 on application endpoints while keeping probes healthy — a clean
+   error-rate spike for the anomaly detector (Day 8) and a RAM-light alternative to
+   LitmusChaos for the Day 13 auto-heal demo.
+
+**Thesis framing**
+*"We evaluate the operator against podinfo, a CNCF-adopted Go microservice benchmark
+designed for Kubernetes autoscaling and progressive-delivery workshops (Flux, Flagger)."*
+
+**Impact on later days**
+- Day 3 Locust profile changes from browse/cart/orders to hitting `/`, `/api/info`, and `/echo`.
+- Day 6 load scenarios unchanged (Baseline / Spike / Steady-high / Idle) but against podinfo.
+- Day 13 chaos: now offers two equivalent fault paths (LitmusChaos pod-delete OR podinfo
+  built-in fault injection). Either or both can be demonstrated.
+- Day 14 evaluation: no change (same HPA-vs-AI-operator comparison, same SLOs).
+
+---
+
+## 2026-08-16 — kind node image pinned to v1.30.0 (Day 1)
+
+**What changed**
+`ops/kind/kind-cluster.yaml` pins `kindest/node:v1.30.0` instead of the kind default.
+
+**Why**
+The kind default (`kindest/node:v1.36.1`) kubelet **refuses to run on cgroup v1**:
+```
+kubelet: "kubelet is configured to not run on a host using cgroup v1"
+```
+The Docker Desktop WSL2 kernel boots in **cgroup v1** (hybrid mode), so the v1.36 kubelet
+crash-loops, the API server never comes up, and `kind create cluster` fails during
+`wait-control-plane`. v1.30.0 still accepts cgroup v1 and also matches the user's kubectl
+client version (`v1.30.0`) — a clean compatibility win.
+
+**Side effect**
+[Long-term fix] If the host ever moves to cgroup v2 (newer WSL2 kernel via
+`wsl --update`), we can unpin to use the kind default again.
+
+---
+
+## 2026-08-16 — Single-node kind cluster (not 3 nodes)
+
+**What changed**
+The cluster runs one control-plane node only (instead of the original 1 control-plane +
+2 workers the spec called for). All workloads (podinfo + monitoring + Kafka + Python services)
+schedule on that single node.
+
+**Why**
+Docker Desktop's WSL2 VM is capped at ~3.6 GB RAM; a 3-node kind cluster failed during
+bootstrapping immediately (API server timed out waiting for resources). A single node
+schedules everything because kind does not apply a `NoSchedule` taint to control-plane nodes
+by default.
+
+**Side effect**
+No multi-node scheduling realism in the demo. Acceptable: this project studies scaling/healing
+behaviour, not bin-packing. If we ever need it, adding a worker node is one line in
+`kind-cluster.yaml`.
+
+---

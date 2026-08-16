@@ -1,0 +1,69 @@
+# podinfo - the workload we auto-scale and auto-heal throughout the project.
+#
+# podinfo (stefanprodan/podinfo, Apache-2.0) is a tiny Go web microservice built for
+# Kubernetes autoscaling/progressive-delivery demos (used by CNCF Flux and Flagger).
+# Pinned to 6.14.1 (latest stable as of Aug 2026).
+#
+# Why podinfo (replaces Weaveworks Sock Shop from the original task doc):
+#   - ~30 MB image, ~60 MB RAM for 2 replicas -> fits the 3.6 GB Docker Desktop WSL2 VM.
+#   - Built-in /metrics (Prometheus-ready) -> Day 2 scraping, Day 3 metrics client.
+#   - UI shows per-replica hostname -> visually obvious when our operator scales up/down.
+#   - POST /fault_injection/enable  -> replica returns HTTP 500 on app endpoints
+#     (probes stay healthy) -> clean anomaly signal for the Day 8 detector and a RAM-light
+#     alternative to LitmusChaos for the Day 13 auto-heal demo.
+#   - Actively maintained vs Sock Shop (abandoned 2017).
+#
+# Access: `kubectl -n podinfo port-forward svc/podinfo 8070:9898` -> http://localhost:8070
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: podinfo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podinfo
+  namespace: podinfo
+  labels: { app: podinfo }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: podinfo }
+  template:
+    metadata:
+      labels: { app: podinfo }
+    spec:
+      containers:
+      - name: podinfo
+        image: ghcr.io/stefanprodan/podinfo:6.14.1
+        ports:
+        - { containerPort: 9898, name: http }
+        env:
+        - { name: PODINFO_UI_COLOR, value: "#41755f" }
+        resources:
+          requests: { cpu: 25m, memory: 16Mi }
+          limits:   { cpu: 100m, memory: 128Mi }
+        livenessProbe:
+          httpGet: { path: /healthz, port: 9898 }
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet: { path: /readyz, port: 9898 }
+          periodSeconds: 5
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: podinfo
+  namespace: podinfo
+  labels: { app: podinfo }
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9898"
+    prometheus.io/path: "/metrics"
+spec:
+  ports:
+  - { port: 9898, targetPort: 9898, name: http }
+  selector: { app: podinfo }

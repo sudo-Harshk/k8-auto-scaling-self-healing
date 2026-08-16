@@ -1,0 +1,17 @@
+# kind cluster for the AI-Driven K8 Operator project
+# Single control-plane node - chosen because Docker Desktop's WSL2 VM is capped at ~3.6 GB.
+# kind control-plane nodes carry no NoSchedule taint, so all workloads (podinfo, monitoring,
+# Kafka, our Python services) schedule on this one node. Keeps the project runnable on tight RAM.
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: k8-ai
+networking:
+  ipFamily: ipv4
+# Pinned to kindest/node:v1.30.0 because:
+#   - host is cgroup v1 (WSL2 kernel 5.15 boots hybrid v1), and K8s 1.31+ kubelet REFUSES cgroup v1.
+#   - matches the user's kubectl client v1.30.0 exactly.
+# Earlier kind default (kindest/node:v1.36.1) crash-loops kubelet with
+#   "kubelet is configured to not run on a host using cgroup v1".
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.30.0
