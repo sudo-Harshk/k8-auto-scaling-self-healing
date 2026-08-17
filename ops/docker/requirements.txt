@@ -1,0 +1,21 @@
+# Shared Python dependencies for the AI-Driven Kubernetes Operator project.
+#
+# Installed into the shared Docker image ops/docker/Dockerfile (python:3.11-slim base).
+# Day-by-day additions are noted with comments so the dependency timeline is traceable.
+#
+# Pinned to versions that ship prebuilt wheels for Python 3.11 / linux/amd64, so the
+# Docker build does not require a C toolchain and stays fast.
+
+# ----- Day 3: metrics client + load test -----
+prometheus-api-client==0.5.5
+requests==2.32.3
+locust==2.31.1
+pandas==2.2.3
+numpy==1.26.4
+
+# Future days add deps as components come online:
+#   Day 4: kafka-python==2.0.2          (Kafka producer/consumer)
+#   Day 5: faust-streaming==0.10.11     (Faust stream processor)
+#   Day 7: river==0.24.0                (online ML regression + anomaly)
+#   Day 9: shap==0.46.0, scikit-learn   (decision explainability)
+#  Day 12: kopf==1.37.2, kubernetes     (Kopf operator + k8s client)

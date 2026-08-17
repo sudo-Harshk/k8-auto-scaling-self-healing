@@ -8,6 +8,54 @@ All times IST.
 
 ---
 
+## 2026-08-17 — Python runs inside shared Docker image, not host venv (Day 3)
+
+**What changed**
+- Built a shared Docker image `k8-ai-ops:dev` (python:3.11-slim base) at
+  `ops/docker/Dockerfile` holding the Python dependencies for the project
+  (Days 3, 4, 5, 7, 9, 12). All Python scripts are run via
+  `docker run --rm -v ${PWD}:/code -w /code k8-ai-ops:dev ...` instead of a host
+  virtual environment.
+- `ops/docker/requirements.txt` is pinned to Day-3 deps only
+  (prometheus-api-client 0.5.5, requests 2.32.3, locust 2.31.1, pandas 2.2.3,
+  numpy 1.26.4). Future days append their own deps as those components come online.
+
+**Why**
+Locust 2.44 + gevent on **Python 3.12 Windows** raises `RecursionError` from the
+SSL monkey-patch (`ssl._ssl._sslocert_verify`), so the host's preinstalled Python
+runtime cannot run Locust. Python 3.11 (slim Debian) inside Docker sidesteps this
+entirely and gives a consistent Linux runtime for the rest of the project
+(Faust and Kopf officially target 3.10/3.11). One image (~615 MB) is reused by
+every later Python service day, so the cost is paid once.
+
+**Side effect**
+First-run image build takes ~3-5 min; subsequent script runs reuse the cached
+image. Containerised scripts reach host port-forwards via `host.docker.internal`
+(the `PROMETHEUS_URL` and `LOCUST_HOST` defaults baked into the code use it).
+
+---
+
+## 2026-08-17 — Locust endpoint fix: /echo -> /api/echo, 2xx accepted (Day 3)
+
+**What changed**
+- `locustfile.py` posts to `/api/echo` (not `/echo`).
+- Failure check accepts any 2xx (not `== 200`).
+
+**Why**
+podinfo's `/echo` is a **WebSocket** endpoint — plain HTTP POSTs are rejected
+with 4xx. The HTTP echo API is `/api/echo`, which returns **202 Accepted**
+(not 200) with the posted JSON echoed in the body. The first baseline run flagged
+100 % of POSTs as failures (314/314) until this was fixed. After the fix: 285
+requests, **0 failures**.
+
+**Side effect**
+The baseline error-rate metric (`rate(http_requests_total{status=~"5.."}[1m])`)
+stayed at 0.0 throughout both runs — the original 4xx failures were correctly
+excluded from the 5xx error-rate signal. The metrics pipeline was already sound;
+only the Locust request definition was wrong.
+
+---
+
 ## 2026-08-16 — Slim monitoring stack (Day 2)
 
 **What changed**

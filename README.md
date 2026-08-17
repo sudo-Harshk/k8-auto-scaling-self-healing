@@ -30,11 +30,11 @@ Three Kafka topics thread it together: `k8s-metrics` -> `k8s-features` -> `k8s-d
 
 ```
 src/        Python services (metrics, streaming, features, models, decision, safety, operator)
-ops/        Infrastructure (kind config, k8s manifests, docker image)
+ops/        Infrastructure (kind config, k8s manifests, shared docker image)
 config/     Safety policy (derived from TLA+ spec)
 specs/      TLA+ specification + TLC config
-data/       Captured metrics / datasets (gitignored)
-logs/       Decision / audit logs (gitignored)
+data/       Captured metrics (baselines committed as evidence; live runs gitignored)
+logs/       Decision / audit logs (summary stats committed; raw run output gitignored)
 tasks/      Day-by-day build plan (source of truth)
 ```
 
@@ -46,8 +46,8 @@ each day is committed and tagged.
 ## Status
 
 - [x] Day 1 - Cluster & Workload Deployment
-- [ ] Day 2 - Monitoring Stack
-- [ ] Day 3 - Metrics API & Baseline Load Test
+- [x] Day 2 - Monitoring Stack
+- [x] Day 3 - Metrics API & Baseline Load Test
 - [ ] Day 4 - Kafka Streaming Pipeline
 - [ ] Day 5 - Faust Stream Processor
 - [ ] Day 6 - Feature Engineering & Dataset
