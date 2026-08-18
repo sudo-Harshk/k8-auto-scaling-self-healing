@@ -35,6 +35,17 @@ image. Access is SSH-key-only (port 22); Grafana/Prometheus are reached via
 `ssh -L` tunnels. VM auto-shuts-down daily at 23:00 IST. The Windows laptop setup
 (Days 1-3) remains as a demo fallback. See `tasks/AMENDMENTS.md` (2026-08-18).
 
+Daily ops (~1 min bring-up after the VM starts):
+
+```bash
+ssh k8-vm                                   # Azure VM alias (laptop ~/.ssh/config)
+docker start k8-ai-control-plane            # only if the kind node container stopped
+kubectl -n monitoring port-forward svc/kube-prometheus-stack-prometheus 9090:9090 &
+kubectl -n kafka port-forward svc/kafka 9094:9094 &
+# Grafana on the laptop: ssh -L 3000:localhost:3000 k8-vm  with
+#   kubectl -n monitoring port-forward svc/kube-prometheus-stack-grafana 3000:80 on the VM
+```
+
 ## Layout
 
 ```
