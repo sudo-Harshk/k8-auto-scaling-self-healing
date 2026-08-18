@@ -1,0 +1,90 @@
+# Day 4 - Kafka message bus: single node, KRaft mode (no Zookeeper), ephemeral storage.
+#
+# Uses the official Apache Kafka image (apache/kafka) instead of the Bitnami Helm
+# chart: Bitnami moved its image catalog behind a paid tier (Aug 2025), and the
+# official image runs KRaft natively with plain env-var config.
+# See tasks/AMENDMENTS.md (2026-08-18).
+#
+# Two listeners (the classic Kafka advertised-listener split):
+#   PLAINTEXT 9092 - in-cluster clients (Day 5 Faust): kafka.kafka.svc.cluster.local:9092
+#   EXTERNAL  9094 - host-side clients via `kubectl -n kafka port-forward svc/kafka 9094:9094`
+#
+# Ephemeral by design: log.dirs defaults to /tmp/kraft-combined-logs on the
+# container's writable layer, lost on pod restart. The metrics stream is transient;
+# the Day-6 dataset is persisted to CSV, not Kafka.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kafka
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+  namespace: kafka
+  labels:
+    app: kafka
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: apache/kafka:3.9.1
+          ports:
+            - containerPort: 9092
+            - containerPort: 9094
+          env:
+            # KRaft mode (no Zookeeper): the image only enables KRaft when these
+            # are set explicitly; otherwise it demands zookeeper.connect.
+            - name: KAFKA_PROCESS_ROLES
+              value: "broker,controller"
+            - name: KAFKA_NODE_ID
+              value: "1"
+            - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+              value: "1@localhost:9093"
+            - name: KAFKA_CONTROLLER_LISTENER_NAMES
+              value: "CONTROLLER"
+            - name: KAFKA_LISTENERS
+              value: "PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094"
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://kafka.kafka.svc.cluster.local:9092,EXTERNAL://localhost:9094"
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT"
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+            # Heap tuned for the shared kind node; default 1G is wasteful for dev.
+            - name: KAFKA_HEAP_OPTS
+              value: "-Xms512M -Xmx512M"
+          resources:
+            requests:
+              memory: 768Mi
+              cpu: 250m
+            limits:
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: kafka
+  labels:
+    app: kafka
+spec:
+  selector:
+    app: kafka
+  ports:
+    - name: plaintext
+      port: 9092
+      targetPort: 9092
+    - name: external
+      port: 9094
+      targetPort: 9094

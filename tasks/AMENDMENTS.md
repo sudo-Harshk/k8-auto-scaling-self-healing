@@ -8,6 +8,33 @@ All times IST.
 
 ---
 
+## 2026-08-18 — Kafka via official apache/kafka image, not Bitnami chart (Day 4)
+
+**What changed**
+- `ops/manifests/kafka.yaml` deploys single-node KRaft Kafka from the official
+  `apache/kafka:3.9.1` image (plain Deployment + ClusterIP Service) instead of the
+  Bitnami Kafka Helm chart named in the Day-4 plan. Topic `k8s-metrics` (1
+  partition, RF 1) per plan.
+- Two listeners: `PLAINTEXT` :9092 advertised as `kafka.kafka.svc.cluster.local`
+  (in-cluster clients, e.g. Day-5 Faust) and `EXTERNAL` :9094 advertised as
+  `localhost` (host-side clients via port-forward).
+- Storage ephemeral (`/tmp/kraft-combined-logs` on the container layer); the
+  metrics stream is transient and the Day-6 dataset persists to CSV, not Kafka.
+
+**Why**
+Bitnami moved its container catalog behind a paid tier (Aug 2025); the official
+Apache image is free and KRaft-native. A raw manifest also avoids pulling in
+Strimzi/operator machinery for a single dev broker.
+
+**Side effects / gotchas**
+- The image only enables KRaft when `KAFKA_PROCESS_ROLES`, `KAFKA_NODE_ID`,
+  `KAFKA_CONTROLLER_QUORUM_VOTERS`, `KAFKA_CONTROLLER_LISTENER_NAMES` are set
+  explicitly; otherwise it fails demanding `zookeeper.connect`.
+- kafka-*.sh tools inside the pod need `env KAFKA_HEAP_OPTS="-Xms128M -Xmx128M"`;
+  they inherit the broker's 512M heap env and OOM at the 1Gi pod limit otherwise.
+
+---
+
 ## 2026-08-18 — Environment migrated to Azure VM (canonical for Days 4-14)
 
 **What changed**

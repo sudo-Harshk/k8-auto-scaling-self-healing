@@ -57,7 +57,7 @@ each day is committed and tagged.
 - [x] Day 1 - Cluster & Workload Deployment
 - [x] Day 2 - Monitoring Stack
 - [x] Day 3 - Metrics API & Baseline Load Test
-- [ ] Day 4 - Kafka Streaming Pipeline
+- [x] Day 4 - Kafka Streaming Pipeline
 - [ ] Day 5 - Faust Stream Processor
 - [ ] Day 6 - Feature Engineering & Dataset
 - [ ] Day 7 - Replica Prediction Model
