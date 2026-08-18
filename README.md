@@ -16,7 +16,7 @@ Three Kafka topics thread it together: `k8s-metrics` -> `k8s-features` -> `k8s-d
 
 ## Stack
 
-- **Infra:** kind, Docker Desktop, Helm 3, kubectl
+- **Infra:** Azure VM, kind, Docker CE, Helm 3, kubectl
 - **Benchmark:** stefanprodan/podinfo v6.14.1 (lightweight Go microservice, built-in Prometheus `/metrics` + `/fault_injection/enable`)
 - **Streaming:** Kafka (Bitnami, KRaft mode), Faust
 - **Operator:** Kopf (Python) + kubernetes client
@@ -25,6 +25,15 @@ Three Kafka topics thread it together: `k8s-metrics` -> `k8s-features` -> `k8s-d
 - **Chaos:** LitmusChaos
 - **Load:** Locust
 - **Monitoring:** Prometheus / Grafana / kube-state-metrics
+
+## Infrastructure
+
+Canonical environment (Days 4-14): Azure `Standard_D4as_v5` (4 vCPU AMD EPYC x86-64,
+16 GB RAM, 64 GB Standard SSD), Ubuntu 24.04 LTS, cgroup v2, Central India.
+kind v1.30.0 single-node cluster; Python services run in the shared `k8-ai-ops:dev`
+image. Access is SSH-key-only (port 22); Grafana/Prometheus are reached via
+`ssh -L` tunnels. VM auto-shuts-down daily at 23:00 IST. The Windows laptop setup
+(Days 1-3) remains as a demo fallback. See `tasks/AMENDMENTS.md` (2026-08-18).
 
 ## Layout
 

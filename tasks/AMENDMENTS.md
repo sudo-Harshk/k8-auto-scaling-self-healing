@@ -8,6 +8,46 @@ All times IST.
 
 ---
 
+## 2026-08-18 — Environment migrated to Azure VM (canonical for Days 4-14)
+
+**What changed**
+- Canonical environment moved from the Windows laptop (Docker Desktop/WSL2) to an
+  Azure VM: `Standard_D4as_v5` (4 vCPU AMD EPYC x86-64 / 16 GB RAM / 64 GB Standard
+  SSD), Ubuntu 24.04 LTS, cgroup v2, Central India. Hardened: SSH-key-only auth,
+  ufw (port 22 only), daily auto-shutdown 23:00 IST, budget alerts at $10/$25.
+  Repo cloned to `~/k8-auto-scaling-self-healing`; kind cluster + podinfo +
+  monitoring + ServiceMonitor replayed from committed manifests, unchanged.
+- Day-3 baseline **re-captured on the Azure VM**: `data/baseline_metrics.csv` and
+  `logs/locust_baseline_stats.csv` now hold the Azure run (1,479 reqs, 0 failures,
+  median 2 ms, ~5.7 req/s steady state). The laptop run is superseded but preserved
+  in git history (commit d6154ec).
+- Container run pattern on the VM: `docker run --rm --network host` with
+  `PROMETHEUS_URL=http://localhost:9090` / `LOCUST_HOST=http://localhost:8070`
+  env overrides. Linux Docker has no built-in `host.docker.internal`; host
+  networking via loopback is simpler and traffic never leaves the VM.
+
+**Why**
+The laptop (6 cores, 7.3 GB RAM, Docker Desktop WSL2 VM capped ~3.6 GB) cannot hold
+the full Day-13 stack (~4.5 GB); Docker Desktop already crashed once under the
+Day-3 load. A second laptop (3.7 GB RAM, 2-core AMD A6) was evaluated and also
+failed the bar. `D4as_v5` was chosen over B-series because burstable VMs throttle
+under the sustained CPU this project generates (control plane + Prometheus +
+Kafka + Locust); its dedicated cores give predictable demo performance, and it is
+cheaper per hour than `B4ms`. Azure B-series was quota-blocked for this free
+account in India regions; `D4as_v5` was available in Central India.
+
+**Side effect**
+- kind node image stays pinned at `kindest/node:v1.30.0` (works fine on cgroup v2;
+  preserves reproducibility with Days 1-3).
+- Grafana/Prometheus are reached from the laptop via SSH tunnels (`ssh -L`);
+  NSG + ufw expose only port 22 publicly.
+- kind CLI on the VM is v0.33.0-alpha (upstream `/latest/` resolved to it);
+  cluster creation verified healthy — revisit if instability appears.
+- VM-side git syncs via `git pull`; commits/pushes happen on the laptop where
+  GitHub SSH auth lives.
+
+---
+
 ## 2026-08-17 — Python runs inside shared Docker image, not host venv (Day 3)
 
 **What changed**
