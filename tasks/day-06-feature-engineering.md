@@ -99,3 +99,11 @@ the 4-vCPU / 16 GiB VM would be near 0% and useless as ML features.
 Running `k8-ai-ops:dev python src/features/feature_builder.py` fails — the image
 entrypoint is already `python`, so the command becomes `python python ...`. The
 correct form drops the explicit `python`: `k8-ai-ops:dev src/features/feature_builder.py`.
+
+### Known limitation: p95_latency_ms has zero variance
+`p95_latency_ms` is 4.75 ms in all 55 rows — podinfo (trivial Go server, no backend
+deps) never exceeds ~5 ms p95 even under 100 Locust users. The query is verified
+correct; the workload simply has nothing to measure. Kept in the dataset (harmless;
+Days 7–9 models will learn to ignore it). **Rework planned post-completion:** after
+all 14 days are done, redo dataset + evaluation with a realistic microservice that
+has backend dependencies. See `tasks/AMENDMENTS.md` (2026-08-20 known limitation).

@@ -8,6 +8,40 @@ All times IST.
 
 ---
 
+## 2026-08-20 — KNOWN LIMITATION: p95_latency_ms is constant (zero variance) with podinfo
+
+**Observation**
+In the Day-6 dataset (`data/features.csv`, 55 rows across 4 load scenarios),
+`p95_latency_ms` is **4.75 ms in every single row** — baseline (10 users), spike
+(100 users), steady-high (50 users), and idle alike. Zero variance.
+
+**Root cause**
+podinfo is a trivial Go HTTP server with **no backend dependencies** — no database,
+no external API calls, no queues. It renders responses in microseconds, so even 100
+concurrent Locust users cannot push its p95 latency above ~5 ms. The latency feature
+simply has nothing to measure. This is a property of the workload, not a pipeline bug
+(the `histogram_quantile` query is verified working; it just has nothing to vary).
+
+**Impact on the project**
+- Day 7 (replica predictor): River-ML will learn the feature has no predictive power
+  and ignore it. Harmless.
+- Day 8 (anomaly detector): anomalies are carried by `cpu_percent` and
+  `request_rate`, which show strong variance (0.4% → 13.3% and 0.73 → 51.4 req/s
+  respectively). No impact.
+- Day 9 (SHAP): p95 will report ~zero contribution. An honest but empty explanation
+  component.
+
+**Resolution plan — POST-COMPLETION REWORK (user decision, 2026-08-20)**
+**Do not fix now.** Proceed through all 14 days with podinfo. After the full project
+is complete and verified end-to-end, redo the dataset + evaluation with a realistic
+microservice that has backend dependencies (e.g., a service backed by a database or
+simulated async processing) so p95 latency varies meaningfully under load. The
+pipeline itself (Prometheus → Kafka → Faust → models → operator) is
+workload-agnostic, so the rework only swaps the workload manifest and re-runs
+Days 3, 6, 13, 14 data capture.
+
+---
+
 ## 2026-08-20 — p95 latency added to the metrics pipeline (Day 6)
 
 **What changed**
