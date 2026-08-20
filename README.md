@@ -70,7 +70,7 @@ each day is committed and tagged.
 - [x] Day 3 - Metrics API & Baseline Load Test
 - [x] Day 4 - Kafka Streaming Pipeline
 - [x] Day 5 - Faust Stream Processor
-- [ ] Day 6 - Feature Engineering & Dataset
+- [x] Day 6 - Feature Engineering & Dataset
 - [ ] Day 7 - Replica Prediction Model
 - [ ] Day 8 - Anomaly Detection Model
 - [ ] Day 9 - Decision Engine & SHAP Explainability

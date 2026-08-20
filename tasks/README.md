@@ -25,12 +25,12 @@ This folder contains day-by-day tasks to build the M.Tech project **"AI-Driven K
 
 ## Daily Checklist
 
-- [ ] Day 1 — Cluster & Workload Deployment
-- [ ] Day 2 — Monitoring Stack
-- [ ] Day 3 — Metrics API & Baseline Load Test
-- [ ] Day 4 — Kafka Streaming Pipeline
-- [ ] Day 5 — Faust Stream Processor
-- [ ] Day 6 — Feature Engineering & Dataset
+- [x] Day 1 — Cluster & Workload Deployment
+- [x] Day 2 — Monitoring Stack
+- [x] Day 3 — Metrics API & Baseline Load Test
+- [x] Day 4 — Kafka Streaming Pipeline
+- [x] Day 5 — Faust Stream Processor
+- [x] Day 6 — Feature Engineering & Dataset
 - [ ] Day 7 — Replica Prediction Model
 - [ ] Day 8 — Anomaly Detection Model
 - [ ] Day 9 — Decision Engine & SHAP Explainability
