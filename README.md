@@ -18,7 +18,7 @@ Three Kafka topics thread it together: `k8s-metrics` -> `k8s-features` -> `k8s-d
 
 - **Infra:** Azure VM, kind, Docker CE, Helm 3, kubectl
 - **Benchmark:** stefanprodan/podinfo v6.14.1 (lightweight Go microservice, built-in Prometheus `/metrics` + `/fault_injection/enable`)
-- **Streaming:** Kafka (Bitnami, KRaft mode), Faust
+- **Streaming:** Kafka (apache/kafka:3.9.1 KRaft, no Zookeeper), Faust (faust-streaming 0.11.3)
 - **Operator:** Kopf (Python) + kubernetes client
 - **ML:** River-ML (online), SHAP
 - **Safety:** TLA+ / PlusCal + TLC
@@ -69,7 +69,7 @@ each day is committed and tagged.
 - [x] Day 2 - Monitoring Stack
 - [x] Day 3 - Metrics API & Baseline Load Test
 - [x] Day 4 - Kafka Streaming Pipeline
-- [ ] Day 5 - Faust Stream Processor
+- [x] Day 5 - Faust Stream Processor
 - [ ] Day 6 - Feature Engineering & Dataset
 - [ ] Day 7 - Replica Prediction Model
 - [ ] Day 8 - Anomaly Detection Model

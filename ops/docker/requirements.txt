@@ -16,8 +16,11 @@ numpy==1.26.4
 # ----- Day 4: Kafka producer/consumer -----
 kafka-python==2.0.2
 
+# ----- Day 5: Faust stream processor -----
+faust-streaming==0.11.3
+aiokafka==0.10.0
+
 # Future days add deps as components come online:
-#   Day 5: faust-streaming==0.10.11     (Faust stream processor)
 #   Day 7: river==0.24.0                (online ML regression + anomaly)
 #   Day 9: shap==0.46.0, scikit-learn   (decision explainability)
 #  Day 12: kopf==1.37.2, kubernetes     (Kopf operator + k8s client)

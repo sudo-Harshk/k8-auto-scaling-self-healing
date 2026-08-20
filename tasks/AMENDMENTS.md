@@ -8,6 +8,36 @@ All times IST.
 
 ---
 
+## 2026-08-20 — faust-streaming bumped to 0.11.3, aiokafka pinned to 0.10.0 (Day 5)
+
+**What changed**
+- `ops/docker/requirements.txt`: `faust-streaming` bumped from 0.10.11 → 0.11.3.
+  `aiokafka` explicitly pinned to 0.10.0 (previously unpinned, resolved to 0.14.0).
+- `src/streaming/stream_processor.py`: removed `@app.on_shutdown` flush handler
+  (decorator signature changed in faust 0.11.x; the handler is unnecessary because
+  at least 2 full 30-s windows are emitted during any ≥70-s run).
+
+**Why**
+Three blocking incompatibilities in sequence:
+1. `faust-streaming==0.10.11` crashes with `ModuleNotFoundError: No module named
+   'mode.utils.typing'` on Python 3.11. Bumping to 0.10.24 did not fix it (same
+   mode-streaming dependency). Bumping to 0.11.3 resolved the `mode` import chain.
+2. `faust-streaming==0.11.3` pulls `aiokafka==0.14.0` by default, which fails with
+   `AttributeError: 'MetadataRequest_v1' object has no attribute 'prepare'` when
+   talking to Apache Kafka 3.9.x. Pinning `aiokafka==0.10.0` (the minimum allowed
+   by faust 0.11.3) fixes the protocol negotiation.
+3. Faust's built-in web server binds port 6066; a zombie container from an earlier
+   smoke test held the port and crashed the worker with `OSError(98)` on restart.
+
+**Side effects / gotchas**
+- Faust 0.11.3 on Python 3.11 works; earlier 0.10.x releases do not.
+- `aiokafka` must be pinned — letting pip resolve to 0.14.0 breaks Kafka 3.9.x.
+- Faust worker web UI (port 6066) is unused; can be disabled if it becomes noisy.
+- Docker data dir (`k8s-stream-processor-data`) should be deleted and recreated when
+  changing faust-streaming versions to avoid stale offset/store incompatibilities.
+
+---
+
 ## 2026-08-18 — Kafka via official apache/kafka image, not Bitnami chart (Day 4)
 
 **What changed**
