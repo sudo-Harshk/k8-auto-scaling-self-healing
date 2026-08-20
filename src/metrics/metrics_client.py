@@ -22,6 +22,7 @@ Usage as a library:
 """
 from __future__ import annotations
 
+import math
 import os
 import logging
 from datetime import datetime, timezone
@@ -61,6 +62,12 @@ QUERIES = {
     "available_replicas":
         'kube_deployment_status_replicas_available{namespace="%s",deployment="%s"}'
         % (WORKLOAD_NAMESPACE, WORKLOAD_DEPLOYMENT),
+    # p95 request latency in milliseconds over the last 1m, from podinfo's
+    # http_request_duration_seconds histogram. Added Day 6 for the feature vector;
+    # additive only - existing keys are unchanged.
+    "p95_latency_ms":
+        'histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket'
+        '{namespace="%s"}[1m])) by (le)) * 1000' % WORKLOAD_NAMESPACE,
 }
 
 
@@ -97,8 +104,11 @@ class PodinfoMetricsClient:
         if not result:
             return 0.0
         # Prometheus returns a list of (timestamp, value-string) pairs. We take the
-        # first series and its latest value.
-        return float(result[0]["value"][1])
+        # first series and its latest value. histogram_quantile on an all-zero
+        # histogram (e.g. idle, no requests in the window) yields NaN - map to 0.0
+        # so downstream JSON stays valid and Faust accumulation never sees NaN.
+        value = float(result[0]["value"][1])
+        return 0.0 if math.isnan(value) else value
 
     def get_current_metrics(self) -> dict[str, Any]:
         """Return one snapshot of the podinfo workload metrics as a dict."""
@@ -130,6 +140,7 @@ def _format_snapshot(snapshot: dict[str, Any]) -> str:
         "error_rate_per_s",
         "current_replicas",
         "available_replicas",
+        "p95_latency_ms",
     ):
         v = snapshot.get(key)
         if v is None:

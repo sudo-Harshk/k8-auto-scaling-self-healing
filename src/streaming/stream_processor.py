@@ -41,7 +41,8 @@ TOPIC_IN = os.environ.get("KAFKA_TOPIC_IN", "k8s-metrics")
 TOPIC_OUT = os.environ.get("KAFKA_TOPIC_OUT", "k8s-features")
 WINDOW_S = 30
 
-# The six metric fields from Day-3 QUERIES; these are averaged per window.
+# The metric fields from Day-3 QUERIES (+ p95_latency_ms added Day 6); these are
+# averaged per window.
 METRIC_KEYS = [
     "cpu_cores",
     "memory_bytes",
@@ -49,6 +50,7 @@ METRIC_KEYS = [
     "error_rate_per_s",
     "current_replicas",
     "available_replicas",
+    "p95_latency_ms",
 ]
 
 # ---------------------------------------------------------------------------
@@ -135,7 +137,9 @@ async def process(stream: faust.Stream) -> None:  # type: ignore[type-arg]
                 _buckets[bucket] = {k: 0.0 for k in METRIC_KEYS}
                 _buckets[bucket]["_n"] = 0
             for k in METRIC_KEYS:
-                _buckets[bucket][k] += msg.get(k, 0.0)
+                # `or 0.0` guards against JSON nulls (metrics_client writes None
+                # when a Prometheus query hiccups) which would poison the sum.
+                _buckets[bucket][k] += float(msg.get(k) or 0.0)
             _buckets[bucket]["_n"] += 1
 
         except Exception as exc:

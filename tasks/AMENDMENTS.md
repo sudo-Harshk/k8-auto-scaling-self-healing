@@ -8,6 +8,33 @@ All times IST.
 
 ---
 
+## 2026-08-20 — p95 latency added to the metrics pipeline (Day 6)
+
+**What changed**
+- `src/metrics/metrics_client.py`: added `p95_latency_ms` to `QUERIES`
+  (`histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{...}[1m]))
+  by (le)) * 1000`). NaN results (idle histograms) are mapped to 0.0 so downstream
+  JSON/Faust never sees NaN. **Additive only** — the six Day-3 fields are unchanged.
+- `src/streaming/stream_processor.py`: `METRIC_KEYS` extended with
+  `p95_latency_ms`; accumulation hardened with `float(msg.get(k) or 0.0)` so JSON
+  nulls (metrics_client writes None on a Prometheus hiccup) can't poison a window.
+- Feature percentages in `feature_builder.py` are computed against podinfo's own
+  pod limits (100m CPU / 128Mi per replica), **not** node capacity — node-relative
+  percentages on the 4 vCPU / 16 GiB VM would be ~0% and useless as ML features.
+- The Day-6 plan's single `feature_builder.py -> features.csv` step is split into
+  two scripts: `feature_builder.py` (per-scenario JSONL capture, one fresh Kafka
+  consumer group per run so scenarios don't bleed into each other's offsets) and
+  `build_dataset.py` (merge + label + target_replicas -> features.csv). A ~40s
+  settle gap between scenarios keeps window-boundary bleed to at most one window.
+
+**Why**
+- p95 latency is a Day-6 feature-vector column (`p95_latency_ms`) and a useful
+  anomaly signal for Day 8; it was missing from the Day-3 locked QUERIES.
+- Splitting capture from labeling lets each scenario run unattended with a hard
+  timeout and keeps the labeling policy in one reviewable place.
+
+---
+
 ## 2026-08-20 — faust-streaming bumped to 0.11.3, aiokafka pinned to 0.10.0 (Day 5)
 
 **What changed**
