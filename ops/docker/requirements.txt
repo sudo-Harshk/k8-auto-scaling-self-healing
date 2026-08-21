@@ -11,7 +11,7 @@ prometheus-api-client==0.5.5
 requests==2.32.3
 locust==2.31.1
 pandas==2.2.3
-numpy==1.26.4
+numpy==2.4.6
 
 # ----- Day 4: Kafka producer/consumer -----
 kafka-python==2.0.2
@@ -20,7 +20,9 @@ kafka-python==2.0.2
 faust-streaming==0.11.3
 aiokafka==0.10.0
 
+# ----- Day 7: River online ML (replica predictor + anomaly detector) -----
+river==0.26.0
+
 # Future days add deps as components come online:
-#   Day 7: river==0.24.0                (online ML regression + anomaly)
 #   Day 9: shap==0.46.0, scikit-learn   (decision explainability)
 #  Day 12: kopf==1.37.2, kubernetes     (Kopf operator + k8s client)

@@ -52,3 +52,40 @@ python src/models/replica_predictor.py
 ```
 
 Expected result: script prints predicted vs actual replica counts and final MAE.
+
+---
+
+## Execution Notes (2026-08-20)
+
+### Model choice
+HoeffdingAdaptiveTreeRegressor per the plan's first option. Handles the
+threshold-pattern target (1/2/4) better than LinearRegression.
+
+### Training results (55 rows, predict-then-learn)
+- **Final MAE: 0.2364** (well under the plan's bar of < 1.0)
+- Trained on 55 samples, saved to `data/replica_model.pkl`
+- Smoke test on hand-crafted features:
+  - spike-like (51 req/s) → predicts 4
+  - baseline-like (5 req/s) → predicts 1
+  - idle-like (0.7 req/s) → predicts 1
+  - overload (80 req/s) → predicts 6 (extrapolates sensibly)
+
+### Pipeline architecture
+`compose.Pipeline(preprocessing.StandardScaler(), tree.HoeffdingAdaptiveTreeRegressor(grace_period=50, max_depth=8, seed=42))`.
+
+### River 3.11 compat patch
+Required — see `tasks/AMENDMENTS.md` (2026-08-20). One-line sed after `pip install`.
+
+### ReplicaPredictor public API
+- `predict(features_dict) -> int` (rounded + clamped to [min_replicas, max_replicas])
+- `predict_raw(features_dict) -> float | None` (unrounded, for SHAP/Day 9)
+- `learn(features_dict, target_replicas)`
+- `save(path)` / `ReplicaPredictor.load(path)` (pickle)
+- `trained_count` property
+
+### Gotchas
+- Cold start: `predict_one` returns `None` until the model has seen at least one row.
+  Public `predict()` returns the midpoint of the allowed range until then.
+- `from src.models.replica_predictor import ReplicaPredictor` requires `PYTHONPATH=/code`
+  when running inside the container (the Dockerfile's WORKDIR is /code but the `src`
+  package needs to be on `sys.path`).

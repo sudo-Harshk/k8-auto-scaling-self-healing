@@ -31,7 +31,7 @@ This folder contains day-by-day tasks to build the M.Tech project **"AI-Driven K
 - [x] Day 4 — Kafka Streaming Pipeline
 - [x] Day 5 — Faust Stream Processor
 - [x] Day 6 — Feature Engineering & Dataset
-- [ ] Day 7 — Replica Prediction Model
+- [x] Day 7 — Replica Prediction Model
 - [ ] Day 8 — Anomaly Detection Model
 - [ ] Day 9 — Decision Engine & SHAP Explainability
 - [ ] Day 10 — TLA+ Safety Shield Specification

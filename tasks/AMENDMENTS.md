@@ -8,6 +8,39 @@ All times IST.
 
 ---
 
+## 2026-08-20 — River 0.26.0 installed via one-line source patch on Python 3.11 (Day 7)
+
+**What changed**
+- `ops/docker/requirements.txt`: `numpy` bumped 1.26.4 → 2.4.6 (river 0.26.0's hard
+  floor), `river` added at 0.26.0 (latest stable — 0.24.0 was yanked).
+- `ops/docker/Dockerfile`: kept `python:3.11-slim` base, added a 1-line `sed`
+  patch after `pip install` that strips the 3.12 typing syntax from
+  `river/stream/iter_csv.py`:
+
+```
+class DictReader(csv.DictReader["FeatureName"]):   # 3.12-only, breaks on 3.11
+        → class DictReader(csv.DictReader):        # works on both, loses only the type hint
+```
+
+**Why**
+River 0.10.0 through 0.26.0 all ship cp311 wheels whose source uses PEP 695
+generic syntax (`csv.DictReader["FeatureName"]`) — a 3.12-only feature. Every
+river import path that touches `tree` (HoeffdingAdaptiveTreeRegressor)
+transitively loads `iter_csv`, so the whole module is unimportable on 3.11.
+Upgrading to 3.12 instead would have broken `kafka-python 2.0.2` (vendored six
+broken on 3.12) and Faust's still-unverified 3.12 status. The patch keeps the
+existing 3.11 stack intact and removes only the static type hint (no runtime
+effect).
+
+**Side effects / gotchas**
+- The patch must run AFTER `pip install`; re-ordering breaks the build.
+- `from src.models.replica_predictor import ReplicaPredictor` requires
+  `PYTHONPATH=/code` or running from the `/code` directory with `src` on the
+  path. The container's WORKDIR is `/code` but `sys.path` doesn't include it
+  automatically for `from src...` imports.
+
+---
+
 ## 2026-08-20 — KNOWN LIMITATION: p95_latency_ms is constant (zero variance) with podinfo
 
 **Observation**
