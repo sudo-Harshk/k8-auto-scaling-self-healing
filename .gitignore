@@ -14,6 +14,7 @@ data/*
 logs/*
 !logs/.gitkeep
 !logs/locust_baseline_stats.csv
+!logs/decisions.log
 
 # ===== Python =====
 __pycache__/

@@ -8,6 +8,44 @@ All times IST.
 
 ---
 
+## 2026-08-21 — Decision Engine uses perturbation-based feature importance, not SHAP (Day 9)
+
+**What changed**
+- `src/decision/decision_engine.py`: new module. `DecisionEngine` class
+  combines the Day-7 replica predictor and Day-8 anomaly detector into
+  a single decision rule with publishing to Kafka topic `k8s-decisions`
+  and logging to `logs/decisions.log`.
+- Offline mode (`--offline`) reads `data/features.csv` and produces one
+  decision per row; online mode consumes `k8s-features` from Kafka and
+  publishes to `k8s-decisions`.
+- Top-2 features are explained via leave-one-out perturbation (replace
+  feature with column mean, recompute prediction, take |delta|).
+
+**Why**
+The plan listed "shap or River feature importances as fallback". SHAP's
+`TreeExplainer` is XGBoost/sklearn-only; SHAP's `KernelExplainer` is
+model-agnostic but slow (~seconds per call) and unsuitable for an
+online loop. The perturbation approach is also model-agnostic, runs in
+milliseconds, and is well-established in the interpretability literature
+(Fisher, Rudin, Dominick 2018; "All Models are Wrong but Many are Useful").
+The replicated-replica data pipeline produces feature means at every
+window, so the column-mean reference is always available.
+
+**No new dependencies.** `shap` and `scikit-learn` were the planned
+additions for Day 9 (`requirements.txt` line 27) — neither was added.
+The decision engine is pure Python.
+
+**Side effects / gotchas**
+- The decision object schema is now locked for Day 12 (Kopf operator).
+  See `tasks/day-09-decision-engine-and-shap.md` execution notes.
+- Heal action is intentionally scale-neutral: `target_replicas` equals
+  `current_replicas`. The operator interprets this as "delete the
+  unhealthy pod, don't change replica count".
+- Kafka publishing path uses the same `KafkaProducer` class as Day 4
+  (kafka-python 2.0.2, `localhost:9094` host-side port-forward).
+
+---
+
 ## 2026-08-21 — HalfSpaceTrees `window_size` tuned to 10 for the 33-row dataset (Day 8)
 
 **What changed**
