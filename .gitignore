@@ -10,6 +10,7 @@ data/*
 !data/baseline_metrics.csv
 !data/features.csv
 !data/replica_model.pkl
+!data/anomaly_model.pkl
 logs/*
 !logs/.gitkeep
 !logs/locust_baseline_stats.csv

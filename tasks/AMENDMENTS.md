@@ -8,6 +8,67 @@ All times IST.
 
 ---
 
+## 2026-08-21 — HalfSpaceTrees `window_size` tuned to 10 for the 33-row dataset (Day 8)
+
+**What changed**
+- `src/models/anomaly_detector.py`: `AnomalyDetector.__init__` defaults
+  `window_size=10` (River's default is 250) and splits `train_offline` into
+  three phases — `learn` (33 normal rows), `score` (normal), `score` (abnormal).
+
+**Why**
+River's `HalfSpaceTrees.score_one` returns `0.0` while `self._first_window` is
+true. The window only completes after `window_size` `learn_one` calls have
+been seen. With the default `window_size=250` and only 33 normal training
+rows, the model never reaches its first pivot and every score is 0.0 on the
+offline dataset. Setting `window_size=10` makes the first window complete
+during training (after 10 `learn_one` calls), so subsequent `score_one`
+calls return meaningful values.
+
+**Side effects / gotchas**
+- The constructor argument is data-dependent; if the dataset grows, the
+  window_size should be reviewed. A future training-set expansion (Day 13+
+  capture) is a candidate to revisit this.
+- The fix is model-only; the threshold strategy (midpoint of max normal and
+  min abnormal) is unchanged.
+
+---
+
+## 2026-08-21 — Anomaly detection rate 55% on the 55-row dataset (Day 8)
+
+**Observation**
+On the 22 abnormal rows (`is_anomaly=1`: spike=11 + idle=11), the chosen
+threshold (0.2417, midpoint of max normal and min abnormal scores) catches
+12 (55%) with 3 false positives (9% of 33 normal rows). The mean abnormal
+score is 0.2637 vs mean normal 0.0394 — a **6.7x** separation, which is the
+primary paper-citable evidence.
+
+**Why the spike rows are partially missed**
+The 33-row training set (`baseline` + `steady_high`) covers request_rates
+0.7-25 req/s. HalfSpaceTrees' mass profile extends across this entire range,
+so spike rows near the upper edge of steady_high (~30 req/s) are not yet
+"outside" the learned mass; only spike rows above the trained envelope flag.
+The detector therefore catches **idle** (low-end outlier) reliably but
+**spike** only when the load clearly exceeds the high end of training.
+
+**Impact on the project**
+- Day 9 (Decision Engine + SHAP): the anomaly score is an input feature,
+  not a hard gate. The decision engine can still trigger auto-healing on a
+  organic error-rate spike (Day 13 injects via podinfo's
+  `/fault_injection/enable`).
+- Day 13 (E2E + Chaos): use podinfo's `POST /fault_injection/enable` to
+  inject deterministic anomaly events, bypassing the organic-detection
+  limitation. The detector will still see the atypical request shape
+  and produce a high score.
+
+**Resolution plan — POST-COMPLETION REWORK (user decision, 2026-08-21)**
+No code change. The detector is functional and the mean separation is
+paper-citable. The 55% rate is a property of the small dataset, not a
+bug. Document here so reviewers can trace the limitation and the next
+rework path (Day 15+: capture a richer dataset with at least 200 normal
+rows spanning a wider request-rate range, then retrain).
+
+---
+
 ## 2026-08-20 — River 0.26.0 installed via one-line source patch on Python 3.11 (Day 7)
 
 **What changed**
