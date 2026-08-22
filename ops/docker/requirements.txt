@@ -23,6 +23,11 @@ aiokafka==0.10.0
 # ----- Day 7: River online ML (replica predictor + anomaly detector) -----
 river==0.26.0
 
+# ----- Day 11: Safety Shield unit tests -----
+pytest==8.3.0
+pyyaml==6.0.1
+
 # Future days add deps as components come online:
-#   Day 9: shap==0.46.0, scikit-learn   (decision explainability)
+#   Day 9: shap==0.46.0, scikit-learn   (decision explainability - SKIPPED, used perturbation)
+#  Day 11: pytest==8.3.0                (safety shield unit tests)
 #  Day 12: kopf==1.37.2, kubernetes     (Kopf operator + k8s client)

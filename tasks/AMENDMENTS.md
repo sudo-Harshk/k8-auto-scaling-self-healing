@@ -8,6 +8,62 @@ All times IST.
 
 ---
 
+## 2026-08-22 — Safety Shield: Python implementation with 16 unit tests, invariant order matters (Day 11)
+
+**What changed**
+- `src/safety/safety_shield.py` (260 lines) — `SafetyShield` class
+  enforcing all five TLA+ invariants at runtime. Loads
+  `specs/safety_policy.yaml`.
+- `tests/test_safety_shield.py` (240 lines, 16 tests) — anti-drift
+  contract from Day 10: every invariant has a positive test (valid
+  action passes) and a negative test (intentional violation is caught).
+- `conftest.py` — adds `/code` to sys.path so pytest can import `src.X`.
+- `ops/docker/requirements.txt`: added `pytest==8.3.0`, `pyyaml==6.0.1`.
+- Docker image rebuilt (`k8-ai-ops:dev` new sha256).
+- `logs/safety_audit.log` — JSON audit trail, one line per `validate()`.
+
+**Why (deviation from plan)**
+
+The Day-11 plan listed step 4 as "modify decision_engine.py to pass every
+decision through the Safety Shield. Only approved/modified decisions are
+published to k8s-decisions." We did **not** wire the shield into the
+decision engine yet — instead we provided a clean integration smoke test
+(5 decisions through shield, all allowed). The decision engine integration
+is deferred to Day 12 (Kopf operator), where the shielded decision is the
+input to the operator's reconcile loop. Putting the integration there
+avoids a circular import (engine -> shield -> engine).
+
+**Test results:** 16 passed in 0.10s.
+
+**Gotchas (and fixes)**
+
+1. **Image entrypoint is `python`.** Running pytest via
+   `docker run k8-ai-ops:dev python -m pytest` becomes
+   `python python -m pytest`. Fix: use `--entrypoint python -m pytest`.
+2. **pytest can't import `src.X`.** Fix: `conftest.py` at the repo root
+   that adds the repo dir to `sys.path`. Same convention as the rest of
+   the project.
+3. **Invariant order matters.** First implementation applied max-clamp
+   before step-shrink. For target=15 from current=2, that gave
+   max→10 then shrink→4. Switching to step-shrink first gives
+   shrink→4 then max-clamp→no-op. Same end result, but the audit log
+   tells a clearer story: the danger is the step, not the absolute
+   value. We picked shrink-first.
+4. **Test for max-replicas clamp was too aggressive.** Initial test set
+   current=2 with target=15. Both step-shrink and max-clamp fire, and
+   the result is target=4 (shrunk) not target=10 (clamped). Fix: use
+   current=8 so the step to max (10) is exactly max_scale_step (2) and
+   only max-clamp fires.
+
+**Test isolation (anti-drift contract)**
+Eight of the 16 tests are **negative cases** that intentionally violate
+an invariant and verify the Python shield catches the violation. If any
+future code change breaks an invariant, the corresponding test will
+fail, signaling the spec also needs updating. This is the contract
+documented in `docs/SafetyShield.md` Section 9.
+
+---
+
 ## 2026-08-22 — TLA+ verified via CLI on the VM, not TLA+ Toolbox on Windows (Day 10)
 
 **What changed**
