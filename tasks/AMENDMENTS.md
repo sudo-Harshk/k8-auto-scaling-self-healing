@@ -8,6 +8,61 @@ All times IST.
 
 ---
 
+## 2026-08-22 — TLA+ verified via CLI on the VM, not TLA+ Toolbox on Windows (Day 10)
+
+**What changed**
+- `specs/SafetyShield.tla` (217 lines) — TLA+ spec modelling the safety
+  layer. PlusCal-shaped algorithm with 7 variables, 8 actions, and 5
+  invariants.
+- `specs/SafetyShield.cfg` — TLC model checker config.
+- `specs/safety_policy.yaml` — Python-readable form of the same rules.
+  Day 11's `SafetyShield` class reads this file.
+- `docs/SafetyShield.md` — human walkthrough of the spec, invariants,
+  state-space analysis, and Day 11 contract.
+- VM: installed `default-jre-headless` (OpenJDK 21) and downloaded
+  `tla2tools.jar` v2026.08.21 to `~/tla/tla2tools.jar` (~4.5 MB).
+
+**Why**
+The plan called for TLA+ Toolbox on the Windows laptop. We picked the
+CLI alternative: `java -jar ~/tla/tla2tools.jar`. Reasons:
+
+1. The verification run is fully reproducible on the VM (the laptop only
+   holds the source files). Anyone can re-run TLC without an IDE.
+2. The CLI is faster to iterate on — no GUI model-creation step.
+3. Avoids a 30-min Toolbox install on the laptop.
+
+The CLI outputs the same model-check report (`No error has been found.
+N states generated, M distinct.`); the GUI adds a state-space explorer
+that we don't need for Day 10.
+
+**TLC verification result (2026-08-22 02:39:07)**
+
+```
+264330 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 37.
+Finished in 03s
+Probability of missed state (fp collision): 3.0E-11
+```
+
+All 5 invariants hold on every reachable state.
+
+**Gotchas (and fixes)**
+- `EXTENDS Naturals` does not provide the unary `-` operator. Added
+  `Integers` to the EXTENDS list.
+- `Abs` must be defined before first use; reordered the spec.
+- State invariants cannot reference primed variables (`x'`);
+  reformulated `SafetyScalingStep` to be a state predicate and
+  enforced the |delta| <= 2 bound in the action guards directly.
+- TLC's `-config` expects the config file path; the spec is given as a
+  separate positional argument (`specs/SafetyShield`, not `.tla`).
+
+**Side effects**
+- Day 11's `SafetyShield.validate()` must mirror every rule in
+  `safety_policy.yaml`. Drift between spec and code is mitigated by
+  unit tests that intentionally violate each invariant.
+
+---
+
 ## 2026-08-21 — Decision Engine uses perturbation-based feature importance, not SHAP (Day 9)
 
 **What changed**

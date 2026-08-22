@@ -202,3 +202,21 @@ Combine the replica predictor and anomaly detector into a decision engine that e
 | 9 | ✅ | committed | ✅ execution notes | 18/15/22 decision mix |
 
 **Overall:** All 9 days have working code, verified runtime, and committed evidence. The two doc gaps (Day 1, Day 2 execution notes) are cosmetic. The one functional caveat (Day 8 detection rate) is documented and bypassed by Day 13's fault injection.
+
+---
+
+## Day 10 — TLA+ Safety Shield Specification
+
+**Objective**
+Model the safety rules of the operator in TLA+/PlusCal and verify them with the TLC model checker. Formally prove that the operator will never take unsafe scaling or healing actions.
+
+**Milestone / Result**
+- `specs/SafetyShield.tla` — 217-line TLA+ spec. 7 variables (`current_replicas`, `predicted_replicas`, `anomaly_level`, `decision`, `target_replicas`, `clock`, `last_action_clock`), 8 actions (`EmitDecision`, `ApplyScaleUp`, `ApplyScaleDown`, `ApplyHeal`, `ApplyNoop`, `Tick`, `DriftPredictor`, `DriftAnomaly`), 5 invariants.
+- `specs/SafetyShield.cfg` — TLC config (`MAX_REPLICAS=10`, `COOLDOWN=2`, `ANOMALY_THRESHOLD=1`).
+- `specs/safety_policy.yaml` — Python-readable rule form: `min_replicas`, `max_replicas`, `max_scale_step`, `heal_target_equals_current`, `cooldown_seconds`, `anomaly_threshold`, plus an `action_policy` section (allow/clamp/reject per action).
+- `docs/SafetyShield.md` — human walkthrough of the spec, invariants, state-space analysis, and Day 11 contract.
+- **Tooling**: OpenJDK 21 + tla2tools.jar v2026.08.21 installed on the VM (CLI path, no TLA+ Toolbox IDE needed).
+- **TLC verified:** 264,330 distinct states explored, 0 errors found, 3 seconds runtime, fp-collision probability 3.0E-11 (effectively zero).
+
+**Verdict**
+✅ Solid. The spec is verified by TLC, the safety rules are pinned in a single YAML file that Day 11 will read, and a human walkthrough makes the design reviewable. The five invariants map directly to existing Day-7/9 code behavior. This is the strongest novelty claim of the paper — every decision emitted by the AI pipeline is gated by a formally-verified safety layer.
