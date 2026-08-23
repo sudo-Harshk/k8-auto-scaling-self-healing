@@ -78,3 +78,51 @@ Check that you can answer these questions with data:
 - How quickly does it detect and heal a faulty pod?
 - What percentage of decisions were approved by the Safety Shield?
 - Did SLO compliance improve?
+
+---
+
+## Execution Plan (2026-08-23, finalized)
+
+### Phases (estimated 6–8 hours)
+
+| Phase | Task | Time |
+|-------|------|------|
+| 1 | HPA baseline install + smoke test | 45 min |
+| 2 | KEDA install (optional) + 3-way setup | 1 h |
+| 3 | Run comparison harness (HPA / KEDA / AI × 3 scenarios) | 3 h |
+| 4 | Ablation study (full AI / –SHAP / –Shield) | 1 h |
+| 5 | Thesis chapters (8 files in `docs/thesis/`) | 1.5 h |
+| 6 | PPT, demo script, reproducibility scripts | 45 min |
+
+### Metrics captured per scenario
+
+- `replicas` over time (Prometheus: `kube_deployment_spec_replicas`)
+- `request_rate` over time (Prometheus: `rate(http_requests_total[1m])`)
+- `cpu_percent` over time (Prometheus: `rate(container_cpu_usage_seconds_total[1m])`)
+- `p95_latency_ms` over time (Prometheus: `histogram_quantile(0.95, …)` — note: documented constant for podinfo; expected to vary after Day-16 rework)
+- `error_rate` over time (Prometheus: `rate(http_requests_total{status=~"5.."}[1m])`)
+- `scaling_lag_s` (time from load increase to first scale action)
+- `total_actions` (count of scale + heal actions per scenario)
+- `safety_rejected_count` (Safety Shield rejections per AI run)
+
+### Scenarios
+
+| Scenario | Users | Duration | Notes |
+|----------|-------|----------|-------|
+| Spike | 100 | 3 min | Ramp in 60 s |
+| Steady-high | 50 | 5 min | Constant load |
+| Idle | 10 | 2 min | Baseline |
+
+### Output files (filled during execution)
+
+- `data/evaluation/comparison_results.csv` — master comparison table
+- `data/evaluation/comparison_summary.md` — human-readable summary
+- `docs/thesis/01_abstract.md` … `09_conclusion.md` — thesis chapters
+- `docs/final_ppt.md` — slide outline
+- `docs/demo_script.md` — 5-min walkthrough
+- `scripts/run_comparison.sh` — reproducible harness
+- `scripts/swap_operator.sh` — disable/enable HPA / KEDA / AI
+
+### Deviation from original plan
+
+Original Day-14 plan was single-run, M.Tech style. **Expanded to a 3-day cycle (Day 14–16)** per user decision (see AMENDMENTS 2026-08-23). This page covers Day 14 only; Day 15 (statistical rigor N=3, liveness TLA+, larger training set) and Day 16 (p95-variability rework, IEEE paper draft, Grafana dashboard JSON) are tracked separately.

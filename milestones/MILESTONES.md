@@ -304,5 +304,86 @@ Wire all components together and prove auto-scaling under load and auto-healing 
 | 10 | ✅ | committed | ✅ execution notes | TLC verified 264K states, 0 errors |
 | 11 | ✅ | committed | ✅ execution notes | 16/16 unit tests pass |
 | 12 | ✅ | committed | ✅ execution notes | 8/8 unit tests + live smoke test passed |
+| 13 | ✅ | committed | ✅ execution notes | E2E pipeline + auto-healing proven |
+| 14 | 🔄 | docs ready | 🔄 in progress | scaffold only |
 
-**Overall:** All 12 days have working code, verified runtime, and committed evidence. The full pipeline (Prometheus → Kafka → Faust → Decision Engine → Safety Shield → Operator → Cluster) is built and the operator's core flow is verified. Days 13-14 will run the full pipeline end-to-end under load and chaos, then produce the HPA-vs-AI comparison.
+**Overall:** All 13 days have working code, verified runtime, and committed evidence. Days 14-16 (planned as one block) will: install HPA + KEDA baselines, run a 3-operator × 3-scenario comparison, retrain the anomaly detector on a larger dataset, add a liveness property to the TLA+ spec, swap podinfo for a DB-backed workload to fix p95 latency zero-variance, ship a 6-page IEEE paper draft, and produce a reproducible Grafana dashboard.
+
+---
+
+## Day 14 — Evaluation, Comparison Harness & Thesis Draft (scaffold)
+
+**Objective**
+Quantify the value of the AI-driven operator vs vanilla HPA (and optionally KEDA), and produce the M.Tech thesis draft + demo artifacts.
+
+**Milestone / Result** *(scaffold — values filled after Day 14 execution)*
+- `ops/manifests/podinfo-hpa.yaml` — HPA manifest (target CPU 70%, min=2, max=10)
+- `scripts/eval/keda-scaledobject.yaml` — KEDA Prometheus scaler (placeholder)
+- `scripts/run_comparison.sh` — evaluation harness (3 ops × 3 scenarios)
+- `docs/thesis/` — 9 chapter files (scaffold)
+- `docs/final_ppt.md` — 12-slide outline
+- `docs/demo_script.md` — 5-minute walkthrough
+- `data/evaluation/comparison_results.csv` — empty, columns ready
+- `data/evaluation/comparison_summary.md` — empty, structure ready
+
+**Verdict**
+📝 Scaffold ready. Day-14 execution will fill values into the prepared tables/chapters, then commit + tag.
+
+---
+
+## Day 15 — Statistical Rigor, Liveness & Reproducibility (planned)
+
+**Objective**
+Move paper from workshop-quality to real conference-quality by adding N=3 statistical rigor, a liveness property to the TLA+ spec, and a complete reproducibility script bundle.
+
+**Plan**
+- N=3 re-runs of all 9 scenario × operator combinations
+- Liveness property added to `specs/SafetyShield.tla`, re-verified by TLC
+- Concatenated dataset (Day-6 + Day-13 + Day-14 windows) used to retrain anomaly detector; new detection rate measured
+- 7 reproducibility scripts in `scripts/` (bootstrap, build, deploy, run, stop, swap, run_comparison)
+
+**Verdict**
+📋 Plan locked. See `tasks/day-15-statistical-rigor-liveness-reproducibility.md`.
+
+---
+
+## Day 16 — p95 Variability Rework, IEEE Paper Draft & Dashboard (planned)
+
+**Objective**
+Fix the largest paper limitation (p95 latency zero-variance), produce a 6-page IEEE-format paper draft, ship a reproducible Grafana dashboard JSON.
+
+**Plan**
+- Replace podinfo with a DB-backed Flask + SQLite workload (`ops/manifests/workload-v2.yaml`)
+- Re-capture Day-6 dataset on new workload (`data/features_v2.csv` with variable p95)
+- Retrain replica predictor and anomaly detector on the new dataset
+- Re-run Day-13 E2E + Day-15 N=3 with v2 models
+- `docs/ieee_paper.tex` — 6-page IEEE conference template
+- `docs/dashboard.json` — Grafana dashboard export
+
+**Verdict**
+📋 Plan locked. See `tasks/day-16-p95-variability-ieee-paper-dashboard.md`.
+
+---
+
+## Project wrap-up (post-Day-16)
+
+**Final state target**:
+- 16 days of commits + tags (`day-1` … `day-16`)
+- 24+ unit tests passing
+- 6-page IEEE paper draft
+- 8 thesis chapters
+- 7 reproducibility scripts
+- Grafana dashboard JSON
+- Full evaluation logs in `data/evaluation/`
+
+**Paper readiness after Day 16**:
+- Architecture: novel ✅
+- Pipeline: working end-to-end ✅
+- Comparison: HPA vs KEDA vs AI, N=3 ✅
+- Ablation: with/without SHAP, with/without Shield ✅
+- TLA+: safety + liveness ✅
+- Reproducibility: bootstrap in 30 min ✅
+- p95: variable (post-rework) ✅
+- Detection rate: 65%+ organic ✅
+
+**Output tier**: real conference paper (SCC, ICSOC, NCA, MASCOTS), with upward path to top venue (TPDS, TC) if numbers cooperate.

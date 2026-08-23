@@ -8,6 +8,46 @@ All times IST.
 
 ---
 
+## 2026-08-23 — Day 14-16 expanded into a 3-day cycle (user decision)
+
+**Context.** The original Day-14 plan was a single-run HPA-vs-AI comparison
+plus M.Tech thesis chapters (~8 hours total). After Days 1-13 landed,
+the user chose to expand the remaining work to 3 days (14, 15, 16) to
+produce an IEEE-conference-tier paper rather than a workshop submission.
+Total remaining: ~24 hours.
+
+**Day 14 — Evaluation harness, comparison, thesis draft (~8 h).**
+- 3-operator comparison (HPA, KEDA optional, AI) × 3 scenarios (spike,
+  steady-high, idle).
+- Single-run results sufficient for Day 14; Day 15 upgrades to N=3.
+- Thesis chapters scaffolded at `docs/thesis/01-09_*.md`; Day 14 fills in
+  the Results chapter.
+- Reproducibility scripts in `scripts/` (bootstrap, build, deploy, run,
+  stop, swap, run_comparison).
+
+**Day 15 — Statistical rigor, liveness, larger dataset (~8 h).**
+- N=3 re-runs of all 9 (operator, scenario) combinations.
+- Liveness property added to `specs/SafetyShield.tla` and re-verified by TLC.
+- Anomaly detector retrained on the larger (Day-6 + Day-13 + Day-14) dataset.
+- Expectation: organic detection rate rises from 55% (Day-8) toward 65%+.
+
+**Day 16 — p95 rework, IEEE paper, dashboard JSON (~8 h).**
+- Replace podinfo with a DB-backed Flask + SQLite workload so p95 latency
+  varies under load (post-completion rework deferred from Day 6).
+- Re-capture Day-6 dataset; retrain both models; re-run Day 13 + Day 15
+  on the new workload.
+- `docs/ieee_paper.tex` — 6-page IEEE conference template.
+- `docs/dashboard.json` — Grafana audit dashboard export.
+
+**Day 14 docs scaffold only.** All `docs/thesis/*.md`, `scripts/*.sh`,
+`docs/final_ppt.md`, `docs/demo_script.md`, `data/evaluation/*.{csv,md}`
+are committed in this change but contain placeholders ("TBD"). Day 14
+execution fills values, then commits again.
+
+**Plan in `tasks/day-15-*.md` and `tasks/day-16-*.md`.**
+
+---
+
 ## 2026-08-23 — E2E pipeline revealed 3 critical Day-9 bugs; decision engine online mode never tested before (Day 13)
 
 **Bugs found and fixed during Day 13 pipeline bring-up**

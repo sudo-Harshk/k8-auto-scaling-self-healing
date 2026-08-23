@@ -53,6 +53,8 @@ src/        Python services (metrics, streaming, features, models, decision, saf
 ops/        Infrastructure (kind config, k8s manifests, shared docker image)
 config/     Safety policy (derived from TLA+ spec)
 specs/      TLA+ specification + TLC config
+docs/       Walkthroughs, thesis chapters, IEEE paper draft, demo script, PPT outline
+scripts/    Reproducibility scripts (bootstrap, build, deploy, run, swap, run_comparison)
 data/       Captured metrics (baselines committed as evidence; live runs gitignored)
 logs/       Decision / audit logs (summary stats committed; raw run output gitignored)
 tasks/      Day-by-day build plan (source of truth)
@@ -79,3 +81,5 @@ each day is committed and tagged.
 - [x] Day 12 - Kubernetes Operator (Kafka actuator)
 - [x] Day 13 - End-to-End Integration & Chaos Testing
 - [ ] Day 14 - Evaluation, Dashboards & Final Documentation
+- [ ] Day 15 - Statistical Rigor, Liveness & Reproducibility
+- [ ] Day 16 - p95 Variability Rework, IEEE Paper Draft, Dashboard

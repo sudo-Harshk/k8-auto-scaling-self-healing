@@ -1,0 +1,1 @@
+timestamp,operator,scenario,run,users,duration_s,scaling_lag_s,total_scale_actions,total_heal_actions,p95_latency_ms_avg,p95_latency_ms_max,error_rate_avg,replicas_start,replicas_end,safety_rejected_count,notes
