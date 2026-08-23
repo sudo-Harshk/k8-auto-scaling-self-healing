@@ -27,7 +27,8 @@ river==0.26.0
 pytest==8.3.0
 pyyaml==6.0.1
 
+# ----- Day 12: Operator (kubernetes API client) -----
+kubernetes==29.0.0
+
 # Future days add deps as components come online:
 #   Day 9: shap==0.46.0, scikit-learn   (decision explainability - SKIPPED, used perturbation)
-#  Day 11: pytest==8.3.0                (safety shield unit tests)
-#  Day 12: kopf==1.37.2, kubernetes     (Kopf operator + k8s client)

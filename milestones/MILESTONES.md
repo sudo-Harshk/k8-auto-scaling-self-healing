@@ -246,6 +246,47 @@ Implement the Safety Shield as a Python validation service that checks every AI-
 
 ---
 
+## Day 12 — Kubernetes Operator (Kafka-driven actuator)
+
+**Objective**
+Build an operator that consumes validated decisions from Kafka and executes scaling or healing actions on the cluster.
+
+**Milestone / Result**
+- `src/kopf_operator/actuator.py` (~260 lines) — `K8sOperator` class (kubernetes client) + `run_operator()` Kafka consumer loop. Re-runs `SafetyShield.validate()` on each decision (defense in depth), then applies scale (patch Deployment) / heal (delete pod) / noop (log only).
+- `src/kopf_operator/publish_decision.py` (~80 lines) — CLI helper for injecting test decisions.
+- `tests/test_actuator.py` (8 tests) — payload parsing, audit log writing, modification parser.
+- `ops/docker/requirements.txt`: `kubernetes==29.0.0` added. Docker image rebuilt.
+- Smoke test on VM: `scale 2→4` (deployment scaled, 2 new pods spun up), `heal` (target pod deleted + recreated by k8s), `noop` (logged only). Audit log has 3 entries.
+- 8/8 unit tests pass; **24/24 combined** with Day 11 safety shield.
+
+**Deviation from plan (documented)**
+- **No Kopf.** Kopf was evaluated; skipped because the trigger source is Kafka, not Kubernetes resource watches. A plain consumer loop is the canonical pattern. Stack updated to "Python operator (kafka-python + kubernetes client)".
+- **Package renamed `operator` → `kopf_operator`.** Python's stdlib `operator` module was shadowed by `src/operator/operator.py`, breaking `enum`/`json` imports transitively.
+
+**Verdict**
+✅ Solid. The operator closes the AI scaling loop: Prometheus → Kafka → Faust → Decision Engine → Safety Shield → operator → cluster. Defense in depth: every action is re-validated by the Safety Shield before application. Audit log captures every decision (applied, rejected, noop). Smoke test demonstrates all three action types.
+
+---
+
+## Cumulative Day 1-12 Status
+
+| Day | Status | Code | Doc | Runtime |
+|-----|--------|------|-----|---------|
+| 1 | ✅ | committed | ✅ execution notes | running |
+| 2 | ✅ | committed | ✅ execution notes | running |
+| 3 | ✅ | committed | ✅ execution notes | baseline metrics captured |
+| 4 | ✅ | committed | ✅ execution notes | live producer working |
+| 5 | ✅ | committed | ✅ execution notes | live window emission verified |
+| 6 | ✅ | committed | ✅ execution notes | 55-row dataset |
+| 7 | ✅ | committed | ✅ execution notes | MAE 0.24 |
+| 8 | ⚠️ | committed | ✅ execution notes | 55% detection, 6.7× separation |
+| 9 | ✅ | committed | ✅ execution notes | 18/15/22 decision mix |
+| 10 | ✅ | committed | ✅ execution notes | TLC verified 264K states, 0 errors |
+| 11 | ✅ | committed | ✅ execution notes | 16/16 unit tests pass |
+| 12 | ✅ | committed | ✅ execution notes | 8/8 unit tests + live smoke test passed |
+
+**Overall:** All 12 days have working code, verified runtime, and committed evidence. The full pipeline (Prometheus → Kafka → Faust → Decision Engine → Safety Shield → Operator → Cluster) is built and the operator's core flow is verified. Days 13-14 will run the full pipeline end-to-end under load and chaos, then produce the HPA-vs-AI comparison.
+
 ## Cumulative Day 1-11 Status
 
 | Day | Status | Code | Doc | Runtime |

@@ -8,6 +8,69 @@ All times IST.
 
 ---
 
+## 2026-08-23 — Operator: kafka-python + kubernetes client, not kopf; package renamed (Day 12)
+
+**What changed**
+- New package `src/kopf_operator/` (not `src/operator/`).
+- `src/kopf_operator/actuator.py` — Kafka consumer that runs
+  `SafetyShield.validate()` on each decision and applies via the
+  official kubernetes client. Pre-existing `src/safety/safety_shield.py`
+  is the same as Day 11.
+- `src/kopf_operator/publish_decision.py` — CLI helper to inject test
+  decisions into `k8s-decisions`.
+- `tests/test_actuator.py` (8 tests).
+- `ops/docker/requirements.txt`: added `kubernetes==29.0.0`. `kopf`
+  **not** added — see deviation below.
+- `README.md` and `tasks/README.md` updated to reflect the operator
+  stack as "Python operator (kafka-python + kubernetes client)".
+
+**Deviation 1 — kopf evaluated and skipped**
+
+The plan listed `kopf==1.37.2`. We evaluated it and skipped because:
+1. Kopf's core value is watching Kubernetes resources (CRDs,
+   Deployments, etc.). Our trigger is Kafka, not the API server.
+2. A plain Kafka consumer loop is the recommended pattern for Kafka-
+   driven actuators. Wrapping in Kopf's `@kopf.timer` would add asyncio
+   complexity without semantic benefit.
+3. The operator-pattern semantics (observe → decide → act reconcile
+   loop) are preserved: Kafka observe, SafetyShield decide, kubernetes
+   client act.
+
+The package is named `kopf_operator` (not `kopf`) to keep the
+architectural intent visible in code while the actual implementation
+doesn't use the library. The thesis and stack docs note this clearly.
+
+**Deviation 2 — package renamed from `operator` to `kopf_operator`**
+
+Python's stdlib has an `operator` module. When `src/operator/operator.py`
+exists, Python's import machinery loads it as the top-level `operator`
+module, shadowing the stdlib. This breaks `enum`, `json`, etc.:
+
+```
+from operator import or_ as _or_   # finds src/operator/operator.py
+AttributeError: partially initialized module 're' has no attribute 'compile'
+```
+
+Fix: renamed the package to `src/kopf_operator/` and the file to
+`actuator.py`. Inside the package, `from src.safety...` works without
+modification; the import collision is purely about the package name
+shadowing stdlib.
+
+**Smoke test (live on VM)**
+
+1. Published `scale` decision (target=4, current=2) → operator scaled
+   `podinfo` Deployment 2→4. Two new pods spun up. `kubectl get deploy
+   podinfo` → `4/4 READY`.
+2. Published `heal` decision (target_pod=podinfo-...-ddkfv) → operator
+   deleted that pod. Kubernetes created `podinfo-...-hv4mp`.
+3. Published `noop` decision → operator logged only, no API call.
+
+Scaled back to 2 via `kubectl scale` to restore steady state.
+
+**Test results:** 8/8 unit tests pass; combined 24/24 with Day 11.
+
+---
+
 ## 2026-08-22 — Safety Shield: Python implementation with 16 unit tests, invariant order matters (Day 11)
 
 **What changed**

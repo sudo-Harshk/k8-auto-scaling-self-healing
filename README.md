@@ -19,7 +19,7 @@ Three Kafka topics thread it together: `k8s-metrics` -> `k8s-features` -> `k8s-d
 - **Infra:** Azure VM, kind, Docker CE, Helm 3, kubectl
 - **Benchmark:** stefanprodan/podinfo v6.14.1 (lightweight Go microservice, built-in Prometheus `/metrics` + `/fault_injection/enable`)
 - **Streaming:** Kafka (apache/kafka:3.9.1 KRaft, no Zookeeper), Faust (faust-streaming 0.11.3)
-- **Operator:** Kopf (Python) + kubernetes client
+- **Operator:** Python (kafka-python consumer + kubernetes client; Kafka-driven actuator, NOT Kopf — see AMENDMENTS 2026-08-23)
 - **ML:** River-ML (online), SHAP
 - **Safety:** TLA+ / PlusCal + TLC
 - **Chaos:** LitmusChaos
@@ -76,6 +76,6 @@ each day is committed and tagged.
 - [x] Day 9 - Decision Engine & SHAP Explainability
 - [x] Day 10 - TLA+ Safety Shield Specification
 - [x] Day 11 - Safety Shield Implementation
-- [ ] Day 12 - Kubernetes Operator with Kopf
+- [x] Day 12 - Kubernetes Operator (Kafka actuator)
 - [ ] Day 13 - End-to-End Integration & Chaos Testing
 - [ ] Day 14 - Evaluation, Dashboards & Final Documentation

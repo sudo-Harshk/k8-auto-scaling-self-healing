@@ -10,7 +10,7 @@ This folder contains day-by-day tasks to build the M.Tech project **"AI-Driven K
 | Kubernetes cluster | kind (local, free) |
 | Microservice benchmark | podinfo (stefanprodan/podinfo v6.14.1) |
 | Stream processor | Faust |
-| Operator framework | Kopf (Python) |
+| Operator framework | Python (kafka-python + kubernetes client; Kafka-driven actuator) |
 | Online ML library | River-ML |
 | Safety verification | TLA+ / PlusCal |
 | Fault injection | podinfo built-in `/fault_injection/enable` (+ LitmusChaos fallback) |
@@ -36,7 +36,7 @@ This folder contains day-by-day tasks to build the M.Tech project **"AI-Driven K
 - [x] Day 9 — Decision Engine & SHAP Explainability
 - [x] Day 10 — TLA+ Safety Shield Specification
 - [x] Day 11 — Safety Shield Implementation
-- [ ] Day 12 — Kubernetes Operator with Kopf
+- [x] Day 12 — Kubernetes Operator (Kafka actuator)
 - [ ] Day 13 — End-to-End Integration & Chaos Testing
 - [ ] Day 14 — Evaluation, Dashboards & Final Documentation
 

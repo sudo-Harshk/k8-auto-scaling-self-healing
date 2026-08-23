@@ -16,6 +16,7 @@ logs/*
 !logs/locust_baseline_stats.csv
 !logs/decisions.log
 !logs/safety_audit.log
+!logs/operator_actions.log
 
 # ===== Python =====
 __pycache__/
