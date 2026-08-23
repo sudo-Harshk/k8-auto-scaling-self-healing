@@ -136,8 +136,8 @@ class K8sOperator:
         candidates = sorted(
             pods,
             key=lambda p: (
-                -(sum(c.restart_count or 0 for c in (p.status.container_statuses or [])),
-                 p.metadata.creation_timestamp),
+                -sum(c.restart_count or 0 for c in (p.status.container_statuses or [])),
+                p.metadata.creation_timestamp or "",
             ),
         )
         return candidates[0].metadata.name if candidates else None

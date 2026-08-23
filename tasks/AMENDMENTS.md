@@ -8,6 +8,82 @@ All times IST.
 
 ---
 
+## 2026-08-23 — E2E pipeline revealed 3 critical Day-9 bugs; decision engine online mode never tested before (Day 13)
+
+**Bugs found and fixed during Day 13 pipeline bring-up**
+
+1. **Operator sort-key TypeError** (`src/kopf_operator/actuator.py`)
+   ```python
+   -(sum(c.restart_count or 0 for c in (...)),  # NEGATED TUPLE
+     p.metadata.creation_timestamp),
+   ```
+   The `-` was outside the parentheses, attempting to negate a tuple.
+   Fixed: `(-sum(...), timestamp)` (negate just the sum, then tuple).
+   Day 12's smoke test masked this because only 1 pod existed (sort of
+   trivially worked) and the kafka-python shutdown happened before the
+   bug triggered.
+
+2. **Decision engine field-name mismatch** (`src/decision/decision_engine.py:_featurise`)
+   Online mode looked up `cpu_percent`, `memory_percent`, `request_rate`,
+   etc. but Faust's `k8s-features` emits `cpu_cores_avg`,
+   `memory_bytes_avg`, `request_rate_per_s_avg`, etc. (Day-5 metric
+   naming) plus absolute units, not percentages. **Every feature was 0.0**
+   and `predicted_replicas_raw` was -50.
+   
+   Fix: added `_FAUST_KEY_MAP` that translates Faust keys to Day-6 names,
+   plus normalization of `cpu_cores` -> `cpu_percent` and
+   `memory_bytes` -> `memory_percent` against pod limits (100m CPU /
+   128 MiB per replica). Mirrors `src/features/feature_builder.py`
+   logic. Also computed `hour_of_day` / `day_of_week` from Faust's
+   ISO `timestamp` field.
+
+3. **Heal-saturation on baseline traffic** (decision engine heal gate)
+   Day-8 anomaly detector's first-window behavior scores fresh idle
+   windows near 0.48 — above the 0.2417 threshold. Decision engine
+   fired `heal` on every 30s window, exhausting cooldown slots.
+   
+   Fix: tightened the heal gate to `anomaly_score > 2 * threshold`
+   (i.e., 0.4834). The operator now only heals on clear anomalies, not
+   baseline traffic. Documented trade-off: this reduces recall on subtle
+   anomalies but eliminates false-positive churn in production. The
+   Day-13 fault injection (error rate spike -> score 0.69) still passes
+   the gate cleanly.
+
+**Why these bugs were not caught earlier**
+
+- **Decision engine online mode was never run end-to-end.** Day-9 only
+  verified `--offline` mode against CSV; the Kafka consumer code was
+  implemented but never exercised. Day-13's plan explicitly flagged
+  online mode as "the unproven link" — this turned out to be exactly
+  right.
+- **Operator sort-key bug** only triggered when 2+ pods existed with
+  different restart counts; Day-12's smoke test had homogeneous pods
+  and exited before the sort ran.
+- **Heal saturation** is purely a runtime behavior; offline tests can't
+  reproduce it.
+
+**Auto-healing test — actual run**
+
+After fixes, the E2E pipeline produced:
+- `error_rate=1.4687` after podinfo `/fault_injection/enable`
+- `anomaly_score=0.6904` (above 2x threshold 0.4834)
+- Decision: `heal`
+- Operator applied: deleted faulty pod
+  `podinfo-7c97f86c99-8bttj`
+- Kubernetes created replacement `podinfo-7c97f86c99-wdbc8`
+
+Evidence: `data/evaluation/healing_run_*.log`
+
+**Heal-threshold trade-off documented**
+
+The 2x gate is an engineering decision documented in
+`src/decision/decision_engine.py:decision logic` and in the Day-13
+notes. Future work (Day 15+): retrain anomaly detector on live Faust
+data with `window_size >= 30` to remove the first-window artifact
+entirely; then revert the heal gate to the original threshold.
+
+---
+
 ## 2026-08-23 — Operator: kafka-python + kubernetes client, not kopf; package renamed (Day 12)
 
 **What changed**

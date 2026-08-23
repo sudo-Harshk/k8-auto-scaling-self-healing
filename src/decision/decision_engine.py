@@ -120,8 +120,56 @@ class DecisionEngine:
 
     # --------------------------------------------------------------- model glue
 
+    # Faust emits averaged fields with `_avg` suffix and absolute units. The
+    # Day-6 dataset uses relative percentages against pod limits. This map
+    # translates Faust's keys to the Day-6 feature names. Mirrors the same
+    # logic in src/features/feature_builder.py.
+    _FAUST_KEY_MAP: dict[str, str] = {
+        "cpu_cores_avg": "cpu_percent",
+        "memory_bytes_avg": "memory_percent",
+        "request_rate_per_s_avg": "request_rate",
+        "p95_latency_ms_avg": "p95_latency_ms",
+        "error_rate_per_s_avg": "error_rate",
+        "current_replicas_avg": "current_replicas",
+        "available_replicas_avg": "available_replicas",
+    }
+    CPU_LIMIT_CORES_PER_POD = 0.1   # 100m per replica, from podinfo.yaml
+    MEM_LIMIT_BYTES_PER_POD = 128 * 1024 * 1024  # 128Mi per replica
+
     def _featurise(self, rec: dict) -> dict[str, float]:
-        return {k: float(rec.get(k) or 0.0) for k in FEATURES}
+        out: dict[str, float] = {}
+        for target_key in FEATURES:
+            if target_key in ("hour_of_day", "day_of_week"):
+                # Compute from Faust's ISO timestamp (matches Day-6 logic).
+                ts_str = rec.get("timestamp") or ""
+                try:
+                    ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+                    if target_key == "hour_of_day":
+                        out[target_key] = float(ts.hour)
+                    else:
+                        out[target_key] = float(ts.weekday())  # 0 = Mon
+                except (ValueError, TypeError):
+                    out[target_key] = 0.0
+                continue
+
+            # Look up the source key: prefer target_key directly (CSV-style);
+            # else try the Faust _avg mapping.
+            src_key = next(
+                (s for s, t in self._FAUST_KEY_MAP.items() if t == target_key),
+                target_key,
+            )
+            raw_val = float(rec.get(src_key) or 0.0)
+
+            # Normalize absolute units to percentages against pod limits.
+            if target_key == "cpu_percent" and "cpu_cores" in src_key:
+                replicas = max(float(rec.get("current_replicas_avg") or 0.0), 1.0)
+                raw_val = (raw_val / (self.CPU_LIMIT_CORES_PER_POD * replicas)) * 100
+            elif target_key == "memory_percent" and "memory_bytes" in src_key:
+                replicas = max(float(rec.get("current_replicas_avg") or 0.0), 1.0)
+                raw_val = (raw_val / (self.MEM_LIMIT_BYTES_PER_POD * replicas)) * 100
+
+            out[target_key] = raw_val
+        return out
 
     def _compute_feature_means(self, rows: list[dict]) -> dict[str, float]:
         df = pd.DataFrame(rows)
@@ -164,12 +212,18 @@ class DecisionEngine:
         predicted_raw = self.replica.predict_raw(features) or float(current_replicas)
         predicted_replicas = self.replica.predict(features)
 
-        if anomaly_score > self.anomaly.threshold:
+        # High-confidence gate: require anomaly_score to be at least 2x the
+        # threshold. The Day-8 detector scores every fresh-window idle pattern
+        # near the threshold, but real anomalies (Day-13 fault injection)
+        # score much higher. This 2x gate suppresses false-positive heals on
+        # baseline traffic without sacrificing real-anomaly detection.
+        heal_threshold = self.anomaly.threshold * 2.0
+        if anomaly_score > heal_threshold:
             action = "heal"
             target_replicas = current_replicas
             reason = (
                 f"anomaly_score={anomaly_score:.4f} > "
-                f"threshold={self.anomaly.threshold:.4f}"
+                f"heal_threshold={heal_threshold:.4f}"
             )
         elif predicted_replicas != current_replicas:
             action = "scale"

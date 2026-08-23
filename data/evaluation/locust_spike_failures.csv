@@ -1,0 +1,4 @@
+Method,Name,Error,Occurrences
+POST,POST /api/echo,CatchResponseError('unexpected status 0'),76
+GET,GET /api/info,"ConnectionResetError(104, 'Connection reset by peer')",101
+GET,GET /,"ConnectionResetError(104, 'Connection reset by peer')",178

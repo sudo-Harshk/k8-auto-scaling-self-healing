@@ -77,5 +77,5 @@ each day is committed and tagged.
 - [x] Day 10 - TLA+ Safety Shield Specification
 - [x] Day 11 - Safety Shield Implementation
 - [x] Day 12 - Kubernetes Operator (Kafka actuator)
-- [ ] Day 13 - End-to-End Integration & Chaos Testing
+- [x] Day 13 - End-to-End Integration & Chaos Testing
 - [ ] Day 14 - Evaluation, Dashboards & Final Documentation

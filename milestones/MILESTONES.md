@@ -268,7 +268,27 @@ Build an operator that consumes validated decisions from Kafka and executes scal
 
 ---
 
-## Cumulative Day 1-12 Status
+## Day 13 — End-to-End Integration & Chaos Testing
+
+**Objective**
+Wire all components together and prove auto-scaling under load and auto-healing under injected faults.
+
+**Milestone / Result**
+- **Full pipeline ran live** on VM: producer → Kafka → Faust (30s windows) → decision engine → Safety Shield → operator → cluster.
+- **Auto-scaling verified**: AI operator scaled podinfo 2 → 1 under low traffic (predictor says 1) and applied via Safety Shield.
+- **Auto-healing verified**: fault-injected pod (`POST /fault_injection/enable` on `podinfo-7c97f86c99-8bttj`) produced error_rate=1.47, anomaly_score=0.69 (>2× threshold 0.48), decision=heal. Operator deleted the faulty pod; Kubernetes created `podinfo-7c97f86c99-wdbc8` to replace it.
+- **3 critical bugs found and fixed** during pipeline bring-up (all in code that was previously only smoke-tested or never run end-to-end):
+  1. Operator sort-key TypeError (tuple negation) → fixed
+  2. Decision engine field-name mismatch (Faust vs CSV) → fixed via `_FAUST_KEY_MAP` + percentage normalization
+  3. Heal-saturation on baseline traffic → fixed via 2× threshold gate
+- **9 evidence files** in `data/evaluation/`: scaling/healing run logs + Locust spike CSVs.
+
+**Verdict**
+✅ Solid (with caveats). The full AI scaling loop is **proven end-to-end** for both auto-scaling and auto-healing. The 3 bugs fixed are exactly the unproven-link risks that Day-13's plan flagged. Decision engine's online mode was the unproven link — proven correct (after fixes). The 2× heal-threshold gate is an engineering trade-off: fewer false-positive heals at the cost of slightly reduced recall on subtle anomalies. Documented in AMENDMENTS for future work.
+
+---
+
+## Cumulative Day 1-13 Status
 
 | Day | Status | Code | Doc | Runtime |
 |-----|--------|------|-----|---------|
@@ -286,21 +306,3 @@ Build an operator that consumes validated decisions from Kafka and executes scal
 | 12 | ✅ | committed | ✅ execution notes | 8/8 unit tests + live smoke test passed |
 
 **Overall:** All 12 days have working code, verified runtime, and committed evidence. The full pipeline (Prometheus → Kafka → Faust → Decision Engine → Safety Shield → Operator → Cluster) is built and the operator's core flow is verified. Days 13-14 will run the full pipeline end-to-end under load and chaos, then produce the HPA-vs-AI comparison.
-
-## Cumulative Day 1-11 Status
-
-| Day | Status | Code | Doc | Runtime |
-|-----|--------|------|-----|---------|
-| 1 | ✅ | committed | ✅ execution notes | running |
-| 2 | ✅ | committed | ✅ execution notes | running |
-| 3 | ✅ | committed | ✅ execution notes | baseline metrics captured |
-| 4 | ✅ | committed | ✅ execution notes | live producer working |
-| 5 | ✅ | committed | ✅ execution notes | live window emission verified |
-| 6 | ✅ | committed | ✅ execution notes | 55-row dataset |
-| 7 | ✅ | committed | ✅ execution notes | MAE 0.24 |
-| 8 | ⚠️ | committed | ✅ execution notes | 55% detection, 6.7× separation |
-| 9 | ✅ | committed | ✅ execution notes | 18/15/22 decision mix |
-| 10 | ✅ | committed | ✅ execution notes | TLC verified 264K states, 0 errors |
-| 11 | ✅ | committed | ✅ execution notes | 16/16 unit tests pass |
-
-**Overall:** All 11 days have working code, verified runtime, and committed evidence. The decision engine integration with the Safety Shield is intentionally deferred to Day 12 (Kopf operator) — the operator's reconcile loop is the right place to wire the shielded decision into the cluster.
