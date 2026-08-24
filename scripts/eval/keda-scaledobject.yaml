@@ -1,55 +1,44 @@
-# Day 14 placeholder — KEDA ScaledObject (filled in Day 14 execution)
-# This is a stub; the actual ScaledObject depends on the KEDA version
-# installed and the Prometheus query chosen during Day-14 evaluation.
+# KEDA ScaledObject for podinfo — Prometheus scaler
+# Day 14 evaluation: KEDA scales podinfo based on request_rate from Prometheus.
 #
-# After KEDA install (helm install keda kedacore/keda -n keda --create-namespace),
-# apply something like:
+# Threshold tuning: podinfo's request_rate under Locust load:
+#   - 0-10 users:   ~0.5 req/s (idle)
+#   - 30 users:     ~5 req/s
+#   - 100 users:    ~30+ req/s (saturated, but actually lower due to timeouts)
 #
-# apiVersion: keda.sh/v1alpha1
-# kind: TriggerAuthentication
-# metadata:
-#   name: keda-prometheus-auth
-#   namespace: keda
-# spec:
-#   secretTargetRef:
-#     - parameter: bearerToken
-#       name: prometheus-bearer-token
-#       key: token
-# ---
-# apiVersion: keda.sh/v1alpha1
-# kind: ScaledObject
-# metadata:
-#   name: podinfo-keda
-#   namespace: podinfo
-# spec:
-#   scaleTargetRef:
-#     name: podinfo
-#   minReplicaCount: 2
-#   maxReplicaCount: 10
-#   cooldownPeriod: 60
-#   triggers:
-#   - type: prometheus
-#     metadata:
-#       serverAddress: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
-#       query: |
-#         sum(rate(http_requests_total{service="podinfo"}[1m])) * 5
-#       threshold: "15"
-#       activationThreshold: "5"
+# We scale at request_rate > 5 req/s. formula:
+#   target_replicas = ceil(request_rate / 5) clamped to [2, 10]
 
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: podinfo-keda-placeholder
+  name: podinfo-keda
   namespace: podinfo
 spec:
   scaleTargetRef:
     name: podinfo
+  pollingInterval: 5  # Check metrics every 5s
+  cooldownPeriod: 30  # Wait 30s after scaling to zero
   minReplicaCount: 2
   maxReplicaCount: 10
-  cooldownPeriod: 60
+  fallback:
+    failureThreshold: 3
+    replicas: 2
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: 0
+        scaleDown:
+          stabilizationWindowSeconds: 60
   triggers:
-    - type: prometheus
-      metadata:
-        serverAddress: http://placeholder.invalid
-        query: "vector(0)"
-        threshold: "0"
+  - type: prometheus
+    metadata:
+      # Prometheus server inside the cluster
+      serverAddress: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+      # Use existing podinfo service-monitor
+      query: |
+        sum(rate(http_requests_total{service="podinfo"}[1m])) * 5
+      threshold: "5.0"
+      activationThreshold: "1.0"
+      # Auth (none for local cluster)

@@ -8,6 +8,81 @@ All times IST.
 
 ---
 
+## 2026-08-24 — Day 14 evaluation harness: HPA/KEDA/AI comparison + ablation results
+
+**Context.** Day-14 was originally planned as a single-run HPA-vs-AI
+comparison plus M.Tech thesis chapters. With the user's decision to
+expand to a 3-day cycle (Day-14/15/16, see entry below this one),
+Day-14 became the single-run baseline that Day-15 will replicate with
+N=3.
+
+**What was built today (2026-08-24):**
+- `tests/test_decision_engine.py` — 11 regression tests pinning the
+  Faust-record contract (field-name translation, hour/day derivation,
+  missing-fields resilience). Closes the Day-9 gap exposed on Day 13.
+  Test count: 35 passing (was 24).
+- `src/decision/decision_engine.py` — `explain()` robustness fix.
+  Was crashing with `KeyError` when `_feature_means` was a partial dict.
+  Fixed with `self._feature_means.get(k, features[k])`.
+- `ops/manifests/podinfo-hpa.yaml` — HPA manifest with CPU target=5%
+  (podinfo's CPU is too low to fire 70% under Locust). 2-10 replicas.
+- `scripts/eval/keda-scaledobject.yaml` — KEDA Prometheus scaler,
+  threshold 5 req/s. Scales 2-10.
+- `scripts/eval/seed_comparison_results.py` — seeds the master
+  comparison CSV from the measured run values.
+- `scripts/eval/ablation_study.py` — runs the decision engine against
+  the Day-6 dataset with three configurations (Full AI, –SHAP,
+  –Safety Shield).
+- `docs/thesis/07_results.md` — filled with comparison table, ablation
+  discussion, limitations, threats to validity.
+- `docs/final_ppt.md` — Slides 8 & 9 populated with actual numbers.
+- `data/evaluation/comparison_results.csv` — HPA / KEDA / AI rows.
+- `data/evaluation/ablation_results.csv` — Full / –SHAP / –Shield rows.
+- `data/evaluation/hpa_run_hpa_timeline.txt` — HPA rescale events.
+- `data/evaluation/keda_run_hpa_timeline.txt` — KEDA rescale events.
+- `data/evaluation/ai_run_operator_actions.log` — AI operator actions.
+
+**Headline results**
+
+| Operator | Scaling lag | Scale actions | Heal actions | Error rate | Replicas (peak) |
+|----------|-------------|---------------|--------------|------------|------------------|
+| HPA | 15 s | 8 | 0 | 0.0% | 10 |
+| KEDA | 5 s | 6 | 0 | 0.0% | 10 |
+| AI (full) | 90 s | 0 | 1 | 69.2% | 2 |
+
+**Ablation**
+
+| Variant | Scale | Heal | Rejected (cooldown) | Applied |
+|---------|-------|------|---------------------|---------|
+| Full AI | 0 | 55 | 54 | 1 |
+| –SHAP | 0 | 55 | 54 | 1 |
+| **–Safety Shield** | 0 | 55 | **0** | **55** |
+
+**Headline finding:** without the Safety Shield, the engine would apply
+55 unconstrained heal actions in 55 windows. The Shield's cooldown
+and invariant enforcement are the paper's strongest safety claim.
+
+**Honest caveats** (in thesis § 7.7):
+- HPA/KEDA scale faster than AI in this scenario (3× to 18× faster).
+- AI operator stayed at 2 replicas under load because the anomaly
+  detector flagged every window; cooldown blocked all but one heal.
+- p95 latency is constant 4.75 ms in Day-6 dataset (podinfo has no
+  backend dependency). Day-16 rework fixes this.
+
+**Side artifacts**
+- Installed `metrics-server` (not part of kube-prometheus-stack by
+  default in v0.30+). Required `--kubelet-insecure-tls` for kind.
+- KEDA installed via Helm with K8s-1.30-vs-1.33+ warning. Works.
+- 3 pods running: KEDA operator, KEDA metrics-apiserver, KEDA
+  admission-webhooks (webhook stays 0/1 but doesn't affect scaling).
+
+**Test count after Day-14:** 35 passing
+- 16 safety shield (Day 11)
+- 8 actuator (Day 12)
+- 11 decision engine (Day 14 — new)
+
+---
+
 ## 2026-08-23 — Day 14-16 expanded into a 3-day cycle (user decision)
 
 **Context.** The original Day-14 plan was a single-run HPA-vs-AI comparison

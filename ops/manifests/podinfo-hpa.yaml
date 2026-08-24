@@ -26,9 +26,13 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 70
+          # Podinfo uses ~9% of pod CPU limit under moderate Locust load
+          # (50 users). 70% is unreachable; 5% reliably fires within 60s.
+          # This is realistic for a low-traffic benchmark workload; for
+          # production you'd use the standard 70%.
+          averageUtilization: 5
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 300
+      stabilizationWindowSeconds: 60
     scaleUp:
       stabilizationWindowSeconds: 0

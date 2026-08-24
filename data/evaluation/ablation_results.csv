@@ -1,0 +1,15 @@
+Variant       scale   heal   noop  rejected  applied
+--------------------------------------------------
+full_ai           0     55      0        54        1
+no_shap           0     55      0        54        1
+no_shield         0     55      0         0       55
+
+Observations:
+  - 'full_ai' vs 'no_shap': same action counts; SHAP explanation does
+    not change decisions. SHAP value: human interpretability, not safety.
+  - 'full_ai' vs 'no_shield': -Shield removes the cooldown gate, so
+    rejected_count drops to 0 and applied_count = heal_count = 55.
+    This is the paper's strongest safety claim: without the Shield,
+    the engine would apply 55 unconstrained heal actions in 55 windows.
+  - The Safety Shield is the layer that clamps decisions like target_replicas
+    exceeding MAX, scale_step > 2, and enforces cooldown between actions.

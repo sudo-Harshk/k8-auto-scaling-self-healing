@@ -1,0 +1,6 @@
+Method,Name,Error,Occurrences
+GET,GET /,"ConnectionRefusedError(111, 'Connection refused')",1263
+GET,GET /api/info,RemoteDisconnected('Remote end closed connection without response'),2
+GET,GET /api/info,"ConnectionRefusedError(111, 'Connection refused')",703
+POST,POST /api/echo,CatchResponseError('unexpected status 0'),478
+GET,GET /,RemoteDisconnected('Remote end closed connection without response'),8

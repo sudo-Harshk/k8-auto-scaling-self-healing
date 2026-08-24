@@ -190,7 +190,10 @@ class DecisionEngine:
         contributions: list[tuple[str, float]] = []
         for k in FEATURES:
             perturbed = dict(features)
-            perturbed[k] = self._feature_means[k]
+            # Use the column mean if available, else the current value
+            # (i.e., no perturbation -> delta 0). This makes explain()
+            # robust to partial feature_means dicts.
+            perturbed[k] = self._feature_means.get(k, features[k])
             new = self.replica.predict_raw(perturbed) or 0.0
             contributions.append((k, abs(raw - new)))
         contributions.sort(key=lambda c: c[1], reverse=True)

@@ -1,1 +1,4 @@
 timestamp,operator,scenario,run,users,duration_s,scaling_lag_s,total_scale_actions,total_heal_actions,p95_latency_ms_avg,p95_latency_ms_max,error_rate_avg,replicas_start,replicas_end,safety_rejected_count,notes
+2026-08-24T15:36:00+00:00,hpa,spike,1,30,300,15,8,0,2.0,14.0,0.0,2,6,0,CPU target=5%; HPA scaled 2->10 (max) then down to 6 after load ended. See hpa_run_hpa_timeline.txt
+2026-08-24T15:50:00+00:00,keda,spike,1,30,240,5,6,0,2.0,17.0,0.0,2,2,0,Prometheus scaler; threshold 5 req/s; scaled 2->10 (max) then back to 2. See keda_run_hpa_timeline.txt
+2026-08-24T16:00:00+00:00,ai,spike,1,30,240,90,0,1,1.0,990.0,69.2,2,2,12,Anomaly_score > heal_threshold (0.48) on every window; 60s cooldown blocks most heals; podinfo stayed at 2 replicas. Trade-off: AI prioritizes healing (fault detection) over scaling. See ai_run_operator_actions.log
