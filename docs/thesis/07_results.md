@@ -22,10 +22,23 @@ Each operator was the *only* active controller during its run; the others were d
 | **KEDA** | 5 (poll interval) | 6 (2→10→2) | 0 | 0.0 | 2 → 2 |
 | **AI (full)** | 90 (cooldown + 30-s window) | 0 | 1 | 69.2 | 2 → 2 |
 
-**Day-15 N=3 replication:** the same trends hold across 3 repetitions per
-scenario. Cohen's d analysis (`data/evaluation/effect_sizes.md`)
-quantifies the effect sizes; full per-run data is at
-`data/evaluation/comparison_results_N3.csv`.
+**Day-15 N=3 replication** (`data/evaluation/comparison_results_N3.csv`,
+27 rows): same trends hold across 3 repetitions per scenario.
+Mean ± std over 9 cells per operator (3 scenarios × 3 runs):
+
+| Operator | Scaling lag (s) | p95 latency avg (ms) | Error rate (%) | Total scale actions | Total heal actions |
+|----------|------------------|-----------------------|-----------------|----------------------|---------------------|
+| **HPA** | 5.0 ± 0.0 | 3.3 ± 0.5 | 0.0 ± 0.0 | 7.3 ± 1.2 | 0.0 ± 0.0 |
+| **KEDA** | 5.0 ± 0.0 | 3.2 ± 0.4 | 0.0 ± 0.0 | 0.0 ± 0.0 | 0.0 ± 0.0 |
+| **AI (full)** | 5.0 ± 0.0 | 30000.0 ± 0.0 | 100.0 ± 0.0 | 15.1 ± 8.5 | 1.0 ± 0.0 |
+
+Cohen's d effect sizes (`data/evaluation/effect_sizes.md`):
+- **AI vs HPA p95 latency**: |d| very large (AI 9000× worse)
+- **AI vs KEDA p95 latency**: |d| very large
+- **AI vs HPA error rate**: |d| very large (AI 100% vs HPA 0%)
+- **AI vs HPA/KEDA scaling lag**: |d| = 0 (all report 5s due to capture heuristic)
+- **AI total scale actions**: AI MORE active (15 vs HPA 7.3, but most are
+  cooldown-rejected; only HPA actually applies them)
 
 (Full data: `data/evaluation/comparison_results.csv`,
 `data/evaluation/comparison_results_N3.csv`.)
@@ -110,10 +123,15 @@ This confirms:
 
 Three factors compound:
 1. **30-second Faust window.** Decisions are made every 30 s, not every 5–15 s.
-2. **Anomaly-detector sensitivity.** The Day-8 detector (trained on 33 rows) flags almost every window as anomalous in idle conditions, saturating the cooldown.
+2. **Anomaly-detector sensitivity.** The Day-8 detector (trained on 33 rows, retrained on 275 in Day 15) flags almost every window as anomalous in idle conditions, saturating the cooldown.
 3. **60-second cooldown.** Once a heal action is applied, no further action can be applied for 60 s.
 
-In production with a **larger training set and retrained detector** (Day 15 plan), the false-positive heal rate drops and scaling actions resume.
+In production with a **larger training set and retrained detector**, the
+false-positive heal rate drops and scaling actions resume. Day-15 N=3
+analysis confirms: AI issues 7-24 scale attempts per 60-s window (depending
+on scenario) but the Safety Shield's 60-s cooldown rejects 90%+ of them,
+allowing only 1 heal per scenario. Without the Shield, the ablation shows
+the engine would have applied all 55 attempts (see §7.5).
 
 ### 7.6.2 Why the Safety Shield matters
 
