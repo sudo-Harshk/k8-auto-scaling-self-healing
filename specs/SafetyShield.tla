@@ -167,6 +167,8 @@ Tick ==
 DriftPredictor ==
     /\ predicted_replicas' \in 1..MAX_REPLICAS
     /\ Abs(predicted_replicas' - current_replicas) <= 2
+    /\ \/ consecutive_overload < 2
+       \/ predicted_replicas' >= current_replicas
     /\ UNCHANGED <<current_replicas, anomaly_level, decision,
                     target_replicas, clock, last_action_clock,
                     consecutive_overload>>
