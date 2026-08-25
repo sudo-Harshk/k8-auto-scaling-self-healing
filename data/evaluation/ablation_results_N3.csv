@@ -1,0 +1,10 @@
+variant,rep,scale,heal,noop,rejected,applied
+full_ai,1,0,1,0,54,1
+full_ai,2,0,1,0,54,1
+full_ai,3,0,1,0,54,1
+no_shap,1,0,1,0,54,1
+no_shap,2,0,1,0,54,1
+no_shap,3,0,1,0,54,1
+no_shield,1,0,55,0,0,55
+no_shield,2,0,55,0,0,55
+no_shield,3,0,55,0,0,55
