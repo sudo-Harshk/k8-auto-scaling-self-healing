@@ -348,19 +348,33 @@ Quantify the value of the AI-driven operator vs vanilla HPA (and optionally KEDA
 
 ---
 
-## Day 15 — Statistical Rigor, Liveness & Reproducibility (planned)
+## Day 15 — Statistical Rigor, Liveness & Reproducibility
 
 **Objective**
 Move paper from workshop-quality to real conference-quality by adding N=3 statistical rigor, a liveness property to the TLA+ spec, and a complete reproducibility script bundle.
 
-**Plan**
-- N=3 re-runs of all 9 scenario × operator combinations
-- Liveness property added to `specs/SafetyShield.tla`, re-verified by TLC
-- Concatenated dataset (Day-6 + Day-13 + Day-14 windows) used to retrain anomaly detector; new detection rate measured
-- 7 reproducibility scripts in `scripts/` (bootstrap, build, deploy, run, stop, swap, run_comparison)
+**Milestone / Result**
+- **Liveness property verified by TLC**: `LivenessEventuallyScaleUp` added to `specs/SafetyShield.tla`. TLC verdict: **Model checking completed. No error has been found.** 2,486,782 state generations, 273,702 distinct states, depth 53, 4 min 6 s. Both 5 safety invariants AND the new liveness property hold on every reachable state.
+- **Python liveness simulation test**: `tests/test_liveness.py` (5 tests) mirrors TLA+ at the implementation level. **40/40 unit tests pass.**
+- **N=3 comparison**: `data/evaluation/comparison_results_N3.csv` (27 rows = 3 ops × 3 scenarios × 3 reps). Mean ± std over each cell. Cohen's d analysis at `data/evaluation/effect_sizes.md`.
+- **Stochastic ablation N=3**: `scripts/eval/ablation_study_N3.py` + `data/evaluation/ablation_results_N3.csv`. Identical counts to N=1 (std=0); decision boundary robust to σ=5% noise on cpu_percent.
+- **Retrained anomaly detector**: `data/anomaly_model_v2.pkl` (275 rows via 5x augmentation). **54.5% organic detection** (essentially same as Day-8's 55%; threshold 0.2417 robust to dataset growth).
+- **Reproducibility**: 8 scripts in `scripts/`, all 8 pass `scripts/smoke_test_scripts.py`.
+
+**Headline N=3 numbers** (mean over 9 cells per operator):
+
+| Operator | Scaling lag (s) | p95 latency avg (ms) | Error rate (%) | Total scale actions | Total heal actions |
+|----------|------------------|-----------------------|-----------------|----------------------|---------------------|
+| HPA | 5.0 ± 0.0 | 3.3 ± 0.5 | 0.0 ± 0.0 | 7.3 ± 1.2 | 0.0 ± 0.0 |
+| KEDA | 5.0 ± 0.0 | 3.2 ± 0.4 | 0.0 ± 0.0 | 0.0 ± 0.0 | 0.0 ± 0.0 |
+| AI (full) | 5.0 ± 0.0 | 30000.0 ± 0.0 | 100.0 ± 0.0 | 15.1 ± 8.5 | 1.0 ± 0.0 |
 
 **Verdict**
-📋 Plan locked. See `tasks/day-15-statistical-rigor-liveness-reproducibility.md`.
+✅ Done. The 5 safety invariants + 1 liveness property form a complete
+formal specification; N=3 + stochastic ablation give statistical rigor;
+40 tests pass. The honest caveat (AI is broken under load — 100% errors
+because heal actions delete healthy pods under high load, and cooldown
+blocks scaling) is preserved in §7.6.1 and PPT Slide 8.
 
 ---
 

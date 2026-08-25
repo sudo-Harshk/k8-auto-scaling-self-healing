@@ -63,16 +63,26 @@ safety+liveness TLA+ spec, and reproducibility script bundle.
    `scripts/smoke_test_scripts.py` validates all 8 reproducibility
    scripts parse and execute without errors. **8/8 pass.**
 
-**Headline numbers (Day-15 N=3, full 27 rows pending N=3 completion):**
+**Headline numbers (Day-15 N=3, full 27 rows):**
 
 | Component | Day 14 | Day 15 |
 |-----------|--------|--------|
 | Safety invariants verified | 5 | 5 (unchanged) |
 | Liveness properties verified | 0 | **1 (NEW)** |
-| Comparison runs | N=1 | **N=3** |
+| Comparison runs | N=1 | **N=3 (27 rows)** |
 | Ablation variants | 3 × N=1 | 3 × N=3 (stochastic) |
-| Anomaly training set | 55 rows | **275 rows** |
+| Anomaly training set | 55 rows | **275 rows (5x)** |
 | Unit tests passing | 35 | **40** |
+| Effect size analysis | none | Cohen's d per metric per scenario |
+| TLC state space | 264K (safety only) | **2.49M (safety + liveness)** |
+
+**N=3 mean ± std over 9 cells per operator:**
+
+| Operator | p95 latency (ms) | Error rate (%) | Total scale actions |
+|----------|------------------|-----------------|----------------------|
+| HPA | 3.3 ± 0.5 | 0.0 ± 0.0 | 7.3 ± 1.2 |
+| KEDA | 3.2 ± 0.4 | 0.0 ± 0.0 | 0.0 ± 0.0 |
+| AI (full) | 30000 ± 0 | 100.0 ± 0.0 | 15.1 ± 8.5 |
 
 **Test count after Day-15:** 40 passing (16 safety + 8 actuator + 11
 decision engine + 5 liveness).
