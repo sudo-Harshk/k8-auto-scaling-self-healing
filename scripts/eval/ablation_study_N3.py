@@ -40,7 +40,7 @@ MODEL_PATH = ROOT / "data" / "anomaly_model.pkl"
 SHIELD_CFG = ROOT / "specs" / "safety_policy.yaml"
 OUT_CSV = ROOT / "data" / "evaluation" / "ablation_results_N3.csv"
 
-ANOMALY_NOISE_STD = 0.05  # Gaussian std applied to anomaly_score
+CPU_NOISE_STD = 0.05  # Gaussian std applied to cpu_percent (5% multiplicative)
 
 
 def run_variant(
@@ -73,10 +73,11 @@ def run_variant(
     means = engine._compute_feature_means(rows)
 
     for row in rows:
-        # Apply Gaussian noise to anomaly_score
+        # Apply Gaussian noise to cpu_percent (the most influential feature).
+        # This propagates through featurise() -> anomaly.score() -> decision.
         row = dict(row)
-        row["anomaly_score"] = max(0.0, min(1.0,
-            float(row["anomaly_score"]) + rng.gauss(0, noise_std)))
+        row["cpu_percent"] = max(0.0, min(100.0,
+            float(row["cpu_percent"]) * (1.0 + rng.gauss(0, noise_std))))
         decision = engine.decide(row, feature_means=means)
         if not enable_explain:
             decision.explanation = []
@@ -112,7 +113,7 @@ def main() -> int:
     for variant in ["full_ai", "no_shap", "no_shield"]:
         for rep in [1, 2, 3]:
             LOG.info("running %s rep %d", variant, rep)
-            row = run_variant(df, variant, rep, ANOMALY_NOISE_STD)
+            row = run_variant(df, variant, rep, CPU_NOISE_STD)
             LOG.info("  %s", row)
             rows.append(row)
 
@@ -122,7 +123,7 @@ def main() -> int:
 
     # Summary statistics: mean and std across 3 reps for each variant
     print("\n" + "=" * 60)
-    print("Stochastic Ablation (N=3, Gaussian noise sigma=0.05)")
+    print("Stochastic Ablation (N=3, Gaussian noise on cpu_percent, sigma=5%)")
     print("=" * 60)
     summary = out.groupby("variant").agg({
         "scale": ["mean", "std"],
