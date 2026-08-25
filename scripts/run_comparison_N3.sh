@@ -227,9 +227,13 @@ for op in "${OPS[@]}"; do
     LOG "=== switching to operator: $op ==="
     ./scripts/swap_operator.sh "$op" >/dev/null
     sleep 5
-    for scen in "${SCENS[@]}"; do
+    for scen in "${SCENARIOS[@]}"; do
         for run in $(seq 1 "$N_REPEAT"); do
             IFS=':' read -r name users duration <<< "$scen"
+            # Skip scenarios not in SCENS filter (if a scenario was selected)
+            if [[ -n "$SCENARIO" ]] && [[ "$name" != "$SCENARIO" ]]; then
+                continue
+            fi
             ts=$(date +%Y%m%d-%H%M%S)
             LOG "  [$op][$name][run $run/$N_REPEAT] users=$users duration=${duration}s ts=$ts"
             run_locust "$op" "$name" "$users" "$duration" "$run"
