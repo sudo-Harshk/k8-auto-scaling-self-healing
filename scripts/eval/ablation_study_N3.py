@@ -26,14 +26,14 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))
 
 import pandas as pd  # noqa: E402
 
-from decision.decision_engine import DecisionEngine, Decision  # noqa: E402
-from safety.safety_shield import SafetyShield  # noqa: E402
-from models.anomaly_detector import AnomalyDetector  # noqa: E402
-from models.replica_predictor import ReplicaPredictor  # noqa: E402
+from src.decision.decision_engine import DecisionEngine, Decision  # noqa: E402
+from src.safety.safety_shield import SafetyShield  # noqa: E402
+from src.models.anomaly_detector import AnomalyDetector  # noqa: E402
+from src.models.replica_predictor import ReplicaPredictor  # noqa: E402
 import yaml  # noqa: E402
 
 LOG = logging.getLogger("ablation_N3")
