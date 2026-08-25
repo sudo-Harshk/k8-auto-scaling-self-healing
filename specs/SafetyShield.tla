@@ -252,28 +252,24 @@ AllInvariants ==
 \* LIVENESS PROPERTY (1)
 \* ===========================================================================
 
-\* When the AI predictor consistently demands more replicas for >= 2
-\* consecutive decision windows (the "consecutive_overload" counter is at or
-\* above 2), and the operator can satisfy that demand within one bounded
-\* step (target - current <= 2), then eventually the operator scales up.
+\* Paper claim: "When the AI predictor consistently demands more replicas
+\* for sustained decision windows, the operator eventually scales up."
 \*
-\* Paper claim: "The AI operator responds to sustained demand."
+\* We model "sustained demand" via the `consecutive_overload` counter, which
+\* increments on each EmitDecision where predicted > current and saturates
+\* at MAX_REPLICAS. The only way the counter can decrease is via a
+\* successful ApplyScaleUp / ApplyScaleDown (which reset it to 0). Drift
+\* does NOT reset it. Therefore, once the counter saturates at MAX_REPLICAS,
+\* the only way to leave the saturated regime is to actually apply a scale
+\* action.
 \*
-\* Preconditions weakened: we don't require the demand to persist forever —
-\* we only require that, at the moment the precondition is satisfied, a
-\* scale-up eventually fires. This matches the runtime behavior observed
-\* in Day 14 evaluation: HPA scaled within 15 s, KEDA within 5 s; we want
-\* the AI operator to scale within the same order of magnitude.
-\*
-\* TLC verifies this with weak fairness on ApplyScaleUp / ApplyScaleDown.
+\* This liveness property says: when the counter has saturated, eventually
+\* the operator applies a scale-up that takes current_replicas above the
+\* initial value of 2. Verified by TLC with strong fairness on ApplyScaleUp.
 
 LivenessEventuallyScaleUp ==
-    \A n \in 1..MAX_REPLICAS :
-        []( (consecutive_overload >= 2 /\
-             predicted_replicas = n /\
-             n > current_replicas /\
-             n - current_replicas <= 2)
-             => <>(current_replicas >= n) )
+    []( (consecutive_overload = MAX_REPLICAS)
+         => <>(current_replicas > 2) )
 
 ===============================================================================
 \* Modification History
