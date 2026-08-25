@@ -55,6 +55,14 @@ start_podinfo_pf() {
 
 run_locust() {
     local op="$1" name="$2" users="$3" duration="$4" run="$5"
+    # Restart port-forward to podinfo before each run (the previous one may have died)
+    pkill -f "port-forward.*podinfo.*8070" 2>/dev/null || true
+    sleep 1
+    nohup kubectl -n podinfo port-forward svc/podinfo 8070:9898 \
+        > /tmp/pf-podinfo.log 2>&1 &
+    disown
+    sleep 3
+
     docker run --rm --network host --name "locust-${name}-${op}-r${run}" \
         -v "$PWD":/code -w /code \
         --entrypoint locust k8-ai-ops:dev \
@@ -104,16 +112,16 @@ except Exception as e:
 
 # Get total scale actions via kubectl describe hpa
 total_scale_actions = "TBD"
-try:
-    out = subprocess.check_output(
-        ["kubectl", "describe", "hpa", "podinfo", "-n", "podinfo"],
-        text=True, timeout=10
-    )
-    for line in out.splitlines():
-        if "current/target" in line.lower() or "desired" in line.lower():
-            continue
-except Exception:
-    pass
+    try:
+        out = subprocess.check_output(
+            ["kubectl", "describe", "hpa", "podinfo-hpa", "-n", "podinfo"],
+            text=True, timeout=10
+        )
+        for line in out.splitlines():
+            if "current/target" in line.lower() or "desired" in line.lower():
+                continue
+    except Exception:
+        pass
 
 # For AI operator, count actions from logs
 total_scale_actions = 0
@@ -139,7 +147,7 @@ if op == "ai":
 elif op in ("hpa", "keda"):
     try:
         out = subprocess.check_output(
-            ["kubectl", "get", "hpa", "podinfo", "-n", "podinfo", "-o", "jsonpath={.status.currentReplicas}"],
+            ["kubectl", "get", "hpa", "podinfo-hpa", "-n", "podinfo", "-o", "jsonpath={.status.currentReplicas}"],
             text=True, timeout=10
         )
         # crude: count replicas above min as proxy
