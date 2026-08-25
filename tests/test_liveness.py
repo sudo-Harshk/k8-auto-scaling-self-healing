@@ -30,6 +30,7 @@ Run with:
 from __future__ import annotations
 
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Tuple
 
@@ -40,20 +41,24 @@ from safety.safety_shield import SafetyShield  # noqa: E402
 SHIELD_CFG = Path(__file__).resolve().parent.parent / "specs" / "safety_policy.yaml"
 
 
+@dataclass
 class MockDecision:
-    """Lightweight Decision-like object accepted by SafetyShield.validate."""
+    """Lightweight Decision mirror used by the liveness tests.
 
-    def __init__(self, action: str, target: int, current: int, **kwargs):
-        self.action = action
-        self.target_replicas = target
-        self.current_replicas = current
-        self.service = kwargs.get("service", "podinfo")
-        self.reason = kwargs.get("reason", "")
-        self.explanation = kwargs.get("explanation", [])
-        self.anomaly_score = kwargs.get("anomaly_score", 0.0)
-        self.predicted_replicas_raw = kwargs.get("predicted_replicas_raw", 0.0)
-        self.timestamp = kwargs.get("timestamp", "")
-        self.features = kwargs.get("features", {})
+    Matches the field names of `safety_shield.Decision` exactly so that
+    `SafetyShield.validate()` and its `_audit`/`_reject` helpers work
+    without modification. Field values default to safe empty values.
+    """
+    action: str
+    target_replicas: int
+    current_replicas: int
+    service: str = "podinfo"
+    reason: str = ""
+    explanation: list = field(default_factory=list)
+    anomaly_score: float = 0.0
+    predicted_replicas_raw: float = 0.0
+    timestamp: str = ""
+    features: dict = field(default_factory=dict)
 
 
 def _scenario_high_demand() -> List[Tuple[str, int, int]]:
