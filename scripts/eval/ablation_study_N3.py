@@ -30,11 +30,8 @@ sys.path.insert(0, str(ROOT))
 
 import pandas as pd  # noqa: E402
 
-from src.decision.decision_engine import DecisionEngine, Decision  # noqa: E402
-from src.safety.safety_shield import SafetyShield  # noqa: E402
-from src.models.anomaly_detector import AnomalyDetector  # noqa: E402
-from src.models.replica_predictor import ReplicaPredictor  # noqa: E402
-import yaml  # noqa: E402
+from src.decision.decision_engine import DecisionEngine  # noqa: E402
+from src.safety.safety_shield import SafetyShield, RejectedDecision  # noqa: E402
 
 LOG = logging.getLogger("ablation_N3")
 
@@ -44,18 +41,6 @@ SHIELD_CFG = ROOT / "specs" / "safety_policy.yaml"
 OUT_CSV = ROOT / "data" / "evaluation" / "ablation_results_N3.csv"
 
 ANOMALY_NOISE_STD = 0.05  # Gaussian std applied to anomaly_score
-
-
-def build_engine() -> tuple[DecisionEngine, SafetyShield]:
-    shield = SafetyShield(policy_path=SHIELD_CFG)
-    predictor = ReplicaPredictor.load(ROOT / "data" / "replica_model.pkl")
-    detector = AnomalyDetector.load(MODEL_PATH)
-    engine = DecisionEngine(
-        replica_predictor=predictor,
-        anomaly_detector=detector,
-        safety_shield=shield,
-    )
-    return engine, shield
 
 
 def run_variant(
@@ -69,11 +54,14 @@ def run_variant(
     Variants:
       - full_ai: standard DecisionEngine + SafetyShield
       - no_shap: same but the explain() path is disabled (set explain=False)
-      - no_shield: bypass Shield (always accept decision as-is)
+      - no_shield: bypass SafetyShield (always accept decision as-is)
     """
-    engine, shield = build_engine()
+    engine = DecisionEngine(
+        replica_model_path=ROOT / "data" / "replica_model.pkl",
+        anomaly_model_path=MODEL_PATH,
+    )
+    shield = SafetyShield(policy_path=SHIELD_CFG)
 
-    # Disable Shield for "no_shield" variant by passing bypass=True to validate
     apply_shield = variant != "no_shield"
     enable_explain = variant != "no_shap"
 
@@ -81,16 +69,20 @@ def run_variant(
               "rejected": 0, "applied": 0}
 
     rng = random.Random(rep * 1000)  # deterministic per-rep seed
+    rows = df.to_dict("records")
+    means = engine._compute_feature_means(rows)
 
-    for _, row in df.iterrows():
-        feats = row.to_dict()
+    for row in rows:
         # Apply Gaussian noise to anomaly_score
-        feats["anomaly_score"] = max(0.0, min(1.0,
-            float(feats["anomaly_score"]) + rng.gauss(0, noise_std)))
-        decision = engine.decide(feats)
+        row = dict(row)
+        row["anomaly_score"] = max(0.0, min(1.0,
+            float(row["anomaly_score"]) + rng.gauss(0, noise_std)))
+        decision = engine.decide(row, feature_means=means)
+        if not enable_explain:
+            decision.explanation = []
         if apply_shield:
             result = shield.validate(decision, bypass_cooldown=False)
-            if hasattr(result, "rejected_action"):
+            if isinstance(result, RejectedDecision):
                 counts["rejected"] += 1
             else:
                 counts[result.action] = counts.get(result.action, 0) + 1
