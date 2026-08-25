@@ -89,30 +89,25 @@ Init ==
 \* ---------------------------------------------------------------------------
 
 EmitDecision ==
-    /\ \/ /\ predicted_replicas > current_replicas
-          /\ decision' = "scale"
-          /\ target_replicas' = predicted_replicas
-          /\ consecutive_overload' =
-                 IF consecutive_overload + 1 <= MAX_REPLICAS
-                 THEN consecutive_overload + 1
-                 ELSE MAX_REPLICAS
-       \/ /\ predicted_replicas < current_replicas
-          /\ decision' = "scale"
-          /\ target_replicas' = predicted_replicas
-          /\ consecutive_overload' = 0
-       \/ /\ anomaly_level >= ANOMALY_THRESHOLD
-          /\ decision' = "heal"
-          /\ target_replicas' = current_replicas
-          /\ consecutive_overload' = 0
-       \/ /\ TRUE
-          /\ decision' = "noop"
-          /\ target_replicas' = current_replicas
-          /\ consecutive_overload' =
-                 IF predicted_replicas > current_replicas
-                 THEN IF consecutive_overload + 1 <= MAX_REPLICAS
-                      THEN consecutive_overload + 1
-                      ELSE MAX_REPLICAS
-                 ELSE 0
+    \/ /\ predicted_replicas > current_replicas
+       /\ decision' = "scale"
+       /\ target_replicas' = predicted_replicas
+       /\ consecutive_overload' =
+              IF consecutive_overload + 1 <= MAX_REPLICAS
+              THEN consecutive_overload + 1
+              ELSE MAX_REPLICAS
+    \/ /\ predicted_replicas < current_replicas
+       /\ decision' = "scale"
+       /\ target_replicas' = predicted_replicas
+       /\ consecutive_overload' = 0
+    \/ /\ predicted_replicas = current_replicas /\ anomaly_level >= ANOMALY_THRESHOLD
+       /\ decision' = "heal"
+       /\ target_replicas' = current_replicas
+       /\ consecutive_overload' = 0
+    \/ /\ predicted_replicas = current_replicas /\ anomaly_level < ANOMALY_THRESHOLD
+       /\ decision' = "noop"
+       /\ target_replicas' = current_replicas
+       /\ consecutive_overload' = 0
     /\ UNCHANGED <<current_replicas, predicted_replicas, anomaly_level,
                     clock, last_action_clock>>
 
@@ -175,6 +170,7 @@ Tick ==
 
 DriftPredictor ==
     /\ predicted_replicas' \in 1..MAX_REPLICAS
+    /\ Abs(predicted_replicas' - current_replicas) <= 2
     /\ UNCHANGED <<current_replicas, anomaly_level, decision,
                     target_replicas, clock, last_action_clock,
                     consecutive_overload>>
