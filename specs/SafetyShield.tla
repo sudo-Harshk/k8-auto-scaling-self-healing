@@ -174,6 +174,7 @@ DriftPredictor ==
                     consecutive_overload>>
 
 DriftAnomaly ==
+    /\ anomaly_level' \in {0, 1, 2}
     /\ \/ consecutive_overload < 2
        \/ anomaly_level' < ANOMALY_THRESHOLD
     /\ UNCHANGED <<current_replicas, predicted_replicas, decision,
