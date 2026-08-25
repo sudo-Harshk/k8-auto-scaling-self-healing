@@ -11,6 +11,8 @@ data/*
 !data/features.csv
 !data/replica_model.pkl
 !data/anomaly_model.pkl
+!data/anomaly_model_v2.pkl
+!data/features_v2.csv
 !data/evaluation
 logs/*
 !logs/.gitkeep
