@@ -271,8 +271,9 @@ AllInvariants ==
 \* initial value of 2. Verified by TLC with strong fairness on ApplyScaleUp.
 
 LivenessEventuallyScaleUp ==
-    []( (consecutive_overload = MAX_REPLICAS)
-         => <>(current_replicas > 2) )
+    \A n \in 1..MAX_REPLICAS :
+        []( (consecutive_overload = MAX_REPLICAS /\ current_replicas = n)
+             => <>(current_replicas > n) )
 
 ===============================================================================
 \* Modification History
