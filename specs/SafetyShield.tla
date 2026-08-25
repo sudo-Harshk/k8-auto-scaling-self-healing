@@ -55,6 +55,16 @@ vars == <<current_replicas, predicted_replicas, anomaly_level,
 \* Absolute value (Integers module provides the unary minus operator).
 Abs(x) == IF x < 0 THEN -x ELSE x
 
+\* Cooldown elapsed since the last action, accounting for the cyclic clock.
+\* `clock - last_action_clock` may be negative when the clock has wrapped past
+\* MAX_REPLICAS (e.g., clock=2, last_action_clock=10, raw diff = -8). The
+\* operator must treat the cyclic distance as the true elapsed time.
+CooldownElapsed ==
+    LET raw == clock - last_action_clock
+    IN IF raw >= 0
+       THEN raw >= COOLDOWN
+       ELSE (raw + (MAX_REPLICAS + 1)) >= COOLDOWN
+
 \* ---------------------------------------------------------------------------
 \* TypeOK: every variable is in its declared set
 \* ---------------------------------------------------------------------------
@@ -122,7 +132,7 @@ ApplyScaleUp ==
     /\ decision = "scale"
     /\ target_replicas > current_replicas
     /\ target_replicas - current_replicas <= 2
-    /\ clock - last_action_clock >= COOLDOWN
+    /\ CooldownElapsed
     /\ current_replicas' = target_replicas
     /\ last_action_clock' = clock
     /\ consecutive_overload' = 0
@@ -133,7 +143,7 @@ ApplyScaleDown ==
     /\ decision = "scale"
     /\ target_replicas < current_replicas
     /\ current_replicas - target_replicas <= 2
-    /\ clock - last_action_clock >= COOLDOWN
+    /\ CooldownElapsed
     /\ current_replicas' = target_replicas
     /\ last_action_clock' = clock
     /\ consecutive_overload' = 0
@@ -143,7 +153,7 @@ ApplyScaleDown ==
 ApplyHeal ==
     /\ decision = "heal"
     /\ target_replicas = current_replicas
-    /\ clock - last_action_clock >= COOLDOWN
+    /\ CooldownElapsed
     /\ current_replicas' = current_replicas
     /\ last_action_clock' = clock
     /\ UNCHANGED <<predicted_replicas, anomaly_level, decision,
