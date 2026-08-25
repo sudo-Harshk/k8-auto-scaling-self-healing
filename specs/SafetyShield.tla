@@ -194,13 +194,18 @@ Next ==
 Spec == Init /\ [][Next]_vars
 
 \* ---------------------------------------------------------------------------
-\* FAIRNESS: weak fairness on ApplyScaleUp / ApplyScaleDown is required for
-\* the liveness property below to hold. Without fairness, TLC can construct
-\* traces where the operator never fires even when continuously enabled.
+\* FAIRNESS: strong fairness on ApplyScaleUp / ApplyScaleDown is required for
+\* the liveness property below to hold. Weak fairness would require the
+\* actions to be enabled continuously, but DriftPredictor can temporarily
+\* disable them (by changing predicted_replicas out of bounded-step range
+\* or by making predicted = current so EmitDecision resets target). With
+\* strong fairness, ApplyScaleUp must fire if it is enabled infinitely
+\* often — which it is, because every Tick that satisfies the cooldown
+\* eventually re-enables it.
 \* ---------------------------------------------------------------------------
 
-Fairness == /\ WF_vars(ApplyScaleUp)
-             /\ WF_vars(ApplyScaleDown)
+Fairness == /\ SF_vars(ApplyScaleUp)
+             /\ SF_vars(ApplyScaleDown)
 
 LivenessSpec == Spec /\ Fairness
 
