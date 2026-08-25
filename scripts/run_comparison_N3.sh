@@ -80,17 +80,6 @@ capture_metrics() {
     python3 scripts/_capture_metrics.py "$op" "$name" "$users" "$duration" "$run" "$ts"
 }
 
-path = "data/evaluation/comparison_results_N3.csv"
-new_file = not __import__('os').path.exists(path)
-with open(path, "a", newline="") as f:
-    w = csv.DictWriter(f, fieldnames=row.keys())
-    if new_file:
-        w.writeheader()
-    w.writerow(row)
-print(f"  captured: {row}")
-EOF
-}
-
 # ---------------------------------------------------------------------------
 # Main loop
 # ---------------------------------------------------------------------------
