@@ -101,7 +101,7 @@ def _simulate(
     """Run a scenario through the shield with cooldown bypassed (logical clock)."""
     out = []
     for action, target, current in scenario:
-        decision = MockDecision(action=action, target=target, current=current)
+        decision = MockDecision(action=action, target_replicas=target, current=current)
         result = shield.validate(decision, bypass_cooldown=True)
         out.append(result)
     return out
@@ -159,14 +159,14 @@ def test_liveness_shield_enforces_cooldown_real_time():
     cooldown = shield.cooldown_seconds
     assert cooldown >= 1, f"cooldown_seconds={cooldown} should be at least 1"
 
-    d1 = MockDecision(action="scale", target=4, current=2)
+    d1 = MockDecision(action="scale", target_replicas=4, current=2)
     v1 = shield.validate(d1, bypass_cooldown=False)
     assert hasattr(v1, "action") and v1.action == "scale", (
         f"First action should pass: {v1}"
     )
 
     # Immediately try a second action — should be rejected by cooldown.
-    d2 = MockDecision(action="scale", target=5, current=2)
+    d2 = MockDecision(action="scale", target_replicas=5, current=2)
     v2 = shield.validate(d2, bypass_cooldown=False)
     assert hasattr(v2, "rejected") and v2.rejected, (
         f"Second action should be rejected by cooldown: {v2}"
@@ -183,7 +183,7 @@ def test_liveness_shield_clamps_oversized_jump():
     # Request a jump of 5 replicas (way over max_scale_step).
     current = 2
     target = current + 5
-    d = MockDecision(action="scale", target=target, current=current)
+    d = MockDecision(action="scale", target_replicas=target, current=current)
     v = shield.validate(d, bypass_cooldown=True)
     assert hasattr(v, "action") and v.action == "scale"
     assert v.target_replicas - v.current_replicas <= max_step, (
