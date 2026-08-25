@@ -151,11 +151,7 @@ ApplyHeal ==
 
 ApplyNoop ==
     /\ decision = "noop"
-    /\ UNCHANGED <<current_replicas, predicted_replicas, anomaly_level,
-                    decision, target_replicas, last_action_clock,
-                    consecutive_overload>>
-    /\ clock' = clock
-    /\ last_action_clock' = clock
+    /\ UNCHANGED vars
 
 \* ---------------------------------------------------------------------------
 \* Environment step: metrics change over time (predictor drifts, anomaly
