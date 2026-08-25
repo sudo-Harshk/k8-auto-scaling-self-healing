@@ -101,14 +101,18 @@ Init ==
 EmitDecision ==
     \/ /\ predicted_replicas > current_replicas
        /\ decision' = "scale"
-       /\ target_replicas' = predicted_replicas
+       /\ target_replicas' = IF predicted_replicas - current_replicas <= 2
+                            THEN predicted_replicas
+                            ELSE current_replicas + 2
        /\ consecutive_overload' =
               IF consecutive_overload + 1 <= MAX_REPLICAS
               THEN consecutive_overload + 1
               ELSE MAX_REPLICAS
     \/ /\ predicted_replicas < current_replicas
        /\ decision' = "scale"
-       /\ target_replicas' = predicted_replicas
+       /\ target_replicas' = IF current_replicas - predicted_replicas <= 2
+                            THEN predicted_replicas
+                            ELSE current_replicas - 2
        /\ consecutive_overload' = 0
     \/ /\ predicted_replicas = current_replicas /\ anomaly_level >= ANOMALY_THRESHOLD
        /\ decision' = "heal"
