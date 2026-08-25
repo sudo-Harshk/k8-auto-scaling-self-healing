@@ -168,13 +168,14 @@ DriftPredictor ==
     /\ predicted_replicas' \in 1..MAX_REPLICAS
     /\ Abs(predicted_replicas' - current_replicas) <= 2
     /\ \/ consecutive_overload < 2
-       \/ predicted_replicas' >= current_replicas
+       \/ predicted_replicas' > current_replicas
     /\ UNCHANGED <<current_replicas, anomaly_level, decision,
                     target_replicas, clock, last_action_clock,
                     consecutive_overload>>
 
 DriftAnomaly ==
-    /\ anomaly_level' \in {0, 1, 2}
+    /\ \/ consecutive_overload < 2
+       \/ anomaly_level' < ANOMALY_THRESHOLD
     /\ UNCHANGED <<current_replicas, predicted_replicas, decision,
                     target_replicas, clock, last_action_clock,
                     consecutive_overload>>
