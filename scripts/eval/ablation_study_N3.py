@@ -47,8 +47,7 @@ ANOMALY_NOISE_STD = 0.05  # Gaussian std applied to anomaly_score
 
 
 def build_engine() -> tuple[DecisionEngine, SafetyShield]:
-    cfg = yaml.safe_load(SHIELD_CFG.read_text())
-    shield = SafetyShield.from_config(cfg["safety_shield"])
+    shield = SafetyShield(policy_path=SHIELD_CFG)
     predictor = ReplicaPredictor.load(ROOT / "data" / "replica_model.pkl")
     detector = AnomalyDetector.load(MODEL_PATH)
     engine = DecisionEngine(
