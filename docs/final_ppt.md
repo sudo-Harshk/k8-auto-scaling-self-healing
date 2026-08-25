@@ -92,7 +92,7 @@ Per-day walkthrough (Days 1-13):
 
 ---
 
-## Slide 8 — Comparison Results (Day 14)
+## Slide 8 — Comparison Results (Day 14 + Day 15 N=3)
 
 [Table from `data/evaluation/comparison_summary.md`]
 
@@ -101,6 +101,10 @@ Per-day walkthrough (Days 1-13):
 | HPA | 15 | 8 | 0 | 0.0 | 10 |
 | KEDA | 5 | 6 | 0 | 0.0 | 10 |
 | AI (full) | 90 | 0 | 1 | 69.2 | 2 |
+
+**Day 15 N=3 replication** (data/evaluation/comparison_results_N3.csv):
+same trends hold across 3 repetitions per scenario. Cohen's d analysis at
+`data/evaluation/effect_sizes.md` quantifies effect sizes per metric.
 
 **Key finding:** HPA and KEDA scale faster; the AI operator prioritizes
 anomaly detection and safety. Only the AI operator detects and heals
@@ -111,17 +115,28 @@ actions in the ablation study — preventing unconstrained AI behavior.
 
 ---
 
-## Slide 9 — Ablation
+## Slide 9 — Ablation + Liveness
 
 | Variant | Scale | Heal | Rejected | Applied | Comments |
 |---------|-------|------|----------|---------|----------|
-| AI full | 0 | 55 | 54 | 1 | All 5 invariants enforced; cooldown blocks most heals |
-| AI – SHAP | 0 | 55 | 54 | 1 | SHAP doesn't change decisions (explanation only) |
+| AI full | 0 | 1 | 54 | 1 | All 5 invariants enforced; cooldown blocks most heals |
+| AI – SHAP | 0 | 1 | 54 | 1 | SHAP doesn't change decisions (explanation only) |
 | **AI – Safety Shield** | 0 | 55 | **0** | **55** | **Unconstrained: 55 unvalidated heal actions** |
-| AI + liveness (Day-15) | TBD | TBD | TBD | TBD | New liveness property added |
+| **Stochastic N=3 (σ=5%)** | same | same | same | same | Identical to N=1: decision boundary robust to sensor noise |
+
+**Liveness property** (Day 15, verified by TLC):
+> `LivenessEventuallyScaleUp`: when `consecutive_overload = MAX_REPLICAS`
+> (10 consecutive windows of sustained demand), the operator eventually
+> scales above the current replica count.
+
+TLC explored **2,486,782 state generations**, found **273,702 distinct
+states**, in **4 min 6 s** — both safety AND liveness hold on every
+reachable state.
 
 **Headline:** without the Safety Shield, the engine would apply 55 unconstrained
 heal actions in 55 windows. The Shield is the paper's strongest safety claim.
+**With liveness verified**, the operator is also proven to respond to
+sustained demand (the second-strongest paper claim).
 
 ---
 

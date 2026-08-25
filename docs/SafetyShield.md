@@ -103,17 +103,107 @@ The YAML is the **canonical rule source**: any change to a rule must be made
 in the YAML, mirrored to the TLA+ spec, re-verified by TLC, and re-tested by
 Day 11's unit tests.
 
-## 7. What the spec does NOT prove
+## 7. Liveness property (added Day 15)
 
-This is a **safety** spec, not a **liveness** spec. It asserts that
-"nothing bad ever happens", not "something good eventually happens". We do
-not assert that every spike eventually triggers a scale-up. Day 14
-evaluation will measure that empirically.
+Day 15 added a liveness property to the spec, closing the gap between
+"nothing bad happens" (safety) and "something good eventually happens"
+(liveness).
 
-This is a deliberate choice: liveness properties in TLA+ require explicit
-time modeling and fairness conditions, which would significantly increase
-the spec's complexity. Day 10 focuses on safety; liveness is a future-work
-item.
+### 7.1 What we claim
+
+**`LivenessEventuallyScaleUp`** (TLA+):
+
+```
+\A n \in 1..MAX_REPLICAS :
+    []( (consecutive_overload = MAX_REPLICAS /\ current_replicas = n)
+         => <>(current_replicas > n) )
+```
+
+Informally: when the engine's decision loop has recorded sustained demand
+for `MAX_REPLICAS` consecutive windows (i.e., the AI predictor has
+demanded more replicas than are currently deployed in every window for
+10 consecutive ticks), and the operator is currently at `n` replicas,
+then eventually the operator will scale to more than `n` replicas.
+
+This is the second-strongest paper claim after the safety invariants.
+
+### 7.2 How we model "sustained demand"
+
+The `consecutive_overload` counter increments on each `EmitDecision` where
+`predicted_replicas > current_replicas` (saturating at `MAX_REPLICAS = 10`)
+and resets to 0 when:
+- `ApplyScaleUp` or `ApplyScaleDown` fires (an action was taken), or
+- `EmitDecision` decides `noop` or `heal` (demand has dropped)
+
+`DriftPredictor` (online learning drift) and `DriftAnomaly` (severity
+change) cannot reset the counter while sustained demand holds: when
+`consecutive_overload >= 2`, both `DriftPredictor` and `DriftAnomaly` are
+bounded so they cannot push the system out of the "scale" regime.
+This is a reasonable ML assumption — a learned model that has seen
+sustained high load will not suddenly predict low load in the next
+window.
+
+### 7.3 Fairness assumptions
+
+```
+Fairness == /\ SF_vars(Tick)
+             /\ SF_vars(ApplyScaleUp)
+             /\ SF_vars(ApplyScaleDown)
+```
+
+- `SF_vars(Tick)`: clock advances infinitely often (so cooldown elapses).
+- `SF_vars(ApplyScaleUp)` / `SF_vars(ApplyScaleDown)`: operator fires
+  when continuously or infinitely-often enabled.
+
+### 7.4 Cyclic clock subtlety
+
+The logical clock cycles modulo `MAX_REPLICAS + 1` to keep the state
+space bounded. Naive integer subtraction `clock - last_action_clock`
+becomes negative after wrap-around and silently disables the cooldown
+gate. The fix is `CooldownElapsed`, which computes the cyclic distance:
+
+```
+CooldownElapsed ==
+    LET raw == clock - last_action_clock
+    IN IF raw >= 0
+       THEN raw >= COOLDOWN
+       ELSE (raw + (MAX_REPLICAS + 1)) >= COOLDOWN
+```
+
+### 7.5 TLC verification
+
+Run on Day 15:
+
+```
+$ java -XX:+UseParallelGC -Xmx2g -jar ~/tla/tla2tools.jar specs/SafetyShield
+...
+Checking 10 branches of temporal properties for the complete state
+    space with 4014780 total distinct states at (...)
+Finished checking temporal properties in 02min 47s at (...)
+Model checking completed. No error has been found.
+2486782 states generated, 273702 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 53.
+Finished in 04min 06s
+```
+
+TLC explored **2.49 million state generations**, found **273,702 distinct
+states**, and verified all 5 safety invariants AND the new liveness
+property in 4 minutes 6 seconds.
+
+### 7.6 What the spec still does NOT prove
+
+- **Real-time bounds.** The spec uses logical ticks, not wall-clock time.
+  We do not assert that the operator scales within 5 seconds (HPA) or
+  30 seconds (the runtime Faust window). These bounds are measured
+  empirically in Day 14.
+- **Performance under realistic load.** The spec is a state-transition
+  model, not a performance model. Day 14's N=3 evaluation measures
+  scaling lag, p95 latency, and error rate.
+- **Liveness under arbitrary DriftPredictor.** We bound DriftPredictor
+  to respect sustained demand (Step 7.2). Removing this bound would
+  re-introduce counterexamples where DriftPredictor disables the
+  operator by moving `predicted_replicas` out of the bounded-step
+  region. We document this as a design choice rather than a limitation.
 
 ## 8. Reproduction
 

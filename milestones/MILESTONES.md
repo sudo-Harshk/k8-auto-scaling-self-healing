@@ -306,6 +306,7 @@ Wire all components together and prove auto-scaling under load and auto-healing 
 | 12 | ✅ | committed | ✅ execution notes | 8/8 unit tests + live smoke test passed |
 | 13 | ✅ | committed | ✅ execution notes | E2E pipeline + auto-healing proven |
 | 14 | ✅ | committed | ✅ execution notes | 3-op comparison + ablation done |
+| 15 | 🔄 | in progress | 🔄 in progress | N=3 + liveness + retrain in progress |
 
 **Overall:** All 13 days have working code, verified runtime, and committed evidence. Days 14-16 (planned as one block) will: install HPA + KEDA baselines, run a 3-operator × 3-scenario comparison, retrain the anomaly detector on a larger dataset, add a liveness property to the TLA+ spec, swap podinfo for a DB-backed workload to fix p95 latency zero-variance, ship a 6-page IEEE paper draft, and produce a reproducible Grafana dashboard.
 
