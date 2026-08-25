@@ -73,12 +73,13 @@ def main() -> int:
         key = (r["operator"], r["scenario"])
         groups.setdefault(key, []).append(r)
 
-    # Metrics to analyze
+    # Metrics to analyze (with fallback column names)
     metric_cols = [
         ("scaling_lag_s", "Scaling lag (s)", True),  # lower is better
         ("p95_latency_ms_avg", "p95 latency avg (ms)", True),
         ("p95_latency_ms_max", "p95 latency max (ms)", True),
         ("error_rate_pct", "Error rate (%)", True),
+        ("error_rate_avg", "Error rate avg (%)", True),  # Day-14 fallback
         ("total_scale_actions", "Total scale actions", False),
         ("total_heal_actions", "Total heal actions", False),
     ]
@@ -100,13 +101,19 @@ def main() -> int:
         lines.append(f"## Scenario: {scenario}")
         lines.append("")
         for col, label, lower_better in metric_cols:
-            ai_vals = [safe_float(r[col]) for r in groups.get(("ai", scenario), [])]
-            hpa_vals = [safe_float(r[col]) for r in groups.get(("hpa", scenario), [])]
-            keda_vals = [safe_float(r[col]) for r in groups.get(("keda", scenario), [])]
+            ai_vals = [safe_float(r.get(col, "TBD")) for r in groups.get(("ai", scenario), [])]
+            hpa_vals = [safe_float(r.get(col, "TBD")) for r in groups.get(("hpa", scenario), [])]
+            keda_vals = [safe_float(r.get(col, "TBD")) for r in groups.get(("keda", scenario), [])]
 
-            # Skip if any group has no data
-            if not any(v == v for v in ai_vals + hpa_vals + keda_vals):
+            # Skip if any group has no data or column missing everywhere
+            ai_clean = [v for v in ai_vals if v == v]
+            hpa_clean = [v for v in hpa_vals if v == v]
+            keda_clean = [v for v in keda_vals if v == v]
+            if not ai_clean and not hpa_clean and not keda_clean:
                 continue
+            ai_vals = ai_clean
+            hpa_vals = hpa_clean
+            keda_vals = keda_clean
 
             d_ai_hpa = cohen_d(ai_vals, hpa_vals) if hpa_vals else float("nan")
             d_ai_keda = cohen_d(ai_vals, keda_vals) if keda_vals else float("nan")
