@@ -168,8 +168,10 @@ def test_liveness_shield_enforces_cooldown_real_time():
     # Immediately try a second action — should be rejected by cooldown.
     d2 = MockDecision(action="scale", target_replicas=5, current_replicas=2)
     v2 = shield.validate(d2, bypass_cooldown=False)
-    assert hasattr(v2, "rejected") and v2.rejected, (
-        f"Second action should be rejected by cooldown: {v2}"
+    # RejectedDecision is identified by its class, not a `.rejected` flag.
+    from safety.safety_shield import RejectedDecision
+    assert isinstance(v2, RejectedDecision), (
+        f"Second action should be a RejectedDecision (cooldown), got {type(v2).__name__}: {v2}"
     )
     assert "cooldown" in str(v2.reason).lower(), (
         f"Rejection reason should mention cooldown: {v2.reason}"
