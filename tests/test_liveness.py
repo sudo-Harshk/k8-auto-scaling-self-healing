@@ -176,7 +176,9 @@ def test_liveness_shield_clamps_oversized_jump():
     shield = SafetyShield(policy_path=SHIELD_CFG)
     max_step = shield.max_scale_step
     # Request a jump of 5 replicas (way over max_scale_step).
-    d = MockDecision(action="scale", target=current := 2 + 5, current=2)
+    current = 2
+    target = current + 5
+    d = MockDecision(action="scale", target=target, current=current)
     v = shield.validate(d, bypass_cooldown=True)
     assert hasattr(v, "action") and v.action == "scale"
     assert v.target_replicas - v.current_replicas <= max_step, (
