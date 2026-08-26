@@ -211,4 +211,108 @@ assumptions, and the cyclic-clock subtlety.
 A Python-side simulation test (`tests/test_liveness.py`, 5 tests)
 mirrors the TLA+ property at the implementation level and verifies
 runtime behavior matches the formal model.
+
+## 7.11 p95 Variability Rework (Day 16)
+
+The original podinfo workload had constant p95 latency (4.75 ms in every
+row of `data/features.csv`), a limitation flagged by Day-7 reviewers as
+undermining the paper's empirical claims. Day 16 replaced podinfo with a
+DB-backed Flask + SQLite workload (`workload/app.py`,
+`ops/manifests/workload-v2.yaml`).
+
+### 7.11.1 New workload
+
+The workload exposes three endpoints:
+- `GET /` — render index (~2 ms)
+- `GET /api/query` — SQL queries (5-30 ms base + queueing under contention)
+- `POST /api/write` — DB inserts (10-50 ms with SQLite write contention)
+
+`ARTIFICIAL_LATENCY_MS=10` env var adds uniform random sleep 0-10 ms to
+each request, ensuring p95 variance even at low load.
+
+### 7.11.2 p95 latency variance
+
+`scripts/check_v2_p95.py` measured p95 across 3 load levels (5, 25, 60 users):
+
+| Load | p95 (ms) |
+|------|----------|
+| Low (5 users) | 290 |
+| Medium (25 users) | 14,000 |
+| High (60 users) | 9,600 |
+
+**48× range** across load levels — well above the >2× target.
+
+### 7.11.3 New dataset
+
+`scripts/build_dataset_v2.py` captured **285 rows** of features across 3
+scenarios (spike 120s × 80 users, steady 120s × 40 users, idle 60s × 8
+users). The resulting `data/features_v2.csv` is committed.
+
+Per-scenario p95 (across all 30s windows):
+
+| Scenario | min p95 (ms) | max p95 (ms) | mean p95 (ms) | std (ms) |
+|----------|----------------|----------------|----------------|----------|
+| spike | 0 | 23,200 | 2,526 | 5,620 |
+| steady | 0 | 5.4 | 2.0 | 0.4 |
+| idle | 0 | 2.0 | 1.5 | 0.3 |
+
+### 7.11.4 Retrained models
+
+- **Replica predictor v2** (`data/replica_model_v2.pkl`): MAE **0.007**
+  on v2 data (vs v1's 0.24 on Day-6 data). Lower MAE because v2 dataset
+  is dominated by `target_replicas=2` (we never scaled workload-v2 during
+  dataset capture).
+- **Anomaly detector v3** (`data/anomaly_model_v3.pkl`): 1.2% organic
+  detection rate (vs v2's 54.5%, v1's 55%). Lower because the new labeling
+  heuristic (spike=anomaly, idle=anomaly, steady=normal) produces feature
+  distributions with low separation.
+
+### 7.11.5 v2 N=1 comparison
+
+`data/evaluation/comparison_v2_N1.csv` — single-run comparison of HPA,
+KEDA, AI on workload-v2 (N=1, 60s spike, 80 users):
+
+| Operator | start_replicas | end_replicas | p95_avg_ms | error_rate |
+|----------|----------------|--------------|-------------|------------|
+| HPA | 2 | 10 | 5445 | 0.0 |
+| KEDA | 2 | 2 | 3 | 0.0 |
+| AI | 2 | 2 | 3 | 0.0 |
+
+**Observations:**
+- HPA scaled correctly (2→10 under 50% CPU target).
+- KEDA did not scale (CPU trigger didn't fire in 60s window).
+- AI operator did not scale (pipeline still configured for podinfo,
+  not workload-v2 — deferred to future work).
+- HPA's high p95 (5445 ms) reflects SQLite write contention at 10
+  replicas. This is realistic for shared-state microservices.
+
+Full v2 N=1 discussion: `data/evaluation/effect_sizes_v2.md`.
+
+## 7.12 IEEE paper draft (Day 16)
+
+`docs/ieee_paper.md` — 6-page IEEE conference-template paper draft.
+Sections: Abstract, Introduction, Related Work, Method (Architecture,
+Decision Engine, Safety Shield, Cyclic Clock), Evaluation (Methodology,
+N=3 Statistical Comparison, Ablation, v2 Workload), Discussion,
+Conclusion, References.
+
+This is the paper artifact ready for workshop submission.
+
+## 7.13 Grafana dashboard JSON (Day 16)
+
+`docs/dashboard.json` — 10-panel Grafana dashboard:
+1. Total Decisions (24h) — stat
+2. Applied Decisions (24h) — stat
+3. Rejected by Safety Shield (24h) — stat
+4. Current Pod Replicas — stat
+5. Replica Count Over Time — timeseries
+6. Anomaly Score Over Time — timeseries (with threshold)
+7. CPU Usage — timeseries
+8. Memory Usage — timeseries
+9. Recent Decisions table — last 50 decisions
+10. Safety Audit Log — streamed log panel
+
+The dashboard is template-driven (namespace, deployment) and refreshes
+every 30 s. It can be imported into any Grafana 9+ instance via
+"Import dashboard > Upload JSON file > paste contents".
 ```

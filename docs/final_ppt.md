@@ -92,7 +92,7 @@ Per-day walkthrough (Days 1-13):
 
 ---
 
-## Slide 8 — Comparison Results (Day 14 + Day 15 N=3)
+## Slide 8 — Comparison Results (Day 14 + Day 15 N=3 + Day 16 v2)
 
 [Table from `data/evaluation/comparison_summary.md`]
 
@@ -105,6 +105,10 @@ Per-day walkthrough (Days 1-13):
 **Day 15 N=3 replication** (data/evaluation/comparison_results_N3.csv):
 same trends hold across 3 repetitions per scenario. Cohen's d analysis at
 `data/evaluation/effect_sizes.md` quantifies effect sizes per metric.
+
+**Day 16 v2 workload** (data/evaluation/comparison_v2_N1.csv): replaced
+podinfo with Flask+SQLite. p95 now varies 48× (290ms-23200ms). HPA scaled
+2→10; KEDA/AI stayed at 2 (AI pipeline still on podinfo — deferred).
 
 **Key finding:** HPA and KEDA scale faster; the AI operator prioritizes
 anomaly detection and safety. Only the AI operator detects and heals
