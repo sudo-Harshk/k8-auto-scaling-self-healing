@@ -59,8 +59,8 @@ def _maybe_init_db():
             payload TEXT
         )"""
     )
-    c.execute("SELECT COUNT(*) FROM events")
-    count = c.fetchone()[0]
+    cur = c.execute("SELECT COUNT(*) FROM events")
+    count = cur.fetchone()[0]
     if count < INIT_ROWS:
         LOG.info("seeding %d rows (current=%d)", INIT_ROWS, count)
         rows = [
