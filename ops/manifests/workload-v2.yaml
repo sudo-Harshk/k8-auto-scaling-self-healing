@@ -1,0 +1,101 @@
+# Day 16 - DB-backed workload manifest (Flask + SQLite)
+#
+# Replaces podinfo as the K8s workload for the AI operator's v2 evaluation.
+# Exposes:
+#   GET  /            - index
+#   GET  /api/query   - SQL queries (variable p95)
+#   POST /api/write   - DB inserts
+#   GET  /healthz     - health probe
+#
+# Notes:
+#   - 2 replicas, 2-10 HPA range (CPU target 50%)
+#   - SQLite DB lives on a PersistentVolume (1Gi) so data survives restarts
+#   - ARTIFICIAL_LATENCY_MS=10 ensures p95 variance even on / and /healthz
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workload-v2
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: workload-v2-data
+  namespace: workload-v2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-v2
+  namespace: workload-v2
+  labels:
+    app: workload-v2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: workload-v2
+  template:
+    metadata:
+      labels:
+        app: workload-v2
+    spec:
+      containers:
+        - name: workload-v2
+          image: workload-v2:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_PATH
+              value: /data/workload.db
+            - name: INIT_ROWS
+              value: "100000"
+            - name: ARTIFICIAL_LATENCY_MS
+              value: "10"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: workload-v2-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: workload-v2
+  namespace: workload-v2
+spec:
+  type: ClusterIP
+  selector:
+    app: workload-v2
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
