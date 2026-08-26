@@ -82,4 +82,4 @@ each day is committed and tagged.
 - [x] Day 13 - End-to-End Integration & Chaos Testing
 - [x] Day 14 - Evaluation, Dashboards & Final Documentation
 - [x] Day 15 - Statistical Rigor, Liveness & Reproducibility
-- [ ] Day 16 - p95 Variability Rework, IEEE Paper Draft, Dashboard
+- [x] Day 16 - p95 Variability Rework, IEEE Paper Draft, Dashboard

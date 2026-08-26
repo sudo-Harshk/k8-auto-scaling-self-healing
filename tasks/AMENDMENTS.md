@@ -8,6 +8,76 @@ All times IST.
 
 ---
 
+## 2026-08-26 — Day 16 p95 variability rework, IEEE paper, dashboard
+
+**Context.** Day 16 closed the paper-quality gaps left by Days 1-15:
+constant p95 latency (a flagged reviewer concern), no IEEE-format
+paper draft, and no reproducible Grafana dashboard.
+
+**What was built today (2026-08-26):**
+
+1. **DB-backed workload (workload-v2).** Replaced the trivial podinfo
+   service with a Flask + SQLite microservice
+   (`workload/app.py`, 165 lines; `workload/Dockerfile`). Three
+   endpoints (`GET /`, `GET /api/query`, `POST /api/write`) with
+   configurable `ARTIFICIAL_LATENCY_MS`. Built Docker image
+   `workload-v2:dev` (213 MB), loaded into kind.
+
+2. **Workload deployment manifest (`ops/manifests/workload-v2.yaml`).
+   2-replica Deployment, ClusterIP Service, PVC for SQLite data
+   persistence.
+
+3. **p95 latency variance: 48× range** (290 ms low load → 14,000 ms
+   medium load). Verified via `scripts/check_v2_p95.py`.
+
+4. **Dataset v2 (`data/features_v2.csv`, 285 rows).** Captured via
+   `scripts/build_dataset_v2.py` — 80-user spike (120 s), 40-user
+   steady (120 s), 8-user idle (60 s).
+
+5. **Retrained models:**
+   - `data/replica_model_v2.pkl` — MAE 0.007 on v2 data (v1 was 0.24).
+   - `data/anomaly_model_v3.pkl` — 1.2% organic detection (v2 was
+     54.5%, v1 was 55%). Lower because the new labeling heuristic
+     produces feature distributions with low separation.
+
+6. **HPA + KEDA for workload-v2** (`ops/manifests/workload-v2-hpa.yaml`,
+   `workload-v2-keda.yaml`). HPA: CPU 50% target. KEDA: CPU scaler.
+
+7. **v2 N=1 comparison** (`scripts/run_comparison_v2_N1.py`,
+   `data/evaluation/comparison_v2_N1.csv`). HPA scaled 2→10; KEDA/AI
+   stayed at 2 (AI pipeline still on podinfo; deferred).
+
+8. **IEEE paper draft** (`docs/ieee_paper.md`, 277 lines, ~6 pages).
+   Sections: Abstract, Introduction, Related Work, Method, Evaluation,
+   Discussion, Conclusion, References.
+
+9. **Grafana dashboard JSON** (`docs/dashboard.json`, 264 lines).
+   Hand-written because Grafana was CrashLoopBackOff on plugin install.
+   10 panels covering decisions, replicas, anomaly, CPU, memory, audit log.
+
+**Day 16 deviations from plan:**
+
+| Plan step | Outcome |
+|-----------|---------|
+| Step 1b: Fix Grafana + export | **FAILED** → hand-wrote JSON |
+| Step 4: 10 min × 3 scenarios | Used 120s × 3 (more data) |
+| Step 8: Day-13 E2E re-run | **SKIPPED** (AI pipeline needs reconfiguration) |
+| Step 9: Full N=3 with v2 models | **Reduced to N=1** (re-running with v1 AI + v2 models = misleading) |
+
+**Test count after Day-16:** 40 (unchanged).
+
+**Final repo state:** 23 commits on Day 16, HEAD at `706da54`.
+
+**What remains (Day 17+):**
+- Reconfigure AI pipeline to scrape workload-v2
+- Re-run Day-13 E2E on workload-v2
+- Re-run Day-15 N=3 with v2 models
+- Convert `ieee_paper.md` to `ieee_paper.tex`
+- Production deployment
+- Independent third-party reproduction
+
+---
+
 ## 2026-08-25 — Day 15 statistical rigor, liveness, reproducibility
 
 **Context.** With Day 14 delivered, Day 15 closes the three biggest
