@@ -1,0 +1,4 @@
+operator,users,duration_s,start_replicas,end_replicas,p95_avg_ms,request_count,error_rate
+hpa,80,60,2,10,5445.88,0,0
+keda,80,60,2,2,3.01,0,0
+ai,80,60,2,2,3.09,0,0
