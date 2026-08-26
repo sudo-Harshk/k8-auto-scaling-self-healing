@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir \
     flask==3.1.3 \
     gunicorn==23.0.0
 
-COPY workload/app.py /app/app.py
+COPY app.py /app/app.py
 
 ENV DB_PATH=/data/workload.db
 ENV INIT_ROWS=100000
