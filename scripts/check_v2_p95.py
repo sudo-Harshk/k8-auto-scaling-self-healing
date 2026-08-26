@@ -28,68 +28,57 @@ WORKLOAD_URL = "http://localhost:8080"
 
 def run_locust(name: str, user_count: int, duration: int, host: str = WORKLOAD_URL) -> dict:
     """Run a Locust test and return p95 latency stats."""
-    csv_path = f"/tmp/locust_{name}"
+    csv_path = f"/tmp/locustv2_{name}"
     LOG.info("running %s: %d users for %ds", name, user_count, duration)
+    # Run Locust with --csv pointing to /code/logs (mounted from VM)
     proc = subprocess.run(
         [
             "docker", "run", "--rm", "--network", "host",
-            "-v", "/tmp:/tmp",
+            "-v", f"{Path.cwd()}:/code",
+            "-w", "/code",
             "--entrypoint", "locust",
             "k8-ai-ops:dev",
-            "-f", "/dev/stdin",
+            "-f", "/code/scripts/locustfile_v2.py",
             "--headless", "-u", str(user_count), "-r", "20",
             "-t", f"{duration}s",
             "--host", host,
-            "--csv", csv_path,
+            "--csv", f"logs/locustv2_{name}",
             "--only-summary",
         ],
-        input=f"""
-from locust import HttpUser, task, between
-
-class V2User(HttpUser):
-    wait_time = between(0.05, 0.2)
-
-    @task(5)
-    def query(self):
-        self.client.get("/api/query?type=count")
-
-    @task(5)
-    def query_stats(self):
-        self.client.get("/api/query?type=stats")
-
-    @task(1)
-    def write(self):
-        self.client.post("/api/write", json={{"kind": "scale", "value": 42.5}})
-""",
         capture_output=True, text=True, timeout=duration + 30,
     )
     LOG.info("locust %s done", name)
     # Parse the only-summary output for p95
     out = proc.stdout
     p95 = None
+    # only-summary format: "  Type     Name  # reqs  # fails  Avg  Min  Max  Med  req/s  failures/s"
+    # We want aggregate "Total" row, columns include 95% percentile
     for line in out.splitlines():
-        if "95%" in line or "p95" in line.lower():
-            parts = line.split("|")
-            if len(parts) > 1:
-                try:
-                    p95 = float(parts[-1].strip())
-                except ValueError:
-                    pass
+        if "Total" in line and "|" not in line:
+            # could be plain table; skip
+            continue
+        if "95%" in line:
+            # Find numbers in the line
+            import re
+            nums = re.findall(r"\d+(?:\.\d+)?", line)
+            if nums:
+                p95 = float(nums[-1])
+                break
     # Try CSV as fallback
     if p95 is None:
         try:
-            with open(f"{csv_path}_stats.csv") as f:
+            with open(f"logs/locustv2_{name}_stats.csv") as f:
                 lines = f.read().strip().splitlines()
             for line in lines:
-                if line.startswith("GET,/api/query?type=count"):
+                if line.startswith("GET,/api/query"):
                     parts = line.split(",")
-                    # columns: ...,50%,66%,75%,80%,90%,95%,98%,99%,...
                     headers = lines[0].split(",")
-                    idx = headers.index("95%")
-                    p95 = float(parts[idx])
-                    break
+                    if "95%" in headers:
+                        idx = headers.index("95%")
+                        p95 = float(parts[idx])
+                        break
         except Exception as e:
-            LOG.warning("could not parse %s: %s", csv_path, e)
+            LOG.warning("could not parse logs/locustv2_%s: %s", name, e)
     return {"name": name, "p95": p95, "users": user_count, "duration": duration}
 
 
