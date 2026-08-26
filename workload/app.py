@@ -173,7 +173,12 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
     )
-    _maybe_init_db()
-    LOG.info("starting workload_v2 on :8080 (db=%s, init_rows=%d, latency_ms=%d)",
-             DB_PATH, INIT_ROWS, ARTIFICIAL_LATENCY_MS)
     app.run(host="0.0.0.0", port=8080, threaded=True)
+else:
+    # When imported by gunicorn, initialize DB at module load time.
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
+    )
+    _maybe_init_db()
+    LOG.info("workload_v2 loaded (db=%s, init_rows=%d, latency_ms=%d)",
+             DB_PATH, INIT_ROWS, ARTIFICIAL_LATENCY_MS)
