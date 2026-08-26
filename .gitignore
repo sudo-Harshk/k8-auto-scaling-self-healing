@@ -10,8 +10,10 @@ data/*
 !data/baseline_metrics.csv
 !data/features.csv
 !data/replica_model.pkl
+!data/replica_model_v2.pkl
 !data/anomaly_model.pkl
 !data/anomaly_model_v2.pkl
+!data/anomaly_model_v3.pkl
 !data/features_v2.csv
 !data/evaluation
 logs/*
