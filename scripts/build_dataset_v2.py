@@ -46,8 +46,9 @@ def target_replicas(cpu_percent: float, request_rate: float, current: int) -> in
     return max(1, min(10, max(by_cpu, by_req, current)))
 
 
-def get_k8s_metrics() -> dict:
+def get_k8s_metrics(log=None) -> dict:
     """Sample current K8s metrics for workload-v2."""
+    log = log or logging.getLogger("build_dataset_v2")
     metrics = {"cpu_percent": 0.0, "memory_percent": 0.0, "current_replicas": 2}
     try:
         out = subprocess.check_output(
@@ -59,13 +60,14 @@ def get_k8s_metrics() -> dict:
         pods = out.split()
         metrics["current_replicas"] = len(pods) if pods else 2
     except Exception as e:
-        LOG.warning("could not get pod count: %s", e)
+        log.warning("could not get pod count: %s", e)
     return metrics
 
 
-def run_locust_scenario(name: str, users: int, duration: int, port: int = 8080):
+def run_locust_scenario(name: str, users: int, duration: int, port: int = 8080, log=None):
     """Run a Locust scenario and return per-window stats."""
-    LOG.info("[%s] starting Locust: %d users for %ds", name, users, duration)
+    log = log or logging.getLogger("build_dataset_v2")
+    log.info("[%s] starting Locust: %d users for %ds", name, users, duration)
     proc = subprocess.run(
         [
             "docker", "run", "--rm", "--network", "host",
@@ -81,7 +83,7 @@ def run_locust_scenario(name: str, users: int, duration: int, port: int = 8080):
         ],
         capture_output=True, text=True, timeout=duration + 30,
     )
-    LOG.info("[%s] Locust done", name)
+    log.info("[%s] Locust done", name)
     # Parse per-window stats from _stats_history.csv
     history_path = ROOT / "logs" / f"locustv2_{name}_stats_history.csv"
     windows = []
@@ -153,10 +155,10 @@ def main() -> int:
     ]
 
     for name, users, duration in scenarios:
-        windows = run_locust_scenario(name, users, duration)
+        windows = run_locust_scenario(name, users, duration, log=LOG)
         LOG.info("[%s] captured %d windows", name, len(windows))
         for w in windows:
-            metrics = get_k8s_metrics()
+            metrics = get_k8s_metrics(log=LOG)
             cpu = min(100.0, 5.0 + (users / 2.0) + random.gauss(0, 3))
             mem = min(100.0, 30.0 + (users / 4.0) + random.gauss(0, 5))
             target = target_replicas(cpu, w["request_rate"], metrics["current_replicas"])
