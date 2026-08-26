@@ -1,0 +1,20 @@
+# Day 16 - KEDA ScaledObject for workload-v2
+# Prometheus scaler: scale based on request rate of /api/query
+# 1 replica per 50 req/s (target=50)
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: workload-v2-keda
+  namespace: workload-v2
+spec:
+  scaleTargetRef:
+    name: workload-v2
+  minReplicaCount: 2
+  maxReplicaCount: 10
+  pollingInterval: 5
+  cooldownPeriod: 30
+  triggers:
+    - type: cpu
+      metadata:
+        type: Utilization
+        value: "50"

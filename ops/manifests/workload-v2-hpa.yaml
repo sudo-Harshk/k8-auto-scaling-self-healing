@@ -1,0 +1,21 @@
+# Day 16 - HPA for workload-v2
+# Replaces the podinfo HPA. CPU target=50% (workload-v2 has more CPU usage)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: workload-v2-hpa
+  namespace: workload-v2
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: workload-v2
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
