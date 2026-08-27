@@ -95,6 +95,8 @@ kind: Service
 metadata:
   name: workload-v2
   namespace: workload-v2
+  labels:
+    release: kube-prometheus-stack
 spec:
   type: ClusterIP
   selector:
