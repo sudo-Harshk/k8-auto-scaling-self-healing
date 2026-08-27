@@ -91,6 +91,8 @@ docker run -d --rm --network host --name engine-e2e \
 LOG "starting operator-e2e"
 docker rm -f operator-e2e 2>/dev/null || true
 docker run -d --rm --network host --name operator-e2e \
+  -e WORKLOAD_NAMESPACE="${WORKLOAD_NAMESPACE}" \
+  -e WORKLOAD_DEPLOYMENT="${WORKLOAD_DEPLOYMENT}" \
   -v "$HOME/.kube":/root/.kube:ro \
   -v "$PWD":/code -w /code \
   k8-ai-ops:dev \

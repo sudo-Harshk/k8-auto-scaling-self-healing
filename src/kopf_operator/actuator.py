@@ -61,8 +61,8 @@ from src.safety.safety_shield import (  # noqa: E402
 
 LOG = logging.getLogger("operator")
 
-DEFAULT_NAMESPACE = "podinfo"
-DEFAULT_DEPLOYMENT = "podinfo"
+DEFAULT_NAMESPACE = os.environ.get("WORKLOAD_NAMESPACE", "podinfo")
+DEFAULT_DEPLOYMENT = os.environ.get("WORKLOAD_DEPLOYMENT", "podinfo")
 DEFAULT_KAFKA_BOOTSTRAP = "localhost:9094"
 DEFAULT_KAFKA_TOPIC = "k8s-decisions"
 DEFAULT_AUDIT_LOG = ROOT / "logs" / "operator_actions.log"

@@ -76,7 +76,7 @@ DEFAULT_DECISIONS_LOG = ROOT / "logs" / "decisions.log"
 DEFAULT_KAFKA_BOOTSTRAP = "localhost:9094"
 DEFAULT_KAFKA_TOPIC = "k8s-decisions"
 DEFAULT_KAFKA_INPUT_TOPIC = "k8s-features"
-DEFAULT_SERVICE = "podinfo"
+DEFAULT_SERVICE = os.environ.get("WORKLOAD_DEPLOYMENT", "podinfo")
 
 
 @dataclass
