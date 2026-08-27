@@ -96,6 +96,7 @@ metadata:
   name: workload-v2
   namespace: workload-v2
   labels:
+    app: workload-v2
     release: kube-prometheus-stack
 spec:
   type: ClusterIP
