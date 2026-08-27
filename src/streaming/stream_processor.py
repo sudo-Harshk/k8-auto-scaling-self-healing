@@ -91,7 +91,7 @@ def _emit_bucket(bucket_id: int) -> dict | None:
     )
     record: dict = {
         "timestamp": ts,
-        "service": "podinfo",
+        "service": os.environ.get("WORKLOAD_DEPLOYMENT", "podinfo"),
         "window_s": WINDOW_S,
         "samples": n,
     }
@@ -123,7 +123,7 @@ async def process(stream: faust.Stream) -> None:  # type: ignore[type-arg]
                 feat = _emit_bucket(closed_id)
                 if feat:
                     await feature_topic.send(
-                        key="podinfo",
+                        key=os.environ.get("WORKLOAD_DEPLOYMENT", "podinfo"),
                         value=json.dumps(feat).encode("utf-8"),
                     )
                     LOG.info(

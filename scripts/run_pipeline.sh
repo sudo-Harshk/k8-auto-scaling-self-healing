@@ -8,6 +8,9 @@
 # Usage (from repo root):
 #   ./scripts/run_pipeline.sh
 #
+# Day 18: pass WORKLOAD_NAMESPACE and WORKLOAD_DEPLOYMENT env vars to point the
+# pipeline at workload-v2 instead of podinfo. Defaults preserve Days 1-15 behavior.
+#
 # Stop with scripts/stop_all.sh.
 
 set -euo pipefail
@@ -21,6 +24,10 @@ KAFKA_BOOTSTRAP="${KAFKA_BOOTSTRAP:-localhost:9094}"
 PROMETHEUS_URL="${PROMETHEUS_URL:-http://localhost:9090}"
 KAFKA_TOPIC_METRICS="${KAFKA_TOPIC_METRICS:-k8s-metrics}"
 KAFKA_TOPIC_DECISIONS="${KAFKA_TOPIC_DECISIONS:-k8s-decisions}"
+WORKLOAD_NAMESPACE="${WORKLOAD_NAMESPACE:-podinfo}"
+WORKLOAD_DEPLOYMENT="${WORKLOAD_DEPLOYMENT:-podinfo}"
+
+LOG "target workload: namespace=$WORKLOAD_NAMESPACE deployment=$WORKLOAD_DEPLOYMENT"
 
 # ---------------------------------------------------------------------------
 # Port-forwards (Prometheus, Kafka)
@@ -46,6 +53,8 @@ docker run -d --rm --network host --name ai-producer \
   -e KAFKA_BOOTSTRAP="${KAFKA_BOOTSTRAP}" \
   -e KAFKA_TOPIC="${KAFKA_TOPIC_METRICS}" \
   -e POLL_INTERVAL=10 \
+  -e WORKLOAD_NAMESPACE="${WORKLOAD_NAMESPACE}" \
+  -e WORKLOAD_DEPLOYMENT="${WORKLOAD_DEPLOYMENT}" \
   -v "$PWD":/code -w /code \
   k8-ai-ops:dev \
   src/kafka/producer.py
@@ -57,6 +66,8 @@ LOG "starting faust-e2e"
 docker rm -f faust-e2e 2>/dev/null || true
 docker run -d --rm --network host --name faust-e2e \
   -e KAFKA_BOOTSTRAP="${KAFKA_BOOTSTRAP}" \
+  -e WORKLOAD_NAMESPACE="${WORKLOAD_NAMESPACE}" \
+  -e WORKLOAD_DEPLOYMENT="${WORKLOAD_DEPLOYMENT}" \
   -v "$PWD":/code -w /code \
   --entrypoint faust k8-ai-ops:dev \
   -A src.streaming.stream_processor worker -l info
@@ -68,6 +79,8 @@ LOG "starting engine-e2e"
 docker rm -f engine-e2e 2>/dev/null || true
 docker run -d --rm --network host --name engine-e2e \
   -e KAFKA_BOOTSTRAP="${KAFKA_BOOTSTRAP}" \
+  -e WORKLOAD_NAMESPACE="${WORKLOAD_NAMESPACE}" \
+  -e WORKLOAD_DEPLOYMENT="${WORKLOAD_DEPLOYMENT}" \
   -v "$PWD":/code -w /code \
   k8-ai-ops:dev \
   src/decision/decision_engine.py

@@ -1,4 +1,6 @@
-"""Programmatic Prometheus client for the podinfo workload.
+"""Programmatic Prometheus client for a Kubernetes workload
+(Day 6: podinfo. Day 18: parameterized for workload-v2 or any deployment
+exposing `http_requests_total` and `http_request_duration_seconds_bucket`).
 
 This module is the data source the rest of the AI pipeline (Faust stream processor,
 River-ML models, decision engine) will consume.
@@ -10,6 +12,10 @@ Usage as a CLI (task doc verification command):
     # Override Prometheus URL (default http://host.docker.internal:9090 so docker
     # containers can reach a host kubectl port-forward):
     PROMETHEUS_URL=http://localhost:9090 python src/metrics/metrics_client.py
+
+    # Day 18: override workload target via env vars:
+    WORKLOAD_NAMESPACE=workload-v2 WORKLOAD_DEPLOYMENT=workload-v2 \
+        PROMETHEUS_URL=http://localhost:9090 python src/metrics/metrics_client.py
 
 Usage as a library:
 
@@ -35,8 +41,11 @@ LOG = logging.getLogger(__name__)
 # Default URL assumes we are running inside a Docker container that needs to reach a
 # host-side `kubectl port-forward`. Override with PROMETHEUS_URL when running on host.
 DEFAULT_PROM_URL = os.environ.get("PROMETHEUS_URL", "http://host.docker.internal:9090")
-WORKLOAD_NAMESPACE = "podinfo"
-WORKLOAD_DEPLOYMENT = "podinfo"
+
+# Day 18: workload target parameterized via env vars. Defaults preserve the
+# Day 6-15 podinfo behavior.
+WORKLOAD_NAMESPACE = os.environ.get("WORKLOAD_NAMESPACE", "podinfo")
+WORKLOAD_DEPLOYMENT = os.environ.get("WORKLOAD_DEPLOYMENT", "podinfo")
 
 # PromQL queries used throughout the project (locked here so every consumer agrees
 # on what each metric means).
