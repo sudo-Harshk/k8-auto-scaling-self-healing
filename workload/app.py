@@ -29,6 +29,7 @@ import random
 import sqlite3
 import time
 from flask import Flask, jsonify, request, render_template_string
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 LOG = logging.getLogger("workload_v2")
 
@@ -37,6 +38,50 @@ INIT_ROWS = int(os.environ.get("INIT_ROWS", "100000"))
 ARTIFICIAL_LATENCY_MS = int(os.environ.get("ARTIFICIAL_LATENCY_MS", "0"))
 
 app = Flask(__name__)
+
+# Prometheus metrics for AI pipeline integration (Day 18).
+# These metric names match what the v1 metrics_client.py expects, so
+# the AI operator can scrape workload-v2 the same way it scrapes podinfo.
+REQUEST_COUNT = Counter(
+    "http_requests_total",
+    "Total HTTP requests",
+    ["namespace", "method", "endpoint", "status"],
+)
+REQUEST_LATENCY = Histogram(
+    "http_request_duration_seconds",
+    "HTTP request latency in seconds",
+    ["namespace", "method", "endpoint"],
+    buckets=(0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0),
+)
+REQUEST_NAMESPACE = os.environ.get("POD_NAMESPACE", "workload-v2")
+
+
+def _track(endpoint: str, status_code: int):
+    """Update Prometheus counters with the current request outcome."""
+    REQUEST_COUNT.labels(
+        namespace=REQUEST_NAMESPACE,
+        method=request.method,
+        endpoint=endpoint,
+        status=str(status_code),
+    ).inc()
+    if hasattr(request, "_latency_start"):
+        REQUEST_LATENCY.labels(
+            namespace=REQUEST_NAMESPACE,
+            method=request.method,
+            endpoint=endpoint,
+        ).observe(time.time() - request._latency_start)
+
+
+@app.before_request
+def _start_timer():
+    request._latency_start = time.time()
+
+
+@app.after_request
+def _record(response):
+    endpoint = (request.endpoint or "unknown").replace(".", "_")
+    _track(endpoint, response.status_code)
+    return response
 
 
 def _conn():
@@ -167,6 +212,12 @@ def write():
 @app.route("/healthz")
 def healthz():
     return jsonify({"status": "ok"})
+
+
+@app.route("/metrics")
+def metrics():
+    """Prometheus metrics endpoint for the AI pipeline scraper."""
+    return generate_latest(), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
 
 if __name__ == "__main__":

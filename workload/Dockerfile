@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip install --no-cache-dir \
     flask==3.1.3 \
-    gunicorn==23.0.0
+    gunicorn==23.0.0 \
+    prometheus_client==0.21.0
 
 COPY app.py /app/app.py
 
