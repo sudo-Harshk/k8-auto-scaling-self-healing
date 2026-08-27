@@ -442,6 +442,44 @@ tag `day-16`, repo at HEAD `706da54`.
 - Comparison: HPA vs KEDA vs AI, N=3 ✅
 - Ablation: with/without SHAP, with/without Shield ✅
 - TLA+: safety + liveness ✅
+
+---
+
+## Day 17 — Paper Strengthening for Viva Defense
+
+**Objective**
+Strengthen the IEEE paper against viva/reviewer questions about
+"this is just a dev/demo, how can it be tested in real-time
+systems?". Add explicit threat model, defense-in-depth, and
+production deployment roadmap.
+
+**Milestone / Result**
+- **III.E Threat Model** added: 7 adversarial scenarios with
+  defenses and limitations. Headline: Safety Shield is provably
+  correct even when the AI model outputs garbage.
+- **III.C Defense-in-Depth** augmented: 5 layers from TLS auth
+  through TLA+ Shield to manual `kubectl scale` override.
+- **V Threats-to-validity** strengthened: explicit "workload-
+  agnostic and deployment-agnostic" framing of the TLA+ proof.
+- **VI.B Production Deployment Roadmap** added: 3 phases
+  (Shadow mode 1-2 weeks → Canary 5% 2-4 weeks → Full rollout
+  1-2 months) with operational SLOs (30 s p95 scaling lag,
+  99.9% decision availability, < 1/day false-positive heal,
+  < 5 min MTTR for model reload).
+- **3 new references** [16-18] on ML technical debt, chaos
+  engineering, Kubernetes Operator pattern.
+
+**Effect on paper**
+- Length: 277 → 356 lines (~30% growth, within IEEE 8-page limit)
+- New sections: III.E, VI.B
+- All empirical claims unchanged
+
+**Verdict**
+✅ Done. Paper is now defended against "this is just a demo"
+viva questions. The threat model table and production roadmap
+provide concrete answers; the defense-in-depth paragraph
+explains why the Safety Shield is the right level of defense
+(not the only one). Tag `day-17-paper-defense` pushed.
 - Reproducibility: bootstrap in 30 min ✅
 - p95: variable (post-rework) ✅
 - Detection rate: 65%+ organic ✅

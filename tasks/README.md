@@ -41,6 +41,7 @@ This folder contains day-by-day tasks to build the M.Tech project **"AI-Driven K
 - [x] Day 14 — Evaluation, Dashboards & Final Documentation
 - [x] Day 15 — Statistical Rigor, Liveness & Reproducibility
 - [x] Day 16 — p95 Variability Rework, IEEE Paper Draft, Dashboard
+- [x] Day 17 — Paper Strengthening for Viva Defense (Threat Model + Production Roadmap)
 
 ## Goal at the End of Week 2
 

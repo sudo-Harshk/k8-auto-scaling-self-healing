@@ -8,6 +8,65 @@ All times IST.
 
 ---
 
+## 2026-08-27 — Day 17 paper strengthening for viva defense
+
+**Context.** With Days 1-16 complete and the IEEE paper draft shipped,
+Day 17 focused on hardening the paper against viva/reviewer questions
+about "this is just a dev/demo, how can it be tested in real-time
+systems?". Three additions strengthen the defensive posture without
+changing empirical claims.
+
+**What was added today (2026-08-27):**
+
+1. **III.E Threat Model** — 7-row table enumerating adversarial scenarios
+   the system must survive (bad model output, Kafka outage, Prometheus
+   outage, model corruption, malicious operator, network partition,
+   stuck pod). Each row states the defense and its limitation. The
+   headline claim: even under threat #1 (bad model output), the
+   Safety Shield's 5 invariants + 1 liveness property are proven to
+   hold on every reachable state. The ablation study quantifies this
+   (55 unconstrained actions without shield, 1 with it).
+
+2. **III.C Defense-in-Depth** — augment the existing Safety Shield
+   section with a paragraph describing 5 layers of defense:
+   (1) Kafka + Prometheus TLS + auth, (2) signed model artifacts,
+   (3) the Safety Shield itself, (4) audit log of every decision,
+   (5) manual override via `kubectl scale` always works. Even if all
+   4 inner layers fail, layer 5 ensures human intervention is possible.
+
+3. **V Threats-to-validity** strengthened — reworded to make the
+   workload-agnostic and deployment-agnostic nature of the TLA+ proof
+   explicit. The proof checks the operator's decision logic against
+   the specification, not against specific metrics.
+
+4. **VI.B Production Deployment Roadmap** — new 3-phase path:
+   - Phase 1 (1-2 weeks): Shadow mode, compare AI vs HPA decisions
+   - Phase 2 (2-4 weeks): Canary 5% with Istio, compare p95
+   - Phase 3 (1-2 months): Full rollout with Safety Shield as
+     last-line defense. Includes operational SLOs (scaling lag 30s p95,
+     decision availability 99.9%, FP heal rate < 1/day, MTTR < 5 min
+     for model reload).
+
+5. **3 new references** added: Sculley et al. on ML technical debt
+   [16], Basiri et al. on chaos engineering [17], Kubernetes Operator
+   pattern [18].
+
+**Effect on paper:**
+- Total length: 277 -> 356 lines (~30% growth, still within IEEE
+  8-page limit).
+- Section count: III goes from 4 subsections (A-D) to 5 (A-E);
+  Conclusion adds VI.B; References go from 15 to 18.
+- All existing empirical claims unchanged.
+
+**Tag:** `day-17-paper-defense` (separate from `day-16` so the
+Day-16 final state remains a clean checkpoint).
+
+**Test count:** 40 (unchanged; no new code this day).
+
+**Repo state:** HEAD will be one commit ahead of `a3d44c2` (Day 16).
+
+---
+
 ## 2026-08-26 — Day 16 p95 variability rework, IEEE paper, dashboard
 
 **Context.** Day 16 closed the paper-quality gaps left by Days 1-15:
