@@ -77,13 +77,15 @@ def main() -> int:
             "docker", "run", "--rm", "--network", "host",
             "--entrypoint", "python3", "k8-ai-ops:dev", "-c",
             f"""
+import json
+import pickle
+import base64
 from kafka import KafkaProducer
-import json, sys
 producer = KafkaProducer(bootstrap_servers=['localhost:9094'], value_serializer=lambda v: json.dumps(v).encode())
-msg = {json.dumps(heal_msg)}
-fut = producer.send('k8s-decisions', value=json.loads(msg))
+msg = pickle.loads(base64.b64decode('{base64.b64encode(pickle.dumps(heal_msg)).decode()}'))
+fut = producer.send('k8s-decisions', value=msg)
 md = fut.get(timeout=10)
-print(f'injected offset={{md.offset}}')
+print(f'injected offset=' + str(md.offset))
 producer.flush(); producer.close()
 """,
         ],
