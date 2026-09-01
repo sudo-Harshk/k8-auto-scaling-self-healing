@@ -144,33 +144,53 @@ class DecisionEngine:
         out: dict[str, float] = {}
         for target_key in FEATURES:
             if target_key in ("hour_of_day", "day_of_week"):
-                # Compute from Faust's ISO timestamp (matches Day-6 logic).
-                ts_str = rec.get("timestamp") or ""
+                # Compute from timestamp (accepts ISO strings or epoch ints).
+                ts_raw = rec.get("timestamp")
+                if ts_raw is None:
+                    ts_raw = ""
+                ts_str = str(ts_raw)
                 try:
-                    ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+                    if ts_str.isdigit() and len(ts_str) >= 9:
+                        # Epoch seconds (Locust --csv-full-history format).
+                        ts = datetime.fromtimestamp(int(ts_str), tz=timezone.utc)
+                    else:
+                        ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
                     if target_key == "hour_of_day":
                         out[target_key] = float(ts.hour)
                     else:
                         out[target_key] = float(ts.weekday())  # 0 = Mon
-                except (ValueError, TypeError):
+                except (ValueError, TypeError, OSError):
                     out[target_key] = 0.0
                 continue
 
-            # Look up the source key: prefer target_key directly (CSV-style);
-            # else try the Faust _avg mapping.
-            src_key = next(
-                (s for s, t in self._FAUST_KEY_MAP.items() if t == target_key),
-                target_key,
-            )
-            raw_val = float(rec.get(src_key) or 0.0)
-
-            # Normalize absolute units to percentages against pod limits.
-            if target_key == "cpu_percent" and "cpu_cores" in src_key:
-                replicas = max(float(rec.get("current_replicas_avg") or 0.0), 1.0)
-                raw_val = (raw_val / (self.CPU_LIMIT_CORES_PER_POD * replicas)) * 100
-            elif target_key == "memory_percent" and "memory_bytes" in src_key:
-                replicas = max(float(rec.get("current_replicas_avg") or 0.0), 1.0)
-                raw_val = (raw_val / (self.MEM_LIMIT_BYTES_PER_POD * replicas)) * 100
+            # Look up the source key: prefer target_key directly if the
+            # record already has it (CSV-style features_v2.csv), else try
+            # the Faust _avg mapping. CSV pass-through takes priority
+            # because the dataset already has correctly-normalized percent
+            # values; re-normalizing from Faust's absolute units against a
+            # possibly-wrong current_replicas would corrupt the input.
+            if target_key in rec:
+                src_key = target_key
+                raw_val = float(rec.get(target_key) or 0.0)
+            else:
+                src_key = next(
+                    (s for s, t in self._FAUST_KEY_MAP.items() if t == target_key),
+                    target_key,
+                )
+                raw_val = float(rec.get(src_key) or 0.0)
+                # Normalize absolute units to percentages against pod limits.
+                if target_key == "cpu_percent" and "cpu_cores" in src_key:
+                    replicas = max(
+                        float(rec.get("current_replicas_avg") or rec.get("current_replicas") or 0.0),
+                        1.0,
+                    )
+                    raw_val = (raw_val / (self.CPU_LIMIT_CORES_PER_POD * replicas)) * 100
+                elif target_key == "memory_percent" and "memory_bytes" in src_key:
+                    replicas = max(
+                        float(rec.get("current_replicas_avg") or rec.get("current_replicas") or 0.0),
+                        1.0,
+                    )
+                    raw_val = (raw_val / (self.MEM_LIMIT_BYTES_PER_POD * replicas)) * 100
 
             out[target_key] = raw_val
         return out
