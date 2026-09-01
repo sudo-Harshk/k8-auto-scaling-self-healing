@@ -42,9 +42,13 @@ WINDOW_S = 30
 # original builder used. The request_rate / p95 / error_rate values come
 # from the real Locust stats_history.csv Aggregated rows.
 SCENARIO_PARAMS = {
-    "spike":  {"users": 80, "cpu_base": 45.0, "mem_base": 50.0, "is_anomaly": 1},
-    "steady": {"users": 40, "cpu_base": 25.0, "mem_base": 40.0, "is_anomaly": 0},
-    "idle":   {"users":  8, "cpu_base":  9.0, "mem_base": 32.0, "is_anomaly": 1},
+    "spike":      {"users": 80, "cpu_base": 45.0, "mem_base": 50.0, "is_anomaly": 1},
+    "steady":     {"users": 40, "cpu_base": 25.0, "mem_base": 40.0, "is_anomaly": 0},
+    "idle":       {"users":  8, "cpu_base":  9.0, "mem_base": 32.0, "is_anomaly": 1},
+    "quick_high": {"users": 60, "cpu_base": 35.0, "mem_base": 45.0, "is_anomaly": 1},
+    "quick_med":  {"users": 30, "cpu_base": 20.0, "mem_base": 38.0, "is_anomaly": 0},
+    "quick_low":  {"users":  5, "cpu_base":  7.0, "mem_base": 31.0, "is_anomaly": 1},
+    "comp":       {"users": 50, "cpu_base": 30.0, "mem_base": 42.0, "is_anomaly": 0},
 }
 
 
