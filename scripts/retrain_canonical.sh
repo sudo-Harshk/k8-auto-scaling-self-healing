@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Retrain the canonical models from features_v2.csv.
+#
+# Replaces data/replica_model.pkl and data/anomaly_model.pkl with fresh
+# versions trained on the 285-row workload-v2 dataset (vs the 55-row
+# podinfo-only features.csv the originals were trained on).
+#
+# Old models are backed up to data/.archive/<timestamp>/ before overwrite.
+#
+# Run inside the shared Docker image (River + pandas + sklearn are present):
+#   docker run --rm -v $PWD:/code -w /code --entrypoint bash \
+#     k8-ai-ops:dev scripts/retrain_canonical.sh
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+TS="$(date -u +%Y%m%dT%H%M%SZ)"
+ARCHIVE="data/.archive/${TS}"
+mkdir -p "$ARCHIVE"
+
+echo "=== P1 retrain: canonical replica + anomaly models ==="
+echo "Source dataset:  data/features_v2.csv (workload-v2, 285 rows)"
+echo "Backup folder:   ${ARCHIVE}"
+
+# --------------------------------------------------------------- backup
+for f in replica_model.pkl anomaly_model.pkl; do
+    if [ -f "data/${f}" ]; then
+        cp "data/${f}" "${ARCHIVE}/${f}"
+        echo "Backed up data/${f} -> ${ARCHIVE}/${f}"
+    fi
+done
+
+# --------------------------------------------------------------- retrain
+echo ""
+echo "--- Retraining replica model ---"
+FEATURES_CSV=data/features_v2.csv \
+    MODEL_PATH=data/replica_model.pkl \
+    python src/models/replica_predictor.py
+
+echo ""
+echo "--- Retraining anomaly model ---"
+FEATURES_CSV=data/features_v2.csv \
+    MODEL_PATH=data/anomaly_model.pkl \
+    python src/models/anomaly_detector.py
+
+echo ""
+echo "=== Done. New canonical models ==="
+ls -la data/replica_model.pkl data/anomaly_model.pkl
+echo ""
+echo "Backup at ${ARCHIVE}/"
+echo ""
+echo "Verify with:"
+echo "  python -m pytest tests/test_p1_scale_heal_separation.py -v"
+echo "  python src/decision/decision_engine.py --offline --csv data/features_v2.csv"

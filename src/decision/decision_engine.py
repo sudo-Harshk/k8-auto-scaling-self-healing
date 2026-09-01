@@ -4,10 +4,13 @@ executable actions with explanations.
 Decision logic (for each feature vector from the Faust `k8s-features` stream):
   1. Score with anomaly detector.
   2. Predict replicas with replica predictor.
-  3. Apply decision rules:
-     - anomaly_score > threshold          -> action = "heal" (no scale change)
-     - predicted_replicas != current       -> action = "scale"
+  3. Apply decision rules (load-first, P1 fix):
+     - predicted_replicas != current      -> action = "scale" (load is dominant)
+     - anomaly_score > 2*threshold AND predicted agrees -> action = "heal"
      - else                                -> action = "noop"
+  4. Online learn (P1 fix): when the decision is `noop`, teach both models
+     that the current replica count was empirically correct. The previous
+     implementation never updated the live model from Kafka input.
 
 Each decision is:
   - logged to logs/decisions.log (newline-delimited JSON)
@@ -24,10 +27,11 @@ Run (online, after Day 5 Faust is emitting k8s-features):
     docker run --rm -v $HOME/k8-auto-scaling-self-healing:/code -w /code \
         k8-ai-ops:dev src/decision/decision_engine.py
 
-Run offline (against the 55-row dataset):
+Run offline (against the dataset):
 
     docker run --rm -v $HOME/k8-auto-scaling-self-healing:/code -w /code \
-        k8-ai-ops:dev src/decision/decision_engine.py --offline
+        k8-ai-ops:dev src/decision/decision_engine.py --offline \
+            --csv data/features_v2.csv
 """
 from __future__ import annotations
 
@@ -221,18 +225,26 @@ class DecisionEngine:
         # score much higher. This 2x gate suppresses false-positive heals on
         # baseline traffic without sacrificing real-anomaly detection.
         heal_threshold = self.anomaly.threshold * 2.0
-        if anomaly_score > heal_threshold:
+
+        # Load-first ordering (P1 fix). When the predictor sees load pressure,
+        # SCALE -- load is the dominant signal. Heal only fires when the
+        # system is otherwise stable (predictor agrees with current_replicas)
+        # AND the anomaly detector flags a fault. Noop otherwise.
+        # The previous order (heal-first) caused the Day-15 failure where
+        # load-driven windows were flagged as anomalous and the engine
+        # emitted heal actions instead of scaling.
+        if predicted_replicas != current_replicas:
+            action = "scale"
+            target_replicas = predicted_replicas
+            reason = (
+                f"predictor says {predicted_replicas} (current={current_replicas})"
+            )
+        elif anomaly_score > heal_threshold:
             action = "heal"
             target_replicas = current_replicas
             reason = (
                 f"anomaly_score={anomaly_score:.4f} > "
                 f"heal_threshold={heal_threshold:.4f}"
-            )
-        elif predicted_replicas != current_replicas:
-            action = "scale"
-            target_replicas = predicted_replicas
-            reason = (
-                f"predictor says {predicted_replicas} (current={current_replicas})"
             )
         else:
             action = "noop"
@@ -256,6 +268,25 @@ class DecisionEngine:
             timestamp=datetime.now(timezone.utc).isoformat(),
             features=features,
         )
+
+    # --------------------------------------------------------------- learning
+
+    def learn(self, features: dict[str, float], target_replicas: int) -> None:
+        """Online update: teach the model that `target_replicas` was the
+        correct answer under these features.
+
+        Called by `_run_online` after a `noop` decision — when the system
+        was stable, the current replica count was empirically correct.
+        This was missing before P1; the live model was frozen at whatever
+        the Day-7 offline training produced, so it never adapted to live
+        traffic. With this loop, the HTR refines its leaf splits on each
+        window of stable traffic.
+
+        The anomaly detector is always taught that a noop window is normal:
+        a system that did not need scaling/healing was not anomalous.
+        """
+        self.replica.learn(features, int(target_replicas))
+        self.anomaly.learn(features)
 
     # --------------------------------------------------------------- output
 
@@ -330,10 +361,22 @@ def _run_online(engine: DecisionEngine, kafka_bootstrap: str, topic: str) -> Non
 
     signal.signal(signal.SIGINT, _stop)
 
+    n_learned = 0
     for message in consumer:
         rec = message.value
         decision = engine.decide(rec)
         engine.log(decision)
+
+        # Online learning (P1 fix): when the system is stable (noop),
+        # teach both models that the current replica count was empirically
+        # correct. This was missing before; the live model was frozen at
+        # the Day-7 offline training output and never adapted.
+        if decision.action == "noop":
+            engine.learn(decision.features, decision.current_replicas)
+            n_learned += 1
+            if n_learned % 50 == 0:
+                LOG.info("online-learned %d stable windows", n_learned)
+
         try:
             engine.publish(decision)
         except Exception as exc:  # noqa: BLE001

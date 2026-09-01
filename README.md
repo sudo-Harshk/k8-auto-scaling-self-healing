@@ -1,7 +1,25 @@
-# AI-Driven Kubernetes Operator for Unified Online Auto-Scaling and Auto-Healing
+# SHIELD-AI — AI-Driven Kubernetes Operator for Safe Online Auto-Scaling and Auto-Healing
 
 M.Tech project: a formally-safe autonomous Kubernetes controller that unifies AI-driven
 auto-scaling and auto-healing behind a TLA+-verified Safety Shield.
+
+## Thesis (locked)
+
+> **Naive ML-based Kubernetes controllers are unsafe under burst load. SHIELD-AI combines
+> online ML (River) with a formally-verified safety shield (TLA+) to retain ML
+> adaptability while provably satisfying safety invariants that bare controllers violate.**
+
+## Three contributions
+
+1. **Hybrid ML + Formal Safety Controller** — a Kubernetes operator whose action space is
+   the intersection of ML-driven decisions and a TLA+-verified invariant set.
+2. **Empirically-validated failure mode of pure ML controllers** — Day-15 N=3 evidence
+   showing AI without the shield gets stuck at 2 replicas with 100% error under burst load.
+3. **Reproducible artifact** — N≥10 statistical comparison, containerized `make demo`,
+   full TLA+ TLC trace, and a FIRM-style ML baseline.
+
+See `tasks/THESIS.md` for the central thesis tracker, `docs/VIVA_GAUNTLET.md` for the
+20-question viva prep, and `docs/GOLDEN_RUN.md` for the 12-step demo.
 
 ## Pipeline
 
@@ -85,3 +103,14 @@ each day is committed and tagged.
 - [x] Day 16 - p95 Variability Rework, IEEE Paper Draft, Dashboard
 - [x] Day 17 - Paper Strengthening for Viva Defense (Threat Model + Production Roadmap)
 - [x] Day 18 - Close Research Gaps (workload-v2 AI pipeline + Day-13 E2E + N=3 v2 + 5 tests)
+
+## Rescue plan (P0 → P5)
+
+| Phase | Goal | Status |
+|-------|------|--------|
+| **P0** | Lock thesis sentence + paper skeleton + golden run outline | ✅ done |
+| P1 | Fix autoscaling (real online learn, scale vs heal, retrain canonical) | pending |
+| P2 | Stats-grade evaluation (FIRM baseline, N≥10, paired tests) | pending |
+| P3 | Formal & artifact (TLA+ composition, containerized `make demo`) | pending |
+| P4 | Paper & thesis write-up | pending |
+| P5 | Strict viva gauntlet (20 questions) | pending |
