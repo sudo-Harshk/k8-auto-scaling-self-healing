@@ -53,32 +53,52 @@ SCENARIO_PARAMS = {
 
 
 def parse_aggregated(history_csv: Path) -> list[dict]:
-    """Parse Locust --csv-full-history Aggregated rows. P1 fixed parser."""
+    """Parse Locust --csv-full-history Aggregated rows.
+
+    P1 fix (2026-09-01): Locust's `Requests/s` in the Aggregated row is
+    unreliable (lifetime average, not per-second rate). Compute
+    per-second rate from the delta of `Total Request Count`.
+    """
     if not history_csv.exists():
         return []
-    windows = []
+    raw_rows: list[dict] = []
     with open(history_csv, "r", newline="") as f:
         for r in csv.DictReader(f):
             if r.get("Name", "") != "Aggregated":
                 continue
             try:
                 ts = int(r.get("Timestamp", "0") or "0")
-                req_s = float(r.get("Requests/s", 0) or 0)
-                fail_s = float(r.get("Failures/s", 0) or 0)
+                total_req = int(float(r.get("Total Request Count", 0) or 0))
+                total_fail = int(float(r.get("Total Failure Count", 0) or 0))
                 p95_raw = r.get("95%", "0") or "0"
                 if p95_raw == "N/A" or p95_raw == "":
                     continue
                 p95_ms = float(p95_raw)
-                error_rate = fail_s / req_s if req_s > 0 else 0.0
-                windows.append({
+                raw_rows.append({
                     "timestamp": ts,
-                    "request_rate": req_s,
-                    "p95_latency_ms": p95_ms,
-                    "error_rate": error_rate,
+                    "total_req": total_req,
+                    "total_fail": total_fail,
+                    "p95_ms": p95_ms,
                 })
             except (ValueError, TypeError):
                 continue
-    windows.sort(key=lambda w: w["timestamp"])
+    raw_rows.sort(key=lambda r: r["timestamp"])
+    windows = []
+    for i, cur in enumerate(raw_rows):
+        prev = raw_rows[i - 1] if i > 0 else None
+        if prev is None or cur["timestamp"] == prev["timestamp"]:
+            req_delta = 0
+            fail_delta = 0
+        else:
+            req_delta = cur["total_req"] - prev["total_req"]
+            fail_delta = cur["total_fail"] - prev["total_fail"]
+        error_rate = fail_delta / req_delta if req_delta > 0 else 0.0
+        windows.append({
+            "timestamp": cur["timestamp"],
+            "request_rate": float(req_delta),
+            "p95_latency_ms": cur["p95_ms"],
+            "error_rate": error_rate,
+        })
     return windows
 
 

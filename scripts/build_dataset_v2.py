@@ -77,19 +77,20 @@ def get_k8s_metrics(log=None) -> dict:
 def parse_locust_aggregated(csv_path: Path) -> list[dict]:
     """Parse Locust stats_history.csv into per-second Aggregated-row metrics.
 
-    Locust writes one row per endpoint per second, plus one `Aggregated`
-    row with the totals. We use only the Aggregated rows to avoid
-    double-counting. Columns read:
-        Requests/s   -> per-second request rate
-        Failures/s   -> per-second failure rate
-        95%          -> 95th-percentile response time (ms)
+    P1 fix (2026-09-01): Locust's `Requests/s` field in the Aggregated
+    row is unreliable -- it is the lifetime average rate (computed as
+    cumulative_count / elapsed_seconds), so it reads 0 at the start of
+    a test and approaches the steady-state rate only at the end. We
+    compute the per-second request rate as the delta of `Total Request
+    Count` between consecutive Aggregated rows.
 
     Returns list of dicts sorted by timestamp with keys:
         timestamp, request_rate, p95_latency_ms, error_rate.
     """
     if not csv_path.exists():
         return []
-    windows = []
+    # Read all Aggregated rows
+    raw_rows: list[dict] = []
     with open(csv_path, "r", newline="") as f:
         for r in csv.DictReader(f):
             name = r.get("Name", "")
@@ -97,24 +98,39 @@ def parse_locust_aggregated(csv_path: Path) -> list[dict]:
                 continue
             try:
                 ts = int(r.get("Timestamp", "0") or "0")
-                req_s = float(r.get("Requests/s", 0) or 0)
-                fail_s = float(r.get("Failures/s", 0) or 0)
-                # 95% column in Locust history is response time in ms.
-                # N/A before any request; skip those rows.
+                total_req = int(float(r.get("Total Request Count", 0) or 0))
+                total_fail = int(float(r.get("Total Failure Count", 0) or 0))
                 p95_raw = r.get("95%", "0") or "0"
                 if p95_raw == "N/A" or p95_raw == "":
                     continue
                 p95_ms = float(p95_raw)
-                error_rate = fail_s / req_s if req_s > 0 else 0.0
-                windows.append({
-                    "timestamp": str(ts),
-                    "request_rate": req_s,
-                    "p95_latency_ms": p95_ms,
-                    "error_rate": error_rate,
+                raw_rows.append({
+                    "timestamp": ts,
+                    "total_req": total_req,
+                    "total_fail": total_fail,
+                    "p95_ms": p95_ms,
                 })
             except (ValueError, TypeError):
                 continue
-    windows.sort(key=lambda w: int(w["timestamp"]))
+    raw_rows.sort(key=lambda r: r["timestamp"])
+
+    # Compute per-second delta for request_rate and error_rate
+    windows = []
+    for i, cur in enumerate(raw_rows):
+        prev = raw_rows[i - 1] if i > 0 else None
+        if prev is None or cur["timestamp"] == prev["timestamp"]:
+            req_delta = 0
+            fail_delta = 0
+        else:
+            req_delta = cur["total_req"] - prev["total_req"]
+            fail_delta = cur["total_fail"] - prev["total_fail"]
+        error_rate = fail_delta / req_delta if req_delta > 0 else 0.0
+        windows.append({
+            "timestamp": str(cur["timestamp"]),
+            "request_rate": float(req_delta),
+            "p95_latency_ms": cur["p95_ms"],
+            "error_rate": error_rate,
+        })
     return windows
 
 
