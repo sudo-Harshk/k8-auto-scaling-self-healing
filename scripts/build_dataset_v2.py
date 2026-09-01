@@ -119,14 +119,23 @@ def parse_locust_aggregated(csv_path: Path) -> list[dict]:
 
 
 def run_locust_scenario(name: str, users: int, duration: int, port: int = 8080, log=None):
-    """Run a Locust scenario and return per-second aggregated stats."""
+    """Run a Locust scenario and return per-second aggregated stats.
+
+    P1 fix (2026-09-01): run Locust directly inside the current Python env
+    instead of via `docker run`. The script is invoked from inside the
+    shared `k8-ai-ops:dev` image which already has locust installed, so
+    we don't need to spawn another Docker container. Host networking
+    (`--network host`) was needed for the previous spawn-d approach to
+    reach `localhost:8080`; with direct invocation, we just inherit the
+    current network namespace.
+    """
+    import os
     log = log or logging.getLogger("build_dataset_v2")
     log.info("[%s] starting Locust: %d users for %ds", name, users, duration)
+    env = os.environ.copy()
     subprocess.run(
         [
-            "docker", "run", "--rm", "--network", "host",
-            "-v", f"{ROOT}:/code", "-w", "/code",
-            "--entrypoint", "locust", "k8-ai-ops:dev",
+            "locust",
             "-f", "scripts/locustfile_v2.py",
             "--headless", "-u", str(users), "-r", "20",
             "-t", f"{duration}s",
@@ -136,6 +145,7 @@ def run_locust_scenario(name: str, users: int, duration: int, port: int = 8080, 
             "--only-summary",
         ],
         capture_output=True, text=True, timeout=duration + 30,
+        env=env,
     )
     log.info("[%s] Locust done", name)
     history_path = ROOT / "logs" / f"locustv2_{name}_stats_history.csv"
