@@ -375,8 +375,8 @@ ShLivenessEventuallyScaleUp ==
         []( (sh_shield_modifies >= MAX_SCALE_STEP /\ sh_current_replicas = n)
              => <>(sh_current_replicas > n) )
 
-Fairness == /\ SF_vars(sh_current_replicas)(ShApply)
-             /\ SF_vars(sh_clock)(ShTick)
+Fairness == /\ SF_vars(<<sh_current_replicas, sh_last_action_clock>>)(ShApply)
+             /\ SF_vars(<<sh_clock>>)(ShTick)
 
 LivenessSpec == Spec /\ Fairness
 
