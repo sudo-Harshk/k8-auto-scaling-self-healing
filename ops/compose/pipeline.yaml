@@ -23,8 +23,8 @@ services:
     working_dir: /code
     command: ["src/metrics/metrics_client.py"]
     environment:
-      - PROMETHEUS_URL=http://prometheus-operated.monitoring:9090
-      - KAFKA_BOOTSTRAP=kafka.kafka:9092
+      - PROMETHEUS_URL=http://localhost:9090
+      - KAFKA_BOOTSTRAP=localhost:9094
       - METRICS_TOPIC=k8s-metrics
       - PYTHONUNBUFFERED=1
     volumes:
@@ -38,7 +38,7 @@ services:
     working_dir: /code
     command: ["src/streaming/stream_processor.py"]
     environment:
-      - KAFKA_BOOTSTRAP=kafka.kafka:9092
+      - KAFKA_BOOTSTRAP=localhost:9094
       - INPUT_TOPIC=k8s-metrics
       - OUTPUT_TOPIC=k8s-features
       - WINDOW_SECONDS=30
@@ -56,7 +56,7 @@ services:
     working_dir: /code
     command: ["src/decision/decision_engine.py"]
     environment:
-      - KAFKA_BOOTSTRAP=kafka.kafka:9092
+      - KAFKA_BOOTSTRAP=localhost:9094
       - INPUT_TOPIC=k8s-features
       - OUTPUT_TOPIC=k8s-decisions
       - REPLICA_MODEL_PATH=/code/data/replica_model.pkl
@@ -78,19 +78,19 @@ services:
     working_dir: /code
     command: ["src/kopf_operator/actuator.py"]
     environment:
-      - KAFKA_BOOTSTRAP=kafka.kafka:9092
+      - KAFKA_BOOTSTRAP=localhost:9094
       - INPUT_TOPIC=k8s-decisions
       - SHIELD_CFG=/code/specs/safety_policy.yaml
-      - TARGET_NAMESPACE=workload
+      - TARGET_NAMESPACE=workload-v2
       - TARGET_DEPLOYMENT=workload-v2
-      - KUBERNETES_SERVICE_HOST=10.96.0.1
-      - KUBERNETES_SERVICE_PORT=443
       - OPERATOR_ACTIONS_LOG=/code/logs/operator_actions.log
       - PYTHONUNBUFFERED=1
+      - KUBECONFIG=/root/.kube/config
     volumes:
       - ../../src:/code/src
       - ../../logs:/code/logs
       - ../../specs:/code/specs
+      - ~/.kube:/root/.kube:ro
     network_mode: host
     depends_on:
       - decision-engine
