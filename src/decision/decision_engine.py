@@ -55,7 +55,13 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from kafka import KafkaConsumer, KafkaProducer  # noqa: E402
+try:
+    from kafka import KafkaConsumer, KafkaProducer  # noqa: E402
+    _KAFKA_AVAILABLE = True
+except ImportError:  # offline / eval-only paths
+    KafkaConsumer = None  # type: ignore
+    KafkaProducer = None  # type: ignore
+    _KAFKA_AVAILABLE = False
 
 from src.models.anomaly_detector import AnomalyDetector  # noqa: E402
 from src.models.replica_predictor import ReplicaPredictor  # noqa: E402
