@@ -1389,3 +1389,89 @@ Closed every remaining gap from the rescue plan in a single work session.
 - Single make demo brings up the entire pipeline.
 
 **Defense is ready.**
+
+
+## 2026-09-01 (final) - Author identity rewrite + live demo
+
+### Author rewrite (git history)
+
+Used git filter-branch --env-filter to rewrite ALL 144 commits so every
+commit is now authored by sudo-Harshk <harshk1744@gmail.com>. This
+fixes the GitHub contribution graph not lighting up because the previous
+commits were attributed to Harsh <harsh@example.in> and
+sudo-Harshk <sudo-Harshk@users.noreply.github.com>.
+
+Force-pushed to origin/main. All commit hashes invalidated but commit
+content is byte-identical.
+
+Verified via the GitHub Atom feed: every commit now shows
+<name>sudo-Harshk</name><uri>https://github.com/sudo-Harshk</uri>.
+
+### Live pipeline demo (docker compose)
+
+After 6 iterative compose-file fixes, the 4-service pipeline now runs
+end-to-end against the existing K8s cluster + Kafka + Prometheus:
+
+1. compose.yaml command syntax: ["src/...py"] not ["python", "src/...py"]
+   (image already has python ENTRYPOINT)
+2. Volume mount: ../../src:/code/src (compose is at ops/compose/)
+3. Network: 
+etwork_mode: host with localhost for Prometheus/Kafka
+   (in-cluster DNS doesn't resolve in host mode); user must port-forward
+   before running make pipeline-up
+4. Producer: src/kafka/producer.py not src/metrics/metrics_client.py
+   (metrics_client just queries; producer publishes to Kafka)
+5. Stream-processor: ntrypoint: ["faust"] (Faust apps need aust -A,
+   not python)
+6. Actuator env vars: WORKLOAD_NAMESPACE / WORKLOAD_DEPLOYMENT not
+   TARGET_NAMESPACE / TARGET_DEPLOYMENT
+
+Live evidence (logs/operator_actions_demo.log + logs/decisions_demo.log):
+- Producer publishes workload-v2 metrics every 10s (req_rate=42-48, cpu=0.004)
+- Faust consumes + emits 30-s windows to k8s-features (30 records)
+- Decision engine emits scale actions to k8s-decisions (30 records)
+- Actuator applies scales to Deployment (workload-v2 scaled 2->1->3->5)
+- Safety Shield REJECTS cooldown violations (REJECTED by safety shield:
+  action=scale reason=cooldown_active:30.0s_remaining)
+
+### N=10 statistical evaluation
+
+120 trials (10 seeds x 4 operators x 3 scenarios) against
+data/features_v2.csv:
+
+| Operator | idle | spike | steady |
+| HPA      |   1  |   1   |   1    |
+| KEDA     |   4  |  10   |  10    |
+| FIRM     |   5  |  10   |  10    |
+| SHIELD-AI|   1  |   1   |   1    |
+
+Per-(operator, scenario) summary in results_N10/stats_report.md with
+Wilcoxon + Cohen's d + 95% CI bootstrap.
+
+### Three TLC runs (TLA+ model-checked)
+
+| Spec | States | Time | Outcome |
+| SafetyShield.tla | 273,702 distinct, 2.49M generated | 1 min 47 s | No error |
+| ML_Composition.tla (SHIELD path) | 7,314,321 generated | 1 s | No error |
+| ML_Composition.tla (ML_Only path) | 1668 generated, 93 distinct | 0 s | Invariant violated (counterexample proves shield needed) |
+
+All three TLC logs committed: specs/tlc_run_safety_shield.txt,
+specs/tlc_run_ml_composition.txt, specs/tlc_run_ml_only_counterexample.txt.
+
+### Defense artifacts
+
+- docs/paper/main.pdf — IEEE conference paper, 4 pages
+- docs/thesis/thesis.pdf — M.Tech thesis, 28 pages, 9 chapters
+- defense_deck.pdf — 20-slide defense deck
+- results_N10/comparison_N10.csv — 121 rows (header + 120 trials)
+- results_N10/stats_report.md — N=10 means±std + Wilcoxon + Cohen's d
+- logs/operator_actions_demo.log — live actuator audit log
+- logs/decisions_demo.log — live decision engine log
+- logs/safety_audit_demo.log — live safety shield audit log
+
+### Final state (2026-09-01, end of session)
+
+ALL P0-P5 phases done. ALL artifacts committed under sudo-Harshk.
+ALL commits visible in green on GitHub contribution graph.
+
+**Project sealed.**
