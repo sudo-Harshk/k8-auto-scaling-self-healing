@@ -87,8 +87,8 @@ services:
       - KAFKA_BOOTSTRAP=localhost:9094
       - INPUT_TOPIC=k8s-decisions
       - SHIELD_CFG=/code/specs/safety_policy.yaml
-      - TARGET_NAMESPACE=workload-v2
-      - TARGET_DEPLOYMENT=workload-v2
+      - WORKLOAD_NAMESPACE=workload-v2
+      - WORKLOAD_DEPLOYMENT=workload-v2
       - OPERATOR_ACTIONS_LOG=/code/logs/operator_actions.log
       - PYTHONUNBUFFERED=1
       - KUBECONFIG=/root/.kube/config
