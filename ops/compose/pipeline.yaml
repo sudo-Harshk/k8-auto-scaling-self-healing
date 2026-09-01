@@ -36,7 +36,8 @@ services:
     image: k8-ai-ops:dev
     container_name: shield-ai-stream
     working_dir: /code
-    # Faust apps must be started via the `faust` CLI, not `python`.
+    # Override the python ENTRYPOINT — Faust apps need the `faust` CLI.
+    entrypoint: ["faust"]
     command: ["-A", "src.streaming.stream_processor", "worker", "-l", "info"]
     environment:
       - KAFKA_BOOTSTRAP=localhost:9094
