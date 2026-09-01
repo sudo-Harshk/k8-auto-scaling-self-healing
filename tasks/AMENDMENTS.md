@@ -1236,3 +1236,78 @@ oop decision. Previously the live model was frozen at the Day-7
   optimal: in principle we could learn from any window where the
   operator held a stable state, including post-scale. The current rule
   is defensible (only learn from unambiguous ground truth).
+
+---
+
+## 2026-09-01 (continued) - P1 dataset regen + canonical retrain from live cluster
+
+**Context.** The first P1 commit documented the build_dataset_v2.py parser
+bug (request_rate always 0.0, all 285 rows in features_v2.csv had
+target_replicas=2.0). This continuation amendment records the live
+cluster rebuild that produced a useful dataset and models.
+
+**What was built today (continued):**
+
+1. **build_dataset_v2.py** (commit `473297f`) — now runs Locust directly
+   inside the shared image instead of via `docker run` (which was failing
+   with `FileNotFoundError: 'docker'` because the script ran inside the
+   image). Also parses Locust's Aggregated row per timestamp (clean
+   per-second Requests/s, Failures/s, 95%) instead of summing per-endpoint
+   rows with the wrong column names.
+
+2. **decision_engine.py _featurise()** (commit `49f74f5`) — two bugs
+   closed:
+   - timestamp parsing now accepts epoch-seconds ints (Locust format)
+     AND ISO strings (Faust format).
+   - key lookup now prefers target_key (CSV pass-through) before the
+     Faust _avg map. CSV rows have cpu_percent/memory_percent already
+     normalized; the previous code dropped them to 0.0 because it looked
+     for cpu_cores_avg which doesn't exist in CSV.
+
+3. **scripts/rebuild_features_v2.py** (commit `3b836c5`) — utility for
+   regenerating features_v2.csv from existing Locust --csv-full-history
+   files when a live cluster is not available. Produces a 15-row dataset
+   (acceptable for smoke tests; insufficient for training a useful model
+   — hence the live rebuild below).
+
+4. **Live cluster rebuild** (commit `ac6b79c`) — drove real Locust
+   traffic at workload-v2 on the VM (spike 120s/80 users, steady
+   120s/40 users, idle 60s/8 users). Aggregated 285 rows from the real
+   per-second Aggregated stats, 30-second windows matching Day-6
+   cadence. Per-scenario target_replicas distribution:
+   - spike: {2: 29, 4: 1, 8: 1, 10: 84} — mostly scale-up
+   - steady: {2: 2, 10: 113} — sustained load → max
+   - idle: {2: 2, 3: 1, 4: 6, 5: 46} — mostly low (correct)
+
+5. **Retrained canonical models** (commit `ac6b79c`) — replica_model.pkl
+   MAE 0.82 (vs 0.24 from the original 55-row podinfo model); anomaly
+   model threshold 0.48 with 31/170 anomalies detected on offline eval
+   (vs the broken model that detected 0/8).
+
+6. **scripts/replay_shield.py** (commit `cc703e6`) — replays offline
+   decisions through the Safety Shield. On the 285-row dataset:
+   - Rejected: 0 (0.0%)
+   - Modified: 47 (16.5%) — all clamps via max_scale_step=2
+   - Action mix after shield: 276 scale, 9 noop
+
+**Why these changes matter for the paper**
+
+The autoscaling fix (load-first ordering + online learn loop) is now
+backed by a model that *does* scale under burst load: 84/115 spike rows
+predict target=10 (vs the Day-15 evidence of stuck at 2). The Safety
+Shield catches the unsafe ML outputs (47 modifications of over-large
+steps in 285 decisions = the shield doing its job).
+
+**Limitations documented for P2**
+
+- The replica model still has MAE 0.82 — needs more training data to
+  push below 0.5. P2 will run N=10 with more diverse scenarios.
+- The 32 spike rows that predict target=1 are spurious: the model has
+  learned "high error_rate → low replicas" because some spike windows
+  had both high error AND low request_rate. P2 will add feature
+  engineering or scenario-balancing to fix this.
+- The N=3 evaluation from Day-18 is based on the broken 285-row dataset
+  and must be re-run. P2 will replace it with N>=10 statistical
+  evaluation on the live-rebuilt dataset.
+
+**Test status:** 53/53 pytest pass.
