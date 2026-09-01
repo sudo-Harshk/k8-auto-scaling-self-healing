@@ -266,7 +266,12 @@ VARIABLES
                         \* 3 = tick (used only to interleave the paths so
                         \* TLC doesn't explore an unreachable product)
 
-all_vars == <<sh_vars, ml_vars, composition_step>>
+sh_state_vars == <<sh_current_replicas, sh_pending_action, sh_pending_target,
+                      sh_clock, sh_last_action_clock,
+                      sh_shield_rejects, sh_shield_modifies>>
+
+vars == <<sh_state_vars, ml_vars, composition_step>>
+all_vars == vars
 
 Init ==
     /\ ShInit
@@ -294,7 +299,7 @@ Next ==
        /\ UNCHANGED ml_vars
        /\ composition_step' = 0
 
-Spec == Init /\ [][Next]_all_vars
+Spec == Init /\ [][Next]_vars
 
 \* ===========================================================================
 \* SAFETY INVARIANTS
@@ -375,8 +380,8 @@ ShLivenessEventuallyScaleUp ==
         []( (sh_shield_modifies >= MAX_SCALE_STEP /\ sh_current_replicas = n)
              => <>(sh_current_replicas > n) )
 
-Fairness == /\ SF_vars(<<sh_current_replicas, sh_last_action_clock>>)(ShApply)
-             /\ SF_vars(<<sh_clock>>)(ShTick)
+Fairness == /\ SF_vars(sh_current_replicas)(ShApply)
+             /\ SF_vars(sh_clock)(ShTick)
 
 LivenessSpec == Spec /\ Fairness
 
