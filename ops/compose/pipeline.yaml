@@ -28,6 +28,8 @@ services:
       - KAFKA_BOOTSTRAP=localhost:9094
       - METRICS_TOPIC=k8s-metrics
       - POLL_INTERVAL=10
+      - WORKLOAD_NAMESPACE=workload-v2
+      - WORKLOAD_DEPLOYMENT=workload-v2
       - PYTHONUNBUFFERED=1
     volumes:
       - ../../src:/code/src
