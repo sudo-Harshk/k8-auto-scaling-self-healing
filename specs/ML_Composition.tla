@@ -254,6 +254,9 @@ MlNext ==
     \/ MlApply
     \/ MlTick
 
+\* Forward declaration of composition_step (needed by MlSpec)
+VARIABLES composition_step
+
 MlSpec == MlInit /\ ShInit /\ composition_step = 0 /\ [][MlNext]_ml_vars
 
 \* ===========================================================================
@@ -265,6 +268,7 @@ VARIABLES
     composition_step   \* 0 = ML proposes, 1 = shield evaluates, 2 = apply,
                         \* 3 = tick (used only to interleave the paths so
                         \* TLC doesn't explore an unreachable product)
+                        \* (declared earlier as a forward declaration for MlSpec)
 
 sh_state_vars == <<sh_current_replicas, sh_pending_action, sh_pending_target,
                       sh_clock, sh_last_action_clock,
