@@ -254,7 +254,7 @@ MlNext ==
     \/ MlApply
     \/ MlTick
 
-MlSpec == MlInit /\ ShInit /\ [][MlNext]_ml_vars
+MlSpec == MlInit /\ ShInit /\ composition_step = 0 /\ [][MlNext]_ml_vars
 
 \* ===========================================================================
 \* JOINT SPEC (both paths advance independently; TLC explores the cross
