@@ -229,7 +229,11 @@ MlCooldownElapsed ==
 MlMLPropose ==
     /\ ml_pending_action' \in {"scale", "heal", "noop", "out_of_bounds"}
     /\ ml_pending_target' \in 0..ML_OUTPUT_RANGE
-    /\ UNCHANGED <<ml_current_replicas, ml_clock, ml_last_action_clock>>
+    /\ UNCHANGED <<ml_current_replicas, ml_clock, ml_last_action_clock,
+                    composition_step, sh_clock, sh_last_action_clock,
+                    sh_current_replicas, sh_pending_action, sh_pending_target,
+                    sh_ml_raw_action, sh_ml_raw_target,
+                    sh_shield_rejects, sh_shield_modifies>>
 
 \* NO SHIELD. Apply ML output directly.
 MlApply ==
@@ -242,12 +246,20 @@ MlApply ==
        \/ /\ ml_pending_action \in {"noop", "none", "out_of_bounds"}
           /\ UNCHANGED ml_current_replicas
     /\ ml_last_action_clock' = ml_clock
-    /\ UNCHANGED <<ml_pending_action, ml_pending_target, ml_clock>>
+    /\ UNCHANGED <<ml_pending_action, ml_pending_target, ml_clock,
+                    composition_step, sh_clock, sh_last_action_clock,
+                    sh_current_replicas, sh_pending_action, sh_pending_target,
+                    sh_ml_raw_action, sh_ml_raw_target,
+                    sh_shield_rejects, sh_shield_modifies>>
 
 MlTick ==
     /\ ml_clock' = (ml_clock + 1) % (MAX_REPLICAS + 1)
     /\ UNCHANGED <<ml_current_replicas, ml_pending_action, ml_pending_target,
-                    ml_last_action_clock>>
+                    ml_last_action_clock,
+                    composition_step, sh_clock, sh_last_action_clock,
+                    sh_current_replicas, sh_pending_action, sh_pending_target,
+                    sh_ml_raw_action, sh_ml_raw_target,
+                    sh_shield_rejects, sh_shield_modifies>>
 
 MlNext ==
     \/ MlMLPropose
