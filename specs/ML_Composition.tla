@@ -201,6 +201,9 @@ ShSpec == ShInit /\ [][ShNext]_sh_vars
 \* Used only to prove that the shield is NECESSARY. Not deployed.
 \* ===========================================================================
 
+\* Forward declaration of composition_step so MlMLPropose can UNCHANGED it.
+VARIABLES composition_step
+
 VARIABLES
     ml_current_replicas,
     ml_pending_action,
