@@ -16,6 +16,16 @@ For each scenario:
 
 Output: data/features_v2.csv (with same schema as features.csv)
 
+P1 fix (2026-09-01): the previous parser used `r.get("Request Count", 0)` and
+`r.get("95%", 0)` on the per-endpoint rows, but the column names in
+Locust's `--csv-full-history` output are `Total Request Count` and `95%`
+exists but the column index differs. Worse, summing per-endpoint rows
+double-counts and ignores the Aggregated row which already has the
+totals. The result was request_rate=0 for every window and target_replicas
+trivially clamped to current. The fix below uses the `Aggregated` row
+exclusively, which has clean per-second metrics: Requests/s, Failures/s,
+95%.
+
 Run with:
     docker run --rm --network host -v $PWD:/code -w /code \
         --entrypoint python k8-ai-ops:dev scripts/build_dataset_v2.py
@@ -64,11 +74,55 @@ def get_k8s_metrics(log=None) -> dict:
     return metrics
 
 
+def parse_locust_aggregated(csv_path: Path) -> list[dict]:
+    """Parse Locust stats_history.csv into per-second Aggregated-row metrics.
+
+    Locust writes one row per endpoint per second, plus one `Aggregated`
+    row with the totals. We use only the Aggregated rows to avoid
+    double-counting. Columns read:
+        Requests/s   -> per-second request rate
+        Failures/s   -> per-second failure rate
+        95%          -> 95th-percentile response time (ms)
+
+    Returns list of dicts sorted by timestamp with keys:
+        timestamp, request_rate, p95_latency_ms, error_rate.
+    """
+    if not csv_path.exists():
+        return []
+    windows = []
+    with open(csv_path, "r", newline="") as f:
+        for r in csv.DictReader(f):
+            name = r.get("Name", "")
+            if name != "Aggregated":
+                continue
+            try:
+                ts = int(r.get("Timestamp", "0") or "0")
+                req_s = float(r.get("Requests/s", 0) or 0)
+                fail_s = float(r.get("Failures/s", 0) or 0)
+                # 95% column in Locust history is response time in ms.
+                # N/A before any request; skip those rows.
+                p95_raw = r.get("95%", "0") or "0"
+                if p95_raw == "N/A" or p95_raw == "":
+                    continue
+                p95_ms = float(p95_raw)
+                error_rate = fail_s / req_s if req_s > 0 else 0.0
+                windows.append({
+                    "timestamp": str(ts),
+                    "request_rate": req_s,
+                    "p95_latency_ms": p95_ms,
+                    "error_rate": error_rate,
+                })
+            except (ValueError, TypeError):
+                continue
+    windows.sort(key=lambda w: int(w["timestamp"]))
+    return windows
+
+
 def run_locust_scenario(name: str, users: int, duration: int, port: int = 8080, log=None):
-    """Run a Locust scenario and return per-window stats."""
+    """Run a Locust scenario and return per-second aggregated stats."""
     log = log or logging.getLogger("build_dataset_v2")
     log.info("[%s] starting Locust: %d users for %ds", name, users, duration)
-    proc = subprocess.run(
+    subprocess.run(
         [
             "docker", "run", "--rm", "--network", "host",
             "-v", f"{ROOT}:/code", "-w", "/code",
@@ -84,42 +138,9 @@ def run_locust_scenario(name: str, users: int, duration: int, port: int = 8080, 
         capture_output=True, text=True, timeout=duration + 30,
     )
     log.info("[%s] Locust done", name)
-    # Parse per-window stats from _stats_history.csv
     history_path = ROOT / "logs" / f"locustv2_{name}_stats_history.csv"
-    windows = []
-    if history_path.exists():
-        with open(history_path) as f:
-            rows = list(csv.DictReader(f))
-        # Aggregate each timestamp window: avg p95, request_rate, error_rate
-        ts_groups: dict[str, list[dict]] = {}
-        for r in rows:
-            ts = r.get("Timestamp", "")
-            endpoint = r.get("Name", "")
-            if endpoint.startswith("Total") or endpoint.startswith("Aggregated"):
-                continue
-            ts_groups.setdefault(ts, []).append(r)
-        for ts in sorted(ts_groups):
-            window = ts_groups[ts]
-            total_req = sum(int(float(r.get("Request Count", 0) or 0)) for r in window)
-            total_fail = sum(int(float(r.get("Failure Count", 0) or 0)) for r in window)
-            # p95 from each endpoint, average
-            p95_vals = []
-            for r in window:
-                try:
-                    p95_vals.append(float(r.get("95%", 0) or 0))
-                except (ValueError, TypeError):
-                    pass
-            avg_p95 = statistics.mean(p95_vals) if p95_vals else 0.0
-            # request_rate = total_req / window_duration
-            # window duration is 1s by default for stats_history
-            request_rate = float(total_req)
-            error_rate = total_fail / total_req if total_req else 0.0
-            windows.append({
-                "timestamp": ts,
-                "request_rate": request_rate,
-                "p95_latency_ms": avg_p95,
-                "error_rate": error_rate,
-            })
+    windows = parse_locust_aggregated(history_path)
+    log.info("[%s] parsed %d per-second windows", name, len(windows))
     return windows
 
 
