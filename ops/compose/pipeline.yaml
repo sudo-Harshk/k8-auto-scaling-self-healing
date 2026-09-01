@@ -36,7 +36,8 @@ services:
     image: k8-ai-ops:dev
     container_name: shield-ai-stream
     working_dir: /code
-    command: ["src/streaming/stream_processor.py"]
+    # Faust apps must be started via the `faust` CLI, not `python`.
+    command: ["-A", "src.streaming.stream_processor", "worker", "-l", "info"]
     environment:
       - KAFKA_BOOTSTRAP=localhost:9094
       - INPUT_TOPIC=k8s-metrics
