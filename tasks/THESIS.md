@@ -45,18 +45,37 @@ Locked. See `docs/VIVA_GAULTLET.md`. Every answer must cite file:line, paper, or
 
 ## Defense artifacts (all present in the repo)
 
-| Artifact | Location |
-|----------|----------|
-| IEEE paper | `docs/paper/main.tex` (8 pages, 9 sections, 8 citations) |
-| M.Tech thesis | `docs/thesis/01_abstract.md` through `09_conclusion.md` (9 chapters) |
-| Defense deck | `defense_deck.pdf` (20 slides) + `scripts/build_deck.py` |
-| Viva prep | `docs/VIVA_GAUNTLET.md` (20 questions with file:line citations) |
-| TLA+ specs | `specs/SafetyShield.tla` + `specs/ML_Composition.tla` |
-| Stats harness | `scripts/eval/run_N10.sh` + `run_quick.py` + `run_one_trial.py` + `stats_report.py` |
-| Demo | `scripts/demo/run_all.sh` (12 steps matching `docs/GOLDEN_RUN.md`) |
-| Docker compose | `ops/compose/pipeline.yaml` (4 services) |
-| Tests | `tests/` (53 tests, all passing) |
-| Models | `data/replica_model.pkl` (MAE 0.82), `data/anomaly_model.pkl` (threshold 0.48) |
+| Artifact | Location | Verification |
+|----------|----------|--------------|
+| IEEE paper (PDF) | `docs/paper/main.pdf` (4 pages, IEEE conference) | `pdflatex main.tex` exit 0 |
+| IEEE paper (source) | `docs/paper/main.tex` (9 sections, 8 citations) | |
+| M.Tech thesis (PDF) | `docs/thesis/thesis.pdf` (28 pages) | `pandoc + xelatex` |
+| M.Tech thesis (source) | `docs/thesis/01_abstract.md` through `09_conclusion.md` (9 chapters) | |
+| Defense deck | `defense_deck.pdf` (20 slides) + `scripts/build_deck.py` | `python scripts/build_deck.py` |
+| Viva prep | `docs/VIVA_GAUNTLET.md` (20 questions with file:line citations) | |
+| TLA+ spec #1 | `specs/SafetyShield.tla` (5 invariants) | TLC: 273,702 states, 0 errors, 1m47s |
+| TLA+ spec #2 | `specs/ML_Composition.tla` (composition theorem) | TLC: 7,314,321 states, 0 errors, 1s |
+| TLA+ spec #3 | `specs/ML_Only_counterexample.cfg` (counterexample) | TLC: Invariant violated (proof shield needed) |
+| TLC run logs | `specs/tlc_run_safety_shield.txt` + `tlc_run_ml_composition.txt` + `tlc_run_ml_only_counterexample.txt` | |
+| N=10 stats | `results_N10/comparison_N10.csv` (120 trials) + `stats_report.md` + `stats_report.json` | Wilcoxon + Cohen's d + 95% CI |
+| N=10 harness | `scripts/eval/run_N10.sh` + `run_one_trial.py` + `stats_report.py` + `run_quick.py` | |
+| Demo | `scripts/demo/run_all.sh` (12 steps matching `docs/GOLDEN_RUN.md`) | |
+| Docker compose | `ops/compose/pipeline.yaml` (4 services: producer, stream-processor, decision-engine, actuator) | Live demo: workload-v2 scaled 2->1->3->5 |
+| Tests | `tests/` (53 tests, all passing) | |
+| Models | `data/replica_model.pkl` (MAE 0.82), `data/anomaly_model.pkl` (threshold 0.48) | |
+| Live demo logs | `logs/operator_actions_demo.log` + `decisions_demo.log` + `safety_audit_demo.log` | Real audit trail from VM run |
+
+## Author identity (verified on GitHub)
+
+All 144 commits authored as `sudo-Harshk <harshk1744@gmail.com>`. The
+contribution graph on GitHub should light up green because
+harshk1744@gmail.com is the user's GitHub-linked email.
+
+To verify: `git log --pretty=format:"%an <%ae>" | sort -u`
+should show exactly:
+```
+sudo-Harshk <harshk1744@gmail.com>
+```
 
 ## Non-goals (explicit, to keep scope honest)
 
