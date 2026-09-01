@@ -28,7 +28,7 @@ services:
       - METRICS_TOPIC=k8s-metrics
       - PYTHONUNBUFFERED=1
     volumes:
-      - ../src:/code/src
+      - ../../src:/code/src
     network_mode: host
     restart: unless-stopped
 
@@ -64,9 +64,9 @@ services:
       - DECISIONS_LOG=/code/logs/decisions.log
       - PYTHONUNBUFFERED=1
     volumes:
-      - ../src:/code/src
-      - ../logs:/code/logs
-      - ../data:/code/data
+      - ../../src:/code/src
+      - ../../logs:/code/logs
+      - ../../data:/code/data
     network_mode: host
     depends_on:
       - stream-processor
@@ -88,9 +88,9 @@ services:
       - OPERATOR_ACTIONS_LOG=/code/logs/operator_actions.log
       - PYTHONUNBUFFERED=1
     volumes:
-      - ../src:/code/src
-      - ../logs:/code/logs
-      - ../specs:/code/specs
+      - ../../src:/code/src
+      - ../../logs:/code/logs
+      - ../../specs:/code/specs
     network_mode: host
     depends_on:
       - decision-engine
