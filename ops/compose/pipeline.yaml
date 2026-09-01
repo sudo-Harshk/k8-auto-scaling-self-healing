@@ -44,7 +44,7 @@ services:
       - WINDOW_SECONDS=30
       - PYTHONUNBUFFERED=1
     volumes:
-      - ../src:/code/src
+      - ../../src:/code/src
     network_mode: host
     depends_on:
       - producer
