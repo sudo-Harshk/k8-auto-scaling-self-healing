@@ -21,7 +21,7 @@ services:
     image: k8-ai-ops:dev
     container_name: shield-ai-producer
     working_dir: /code
-    command: ["python", "src/metrics/metrics_client.py"]
+    command: ["src/metrics/metrics_client.py"]
     environment:
       - PROMETHEUS_URL=http://prometheus-operated.monitoring:9090
       - KAFKA_BOOTSTRAP=kafka.kafka:9092
@@ -34,7 +34,7 @@ services:
     image: k8-ai-ops:dev
     container_name: shield-ai-stream
     working_dir: /code
-    command: ["python", "src/streaming/stream_processor.py"]
+    command: ["src/streaming/stream_processor.py"]
     environment:
       - KAFKA_BOOTSTRAP=kafka.kafka:9092
       - INPUT_TOPIC=k8s-metrics
@@ -50,7 +50,7 @@ services:
     image: k8-ai-ops:dev
     container_name: shield-ai-decision
     working_dir: /code
-    command: ["python", "src/decision/decision_engine.py"]
+    command: ["src/decision/decision_engine.py"]
     environment:
       - KAFKA_BOOTSTRAP=kafka.kafka:9092
       - INPUT_TOPIC=k8s-features
@@ -71,7 +71,7 @@ services:
     image: k8-ai-ops:dev
     container_name: shield-ai-actuator
     working_dir: /code
-    command: ["python", "src/kopf_operator/actuator.py"]
+    command: ["src/kopf_operator/actuator.py"]
     environment:
       - KAFKA_BOOTSTRAP=kafka.kafka:9092
       - INPUT_TOPIC=k8s-decisions
