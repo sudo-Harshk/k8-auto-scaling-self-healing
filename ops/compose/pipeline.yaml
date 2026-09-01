@@ -21,11 +21,13 @@ services:
     image: k8-ai-ops:dev
     container_name: shield-ai-producer
     working_dir: /code
-    command: ["src/metrics/metrics_client.py"]
+    # Day-4 Kafka producer (the metrics_client just queries — it doesn't publish).
+    command: ["src/kafka/producer.py"]
     environment:
       - PROMETHEUS_URL=http://localhost:9090
       - KAFKA_BOOTSTRAP=localhost:9094
       - METRICS_TOPIC=k8s-metrics
+      - POLL_INTERVAL=10
       - PYTHONUNBUFFERED=1
     volumes:
       - ../../src:/code/src
