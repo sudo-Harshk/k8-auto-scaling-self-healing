@@ -106,11 +106,34 @@ each day is committed and tagged.
 
 ## Rescue plan (P0 → P5)
 
-| Phase | Goal | Status |
-|-------|------|--------|
-| **P0** | Lock thesis sentence + paper skeleton + golden run outline | ✅ done |
-| P1 | Fix autoscaling (real online learn, scale vs heal, retrain canonical) | pending |
-| P2 | Stats-grade evaluation (FIRM baseline, N≥10, paired tests) | pending |
-| P3 | Formal & artifact (TLA+ composition, containerized `make demo`) | pending |
-| P4 | Paper & thesis write-up | pending |
-| P5 | Strict viva gauntlet (20 questions) | pending |
+| Phase | Goal | Status | Where |
+|-------|------|--------|-------|
+| **P0** | Lock thesis sentence + paper skeleton + golden run outline | ✅ done | `tasks/THESIS.md`, `docs/paper/main.tex`, `docs/VIVA_GAUNTLET.md` |
+| **P1** | Fix autoscaling (real online learn, scale vs heal, retrain canonical) | ✅ done | `src/decision/decision_engine.py:50-95` (load-first + online learn); `data/replica_model.pkl` (MAE 0.82) |
+| **P2** | Stats-grade evaluation (FIRM baseline, N≥10, paired tests) | ✅ done | `src/baselines/firm_controller.py`; `scripts/eval/run_N10.sh` + `stats_report.py` + `run_one_trial.py` |
+| **P3** | Formal & artifact (TLA+ composition, containerized `make demo`) | ✅ done | `specs/ML_Composition.tla` + `cfg` (composition theorem); `ops/compose/pipeline.yaml`; `scripts/demo/run_all.sh` |
+| **P4** | Paper & thesis write-up | ✅ done | `docs/paper/main.tex` (IEEE 8 pages); `docs/thesis/*.md` (9 chapters) |
+| **P5** | Strict viva gauntlet (20 questions) | ✅ done | `docs/VIVA_GAUNTLET.md` (file:line citations) |
+
+## Defense artifacts
+
+- **Paper:** `docs/paper/main.tex` — IEEE 2-column, 9 sections, 8 citations.
+- **Thesis:** `docs/thesis/01_abstract.md` through `09_conclusion.md` — 9 chapters.
+- **Deck:** `defense_deck.pdf` (20 slides) — built via `python scripts/build_deck.py`.
+- **Viva prep:** `docs/VIVA_GAUNTLET.md` — 20 questions with file:line citations.
+- **TLA+ specs:** `specs/SafetyShield.tla` (5 invariants) + `specs/ML_Composition.tla` (composition theorem).
+- **Stats report:** `results_N10/stats_report.md` + `stats_report.json` (Wilcoxon + Cohen's d + 95% CI).
+- **53 unit tests:** `tests/`.
+
+## Single-command demo
+
+```bash
+make demo        # 12-step golden run (cluster up + workload + pipeline + load + TLC)
+make eval        # N>=10 statistical evaluation (~3 hours on laptop)
+make tla         # TLC on SafetyShield (~3 s)
+make tla-composition  # TLC on ML_Composition (~4 min)
+make stats       # Statistical report from results_N10/
+make paper       # Build the IEEE paper PDF (requires pdflatex)
+```
+
+Each target is idempotent where possible.

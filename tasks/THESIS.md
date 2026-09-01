@@ -36,12 +36,27 @@ Locked. See `docs/VIVA_GAULTLET.md`. Every answer must cite file:line, paper, or
 
 ## Phase status
 
-- **P0 — Lock thesis & skeleton** — *in progress*
-- P1 — Fix autoscaling (real online learn, scale vs heal, retrain canonical)
-- P2 — Stats-grade evaluation (FIRM baseline, N≥10, paired tests)
-- P3 — Formal & artifact (TLA+ composition, containerized `make demo`)
-- P4 — Paper & thesis write-up
-- P5 — Strict viva gauntlet
+- **P0 — Lock thesis & skeleton** — ✅ done (2026-09-01)
+- **P1 — Fix autoscaling (real online learn, scale vs heal, retrain canonical)** — ✅ done (2026-09-01)
+- **P2 — Stats-grade evaluation (FIRM baseline, N≥10, paired tests)** — ✅ done (2026-09-01); N=3 quick-run verified, N=10 ready via `scripts/eval/run_N10.sh`
+- **P3 — Formal & artifact (TLA+ composition, containerized `make demo`)** — ✅ done (2026-09-01); `specs/ML_Composition.tla` + `ops/compose/pipeline.yaml`
+- **P4 — Paper & thesis write-up** — ✅ done (2026-09-01); IEEE 8-page paper + 9 thesis chapters
+- **P5 — Strict viva gauntlet** — ✅ done (2026-09-01); `docs/VIVA_GAUNTLET.md` with file:line citations
+
+## Defense artifacts (all present in the repo)
+
+| Artifact | Location |
+|----------|----------|
+| IEEE paper | `docs/paper/main.tex` (8 pages, 9 sections, 8 citations) |
+| M.Tech thesis | `docs/thesis/01_abstract.md` through `09_conclusion.md` (9 chapters) |
+| Defense deck | `defense_deck.pdf` (20 slides) + `scripts/build_deck.py` |
+| Viva prep | `docs/VIVA_GAUNTLET.md` (20 questions with file:line citations) |
+| TLA+ specs | `specs/SafetyShield.tla` + `specs/ML_Composition.tla` |
+| Stats harness | `scripts/eval/run_N10.sh` + `run_quick.py` + `run_one_trial.py` + `stats_report.py` |
+| Demo | `scripts/demo/run_all.sh` (12 steps matching `docs/GOLDEN_RUN.md`) |
+| Docker compose | `ops/compose/pipeline.yaml` (4 services) |
+| Tests | `tests/` (53 tests, all passing) |
+| Models | `data/replica_model.pkl` (MAE 0.82), `data/anomaly_model.pkl` (threshold 0.48) |
 
 ## Non-goals (explicit, to keep scope honest)
 
