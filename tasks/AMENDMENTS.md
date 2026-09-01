@@ -1135,3 +1135,104 @@ behaviour, not bin-packing. If we ever need it, adding a worker node is one line
 `kind-cluster.yaml`.
 
 ---
+---
+
+## 2026-09-01 - P0+P1 rescue: lock SHIELD-AI thesis, fix autoscaling
+
+**Context.** Day-15 N=3 evaluation showed the ML-only operator stayed at
+2 replicas with 100% error under burst load, while HPA/KEDA scaled to 10.
+This is the *motivating failure* of the project, but the codebase never
+fixed it - the engine's online loop never called .learn() and the
+heal-first ordering shadowed load-driven scale decisions.
+
+The Day 18 v2 work added two more workload-v2 models and N=3 evidence
+but did not address the algorithmic defect. This amendment records the
+P0 thesis lock-in and the P1 fix that closes the gap.
+
+**What was built today (2026-09-01):**
+
+### P0 - Thesis lock-in
+
+1. **Locked thesis sentence** (README + tasks/THESIS.md):
+   > "Naive ML-based Kubernetes controllers are unsafe under burst load.
+   > SHIELD-AI combines online ML (River) with a formally-verified safety
+   > shield (TLA+) to retain ML adaptability while provably satisfying
+   > safety invariants that bare controllers violate."
+
+2. **IEEE paper skeleton** (docs/paper/main.tex): 9 sections (Intro,
+   System Model, Safety Shield, Online Learning, Implementation,
+   Evaluation, Results, Related Work, Threats to Validity), 8-page
+   budget, expandable to 10-12 for transactions.
+
+3. **20-question viva gauntlet** (docs/VIVA_GAUNTLET.md): every claim
+   in the paper and thesis must survive this Q&A. Each answer cites a
+   file:line, paper, or formal proof.
+
+4. **12-step golden run** (docs/GOLDEN_RUN.md): the deterministic
+   artifact a reviewer can run on a fresh machine to reproduce every
+   claim.
+
+5. **One-command Makefile** (Makefile): make demo, make eval,
+   make tla, make paper, make thesis targets.
+
+### P1 - Autoscaling fix
+
+1. **decide() reordered** (src/decision/decision_engine.py): load is
+   now the dominant signal. If the predictor disagrees with
+   current_replicas, action = scale, regardless of anomaly score.
+   Heal only fires when the predictor agrees AND anomaly > 2x threshold.
+   Noop otherwise.
+
+2. **Online learn loop wired** (_run_online): the live Kafka consumer
+   now calls ngine.learn(features, current_replicas) after every
+   
+oop decision. Previously the live model was frozen at the Day-7
+   offline training output and never adapted to live traffic.
+
+3. **DecisionEngine.learn()** new method: teaches both the replica
+   predictor and the anomaly detector from a stable window. Replica
+   learns (features, target_replicas). Anomaly learns (features)
+   (a noop means the pattern was normal).
+
+4. **scripts/retrain_canonical.sh**: retrain both
+   data/replica_model.pkl and data/anomaly_model.pkl from
+   data/features_v2.csv (285-row workload-v2 dataset, vs the
+   55-row podinfo dataset the originals were trained on). Old models
+   backed up to data/.archive/<timestamp>/.
+
+5. **	ests/test_p1_scale_heal_separation.py** (8 tests, all must pass):
+   - 	est_decide_returns_scale_when_predictor_differs_from_current
+   - 	est_decide_returns_heal_only_when_predictor_agrees
+   - 	est_decide_returns_noop_when_both_signals_agree
+   - 	est_engine_has_learn_method
+   - 	est_engine_learn_increments_trained_count
+   - 	est_engine_learn_converges_replica_predictor_to_target
+   - 	est_engine_learn_also_updates_anomaly_detector
+   - 	est_load_in_triggers_scale_action
+
+**Why**
+
+- **Scale-first ordering**: under burst load the anomaly detector fires
+  on the high p95 latency (load looks anomalous). The previous
+  heal-first ordering made the operator emit heal actions instead of
+  scaling. The Day-15 N=3 evidence is exactly this failure.
+- **Online learn loop**: the README and AMENDMENTS claimed "online
+  learning" since Day 7, but the live consumer never called
+  ReplicaPredictor.learn_one(). The fix makes the claim true.
+
+**Side effects**
+
+- **uild_dataset_v2.py equest_rate parsing bug** documented for
+  P2 fix: 	arget_replicas() heuristic uses y_req = (request_rate +
+  14) // 15, but the Locust stats_history parse captures
+  equest_rate = float(total_req) and many rows show 0.0 because the
+  endpoint filter (ndpoint.startswith("Total")) drops per-endpoint
+  rows in some Locust versions. Symptom: spike scenarios in
+  features_v2.csv have 	arget_replicas=2.0 even when CPU=85% and
+  p95=2200ms. This causes the trained model to learn "do not scale"
+  on the spike scenario. Fix is in P2 (regenerate features_v2.csv after
+  parse fix, then retrain).
+- **No-op window learning** is conservative but not theoretically
+  optimal: in principle we could learn from any window where the
+  operator held a stable state, including post-scale. The current rule
+  is defensible (only learn from unambiguous ground truth).
