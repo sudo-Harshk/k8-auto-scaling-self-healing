@@ -348,7 +348,7 @@ MlSafetyMaxReplicas == ml_current_replicas <= MAX_REPLICAS
 \* TLC verification (composition spec):
 \*
 \* (1) AllShieldInvariants holds on every reachable state of Spec
-*      => The shield path is provably safe.
+\*      => The shield path is provably safe.
 \*
 \* (2) MlSafetyMaxReplicas can be violated on MlSpec alone (TLC produces
 \*      a 3-step counterexample: propose target=11, apply directly, replicas=11)
