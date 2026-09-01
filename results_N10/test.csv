@@ -1,0 +1,5 @@
+seed,operator,scenario,replicas_start,replicas_end,scale_actions,heal_actions,error_rate,p95_latency_ms,scaling_lag_s
+1,hpa,spike,2,1,1,0,0.7467817391304347,3310.304347826087,30
+1,keda,spike,2,10,4,0,0.7467817391304347,3310.304347826087,30
+1,firm,spike,2,10,4,0,0.7467817391304347,3310.304347826087,60
+1,shield-ai,spike,2,1,1,0,0.7467817391304347,3310.304347826087,30.0

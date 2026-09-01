@@ -1,0 +1,948 @@
+{
+  "n_seeds": 3,
+  "operators": [
+    "firm",
+    "hpa",
+    "keda",
+    "shield-ai"
+  ],
+  "scenarios": [
+    "idle",
+    "spike",
+    "steady"
+  ],
+  "by_scenario": {
+    "idle": {
+      "firm": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 3.0,
+          "std": 0.0,
+          "min": 3.0,
+          "max": 3.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.9636363636363635,
+          "std": 1.3597399555105182e-16,
+          "min": 0.9636363636363636,
+          "max": 0.9636363636363636
+        },
+        "p95_latency_ms": {
+          "mean": 0.9818181818181818,
+          "std": 0.0,
+          "min": 0.9818181818181818,
+          "max": 0.9818181818181818
+        },
+        "scaling_lag_s": {
+          "mean": 60.0,
+          "std": 0.0,
+          "min": 60.0,
+          "max": 60.0
+        },
+        "replicas_end": {
+          "mean": 5.0,
+          "std": 0.0,
+          "min": 5.0,
+          "max": 5.0
+        }
+      },
+      "hpa": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.9636363636363635,
+          "std": 1.3597399555105182e-16,
+          "min": 0.9636363636363636,
+          "max": 0.9636363636363636
+        },
+        "p95_latency_ms": {
+          "mean": 0.9818181818181818,
+          "std": 0.0,
+          "min": 0.9818181818181818,
+          "max": 0.9818181818181818
+        },
+        "scaling_lag_s": {
+          "mean": 30.0,
+          "std": 0.0,
+          "min": 30.0,
+          "max": 30.0
+        },
+        "replicas_end": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        }
+      },
+      "keda": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 3.0,
+          "std": 0.0,
+          "min": 3.0,
+          "max": 3.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.9636363636363635,
+          "std": 1.3597399555105182e-16,
+          "min": 0.9636363636363636,
+          "max": 0.9636363636363636
+        },
+        "p95_latency_ms": {
+          "mean": 0.9818181818181818,
+          "std": 0.0,
+          "min": 0.9818181818181818,
+          "max": 0.9818181818181818
+        },
+        "scaling_lag_s": {
+          "mean": 30.0,
+          "std": 0.0,
+          "min": 30.0,
+          "max": 30.0
+        },
+        "replicas_end": {
+          "mean": 4.0,
+          "std": 0.0,
+          "min": 4.0,
+          "max": 4.0
+        }
+      },
+      "shield-ai": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.9636363636363635,
+          "std": 1.3597399555105182e-16,
+          "min": 0.9636363636363636,
+          "max": 0.9636363636363636
+        },
+        "p95_latency_ms": {
+          "mean": 0.9818181818181818,
+          "std": 0.0,
+          "min": 0.9818181818181818,
+          "max": 0.9818181818181818
+        },
+        "scaling_lag_s": {
+          "mean": 30.0,
+          "std": 0.0,
+          "min": 30.0,
+          "max": 30.0
+        },
+        "replicas_end": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        }
+      }
+    },
+    "spike": {
+      "firm": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 4.0,
+          "std": 0.0,
+          "min": 4.0,
+          "max": 4.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.7467817391304347,
+          "std": 0.0,
+          "min": 0.7467817391304347,
+          "max": 0.7467817391304347
+        },
+        "p95_latency_ms": {
+          "mean": 3310.3043478260865,
+          "std": 5.569494857771083e-13,
+          "min": 3310.304347826087,
+          "max": 3310.304347826087
+        },
+        "scaling_lag_s": {
+          "mean": 60.0,
+          "std": 0.0,
+          "min": 60.0,
+          "max": 60.0
+        },
+        "replicas_end": {
+          "mean": 10.0,
+          "std": 0.0,
+          "min": 10.0,
+          "max": 10.0
+        }
+      },
+      "hpa": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.7467817391304347,
+          "std": 0.0,
+          "min": 0.7467817391304347,
+          "max": 0.7467817391304347
+        },
+        "p95_latency_ms": {
+          "mean": 3310.3043478260865,
+          "std": 5.569494857771083e-13,
+          "min": 3310.304347826087,
+          "max": 3310.304347826087
+        },
+        "scaling_lag_s": {
+          "mean": 30.0,
+          "std": 0.0,
+          "min": 30.0,
+          "max": 30.0
+        },
+        "replicas_end": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        }
+      },
+      "keda": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 4.0,
+          "std": 0.0,
+          "min": 4.0,
+          "max": 4.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.7467817391304347,
+          "std": 0.0,
+          "min": 0.7467817391304347,
+          "max": 0.7467817391304347
+        },
+        "p95_latency_ms": {
+          "mean": 3310.3043478260865,
+          "std": 5.569494857771083e-13,
+          "min": 3310.304347826087,
+          "max": 3310.304347826087
+        },
+        "scaling_lag_s": {
+          "mean": 30.0,
+          "std": 0.0,
+          "min": 30.0,
+          "max": 30.0
+        },
+        "replicas_end": {
+          "mean": 10.0,
+          "std": 0.0,
+          "min": 10.0,
+          "max": 10.0
+        }
+      },
+      "shield-ai": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.7467817391304347,
+          "std": 0.0,
+          "min": 0.7467817391304347,
+          "max": 0.7467817391304347
+        },
+        "p95_latency_ms": {
+          "mean": 3310.3043478260865,
+          "std": 5.569494857771083e-13,
+          "min": 3310.304347826087,
+          "max": 3310.304347826087
+        },
+        "scaling_lag_s": {
+          "mean": 30.0,
+          "std": 0.0,
+          "min": 30.0,
+          "max": 30.0
+        },
+        "replicas_end": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        }
+      }
+    },
+    "steady": {
+      "firm": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.982608695652174,
+          "std": 0.0,
+          "min": 0.982608695652174,
+          "max": 0.982608695652174
+        },
+        "p95_latency_ms": {
+          "mean": 2.026086956521739,
+          "std": 0.0,
+          "min": 2.026086956521739,
+          "max": 2.026086956521739
+        },
+        "scaling_lag_s": {
+          "mean": 60.0,
+          "std": 0.0,
+          "min": 60.0,
+          "max": 60.0
+        },
+        "replicas_end": {
+          "mean": 10.0,
+          "std": 0.0,
+          "min": 10.0,
+          "max": 10.0
+        }
+      },
+      "hpa": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.982608695652174,
+          "std": 0.0,
+          "min": 0.982608695652174,
+          "max": 0.982608695652174
+        },
+        "p95_latency_ms": {
+          "mean": 2.026086956521739,
+          "std": 0.0,
+          "min": 2.026086956521739,
+          "max": 2.026086956521739
+        },
+        "scaling_lag_s": {
+          "mean": 30.0,
+          "std": 0.0,
+          "min": 30.0,
+          "max": 30.0
+        },
+        "replicas_end": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        }
+      },
+      "keda": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 3.0,
+          "std": 0.0,
+          "min": 3.0,
+          "max": 3.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.982608695652174,
+          "std": 0.0,
+          "min": 0.982608695652174,
+          "max": 0.982608695652174
+        },
+        "p95_latency_ms": {
+          "mean": 2.026086956521739,
+          "std": 0.0,
+          "min": 2.026086956521739,
+          "max": 2.026086956521739
+        },
+        "scaling_lag_s": {
+          "mean": 30.0,
+          "std": 0.0,
+          "min": 30.0,
+          "max": 30.0
+        },
+        "replicas_end": {
+          "mean": 10.0,
+          "std": 0.0,
+          "min": 10.0,
+          "max": 10.0
+        }
+      },
+      "shield-ai": {
+        "n": 3,
+        "scale_actions": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "heal_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "error_rate": {
+          "mean": 0.982608695652174,
+          "std": 0.0,
+          "min": 0.982608695652174,
+          "max": 0.982608695652174
+        },
+        "p95_latency_ms": {
+          "mean": 2.026086956521739,
+          "std": 0.0,
+          "min": 2.026086956521739,
+          "max": 2.026086956521739
+        },
+        "scaling_lag_s": {
+          "mean": 30.0,
+          "std": 0.0,
+          "min": 30.0,
+          "max": 30.0
+        },
+        "replicas_end": {
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        }
+      }
+    }
+  },
+  "pairwise_vs_shield_ai": {
+    "idle": {
+      "hpa": {
+        "scale_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "heal_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "error_rate": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "p95_latency_ms": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "scaling_lag_s": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "replicas_end": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        }
+      },
+      "keda": {
+        "scale_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "heal_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "error_rate": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "p95_latency_ms": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "scaling_lag_s": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "replicas_end": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        }
+      },
+      "firm": {
+        "scale_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "heal_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "error_rate": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "p95_latency_ms": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "scaling_lag_s": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "replicas_end": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        }
+      }
+    },
+    "spike": {
+      "hpa": {
+        "scale_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "heal_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "error_rate": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "p95_latency_ms": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "scaling_lag_s": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "replicas_end": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        }
+      },
+      "keda": {
+        "scale_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "heal_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "error_rate": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "p95_latency_ms": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "scaling_lag_s": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "replicas_end": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        }
+      },
+      "firm": {
+        "scale_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "heal_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "error_rate": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "p95_latency_ms": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "scaling_lag_s": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "replicas_end": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        }
+      }
+    },
+    "steady": {
+      "hpa": {
+        "scale_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "heal_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "error_rate": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "p95_latency_ms": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "scaling_lag_s": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "replicas_end": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        }
+      },
+      "keda": {
+        "scale_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "heal_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "error_rate": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "p95_latency_ms": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "scaling_lag_s": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "replicas_end": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        }
+      },
+      "firm": {
+        "scale_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "heal_actions": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "error_rate": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "p95_latency_ms": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 1.0,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "scaling_lag_s": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        },
+        "replicas_end": {
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p": 0.25,
+          "cohens_d": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "n_pairs": 3
+        }
+      }
+    }
+  }
+}
