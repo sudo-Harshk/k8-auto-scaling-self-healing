@@ -1,0 +1,49 @@
+TLC2 Version 2026.08.21.155922 (rev: 9787e65)
+Running breadth-first search Model-Checking with fp 62 and seed 1153139964188695816 with 4 workers on 4 cores with 3543MB heap and 64MB offheap memory [pid: 30873] (Linux 6.17.0-1022-azure amd64, Ubuntu 21.0.12 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /home/harsha/k8-auto-scaling-self-healing/specs/ML_Composition.tla
+Parsing file /tmp/tlc-10201530259665398070/Naturals.tla (jar:file:/home/harsha/tla/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-10201530259665398070/FiniteSets.tla (jar:file:/home/harsha/tla/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-10201530259665398070/Integers.tla (jar:file:/home/harsha/tla/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-10201530259665398070/Sequences.tla (jar:file:/home/harsha/tla/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module Integers
+Semantic processing of module ML_Composition
+*** Warnings: 2
+
+line 273, col 11 to line 273, col 26 of module ML_Composition
+
+Multiple declarations or definitions for symbol composition_step.  
+This duplicates the one at line 205, col 11 to line 205, col 26 of module ML_Composition.
+
+
+
+line 283, col 5 to line 283, col 20 of module ML_Composition
+
+Multiple declarations or definitions for symbol composition_step.  
+This duplicates the one at line 205, col 11 to line 205, col 26 of module ML_Composition.
+
+
+
+Linting of module ML_Composition
+Starting... (2026-09-01 17:13:33)
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_ml_raw_action
+(Use the -nowarning option to disable this warning.)
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_ml_raw_target
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-09-01 17:13:33.
+Warning: The variable sh_ml_raw_target was changed while it is specified as UNCHANGED at
+line 238, col 39 to line 238, col 54 of module ML_Composition
+Warning: The variable sh_ml_raw_action was changed while it is specified as UNCHANGED at
+line 238, col 21 to line 238, col 36 of module ML_Composition
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 7.8E-15
+2757 states generated, 53 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 3.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 31 and the 95th percentile is 0).
+Finished in 01s at (2026-09-01 17:13:34)

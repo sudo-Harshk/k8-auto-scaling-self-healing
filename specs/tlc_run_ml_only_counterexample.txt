@@ -1,0 +1,126 @@
+TLC2 Version 2026.08.21.155922 (rev: 9787e65)
+Running breadth-first search Model-Checking with fp 31 and seed -8571770454136018792 with 4 workers on 4 cores with 3543MB heap and 64MB offheap memory [pid: 30685] (Linux 6.17.0-1022-azure amd64, Ubuntu 21.0.12 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /home/harsha/k8-auto-scaling-self-healing/specs/ML_Composition.tla
+Parsing file /tmp/tlc-2187238874168514089/Naturals.tla (jar:file:/home/harsha/tla/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-2187238874168514089/FiniteSets.tla (jar:file:/home/harsha/tla/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-2187238874168514089/Integers.tla (jar:file:/home/harsha/tla/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-2187238874168514089/Sequences.tla (jar:file:/home/harsha/tla/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module Integers
+Semantic processing of module ML_Composition
+*** Warnings: 2
+
+line 273, col 11 to line 273, col 26 of module ML_Composition
+
+Multiple declarations or definitions for symbol composition_step.  
+This duplicates the one at line 205, col 11 to line 205, col 26 of module ML_Composition.
+
+
+
+line 283, col 5 to line 283, col 20 of module ML_Composition
+
+Multiple declarations or definitions for symbol composition_step.  
+This duplicates the one at line 205, col 11 to line 205, col 26 of module ML_Composition.
+
+
+
+Linting of module ML_Composition
+Starting... (2026-09-01 17:13:12)
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_last_action_clock
+(Use the -nowarning option to disable this warning.)
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_shield_modifies
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable composition_step
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_ml_raw_action
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_clock
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_current_replicas
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_pending_action
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_shield_rejects
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_ml_raw_target
+Warning: The subscript of the next-state relation specified by the specification
+does not seem to contain the state variable sh_pending_target
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-09-01 17:13:13.
+Error: Invariant MlSafetyMinReplicas is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ sh_last_action_clock = 0
+/\ sh_shield_modifies = 0
+/\ composition_step = 0
+/\ ml_pending_action = "none"
+/\ ml_last_action_clock = 0
+/\ ml_clock = 0
+/\ sh_ml_raw_action = "noop"
+/\ sh_clock = 0
+/\ ml_pending_target = 2
+/\ sh_current_replicas = 2
+/\ sh_pending_action = "none"
+/\ sh_shield_rejects = 0
+/\ sh_ml_raw_target = 2
+/\ ml_current_replicas = 2
+/\ sh_pending_target = 2
+
+State 2: <MlMLPropose line 233, col 5 to line 239, col 59 of module ML_Composition>
+/\ sh_last_action_clock = 0
+/\ sh_shield_modifies = 0
+/\ composition_step = 0
+/\ ml_pending_action = "noop"
+/\ ml_last_action_clock = 0
+/\ ml_clock = 0
+/\ sh_ml_raw_action = "noop"
+/\ sh_clock = 0
+/\ ml_pending_target = 0
+/\ sh_current_replicas = 2
+/\ sh_pending_action = "none"
+/\ sh_shield_rejects = 0
+/\ sh_ml_raw_target = 2
+/\ ml_current_replicas = 2
+/\ sh_pending_target = 2
+
+State 3: <MlMLPropose line 233, col 5 to line 239, col 59 of module ML_Composition>
+/\ sh_last_action_clock = 0
+/\ sh_shield_modifies = 0
+/\ composition_step = 0
+/\ ml_pending_action = "heal"
+/\ ml_last_action_clock = 0
+/\ ml_clock = 0
+/\ sh_ml_raw_action = "noop"
+/\ sh_clock = 0
+/\ ml_pending_target = 0
+/\ sh_current_replicas = 2
+/\ sh_pending_action = "none"
+/\ sh_shield_rejects = 0
+/\ sh_ml_raw_target = 2
+/\ ml_current_replicas = 2
+/\ sh_pending_target = 2
+
+State 4: <MlApply line 243, col 5 to line 256, col 59 of module ML_Composition>
+/\ sh_last_action_clock = 0
+/\ sh_shield_modifies = 0
+/\ composition_step = 0
+/\ ml_pending_action = "heal"
+/\ ml_last_action_clock = 0
+/\ ml_clock = 0
+/\ sh_ml_raw_action = "noop"
+/\ sh_clock = 0
+/\ ml_pending_target = 0
+/\ sh_current_replicas = 2
+/\ sh_pending_action = "none"
+/\ sh_shield_rejects = 0
+/\ sh_ml_raw_target = 2
+/\ ml_current_replicas = 0
+/\ sh_pending_target = 2
+
+1668 states generated, 93 distinct states found, 59 states left on queue.
+The depth of the complete state graph search is 4.
+Finished in 00s at (2026-09-01 17:13:13)
