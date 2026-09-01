@@ -1,5 +1,5 @@
 {
-  "n_seeds": 3,
+  "n_seeds": 10,
   "operators": [
     "firm",
     "hpa",
@@ -14,7 +14,7 @@
   "by_scenario": {
     "idle": {
       "firm": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 3.0,
           "std": 0.0,
@@ -29,7 +29,7 @@
         },
         "error_rate": {
           "mean": 0.9636363636363635,
-          "std": 1.3597399555105182e-16,
+          "std": 1.1702778228589004e-16,
           "min": 0.9636363636363636,
           "max": 0.9636363636363636
         },
@@ -53,7 +53,7 @@
         }
       },
       "hpa": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 1.0,
           "std": 0.0,
@@ -68,7 +68,7 @@
         },
         "error_rate": {
           "mean": 0.9636363636363635,
-          "std": 1.3597399555105182e-16,
+          "std": 1.1702778228589004e-16,
           "min": 0.9636363636363636,
           "max": 0.9636363636363636
         },
@@ -92,7 +92,7 @@
         }
       },
       "keda": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 3.0,
           "std": 0.0,
@@ -107,7 +107,7 @@
         },
         "error_rate": {
           "mean": 0.9636363636363635,
-          "std": 1.3597399555105182e-16,
+          "std": 1.1702778228589004e-16,
           "min": 0.9636363636363636,
           "max": 0.9636363636363636
         },
@@ -131,7 +131,7 @@
         }
       },
       "shield-ai": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 1.0,
           "std": 0.0,
@@ -146,7 +146,7 @@
         },
         "error_rate": {
           "mean": 0.9636363636363635,
-          "std": 1.3597399555105182e-16,
+          "std": 1.1702778228589004e-16,
           "min": 0.9636363636363636,
           "max": 0.9636363636363636
         },
@@ -172,7 +172,7 @@
     },
     "spike": {
       "firm": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 4.0,
           "std": 0.0,
@@ -192,8 +192,8 @@
           "max": 0.7467817391304347
         },
         "p95_latency_ms": {
-          "mean": 3310.3043478260865,
-          "std": 5.569494857771083e-13,
+          "mean": 3310.304347826087,
+          "std": 0.0,
           "min": 3310.304347826087,
           "max": 3310.304347826087
         },
@@ -211,7 +211,7 @@
         }
       },
       "hpa": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 1.0,
           "std": 0.0,
@@ -231,8 +231,8 @@
           "max": 0.7467817391304347
         },
         "p95_latency_ms": {
-          "mean": 3310.3043478260865,
-          "std": 5.569494857771083e-13,
+          "mean": 3310.304347826087,
+          "std": 0.0,
           "min": 3310.304347826087,
           "max": 3310.304347826087
         },
@@ -250,7 +250,7 @@
         }
       },
       "keda": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 4.0,
           "std": 0.0,
@@ -270,8 +270,8 @@
           "max": 0.7467817391304347
         },
         "p95_latency_ms": {
-          "mean": 3310.3043478260865,
-          "std": 5.569494857771083e-13,
+          "mean": 3310.304347826087,
+          "std": 0.0,
           "min": 3310.304347826087,
           "max": 3310.304347826087
         },
@@ -289,7 +289,7 @@
         }
       },
       "shield-ai": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 1.0,
           "std": 0.0,
@@ -309,8 +309,8 @@
           "max": 0.7467817391304347
         },
         "p95_latency_ms": {
-          "mean": 3310.3043478260865,
-          "std": 5.569494857771083e-13,
+          "mean": 3310.304347826087,
+          "std": 0.0,
           "min": 3310.304347826087,
           "max": 3310.304347826087
         },
@@ -330,7 +330,7 @@
     },
     "steady": {
       "firm": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 1.0,
           "std": 0.0,
@@ -344,14 +344,14 @@
           "max": 0.0
         },
         "error_rate": {
-          "mean": 0.982608695652174,
-          "std": 0.0,
+          "mean": 0.9826086956521742,
+          "std": 2.340555645717801e-16,
           "min": 0.982608695652174,
           "max": 0.982608695652174
         },
         "p95_latency_ms": {
-          "mean": 2.026086956521739,
-          "std": 0.0,
+          "mean": 2.0260869565217385,
+          "std": 4.681111291435602e-16,
           "min": 2.026086956521739,
           "max": 2.026086956521739
         },
@@ -369,7 +369,7 @@
         }
       },
       "hpa": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 1.0,
           "std": 0.0,
@@ -383,14 +383,14 @@
           "max": 0.0
         },
         "error_rate": {
-          "mean": 0.982608695652174,
-          "std": 0.0,
+          "mean": 0.9826086956521742,
+          "std": 2.340555645717801e-16,
           "min": 0.982608695652174,
           "max": 0.982608695652174
         },
         "p95_latency_ms": {
-          "mean": 2.026086956521739,
-          "std": 0.0,
+          "mean": 2.0260869565217385,
+          "std": 4.681111291435602e-16,
           "min": 2.026086956521739,
           "max": 2.026086956521739
         },
@@ -408,7 +408,7 @@
         }
       },
       "keda": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 3.0,
           "std": 0.0,
@@ -422,14 +422,14 @@
           "max": 0.0
         },
         "error_rate": {
-          "mean": 0.982608695652174,
-          "std": 0.0,
+          "mean": 0.9826086956521742,
+          "std": 2.340555645717801e-16,
           "min": 0.982608695652174,
           "max": 0.982608695652174
         },
         "p95_latency_ms": {
-          "mean": 2.026086956521739,
-          "std": 0.0,
+          "mean": 2.0260869565217385,
+          "std": 4.681111291435602e-16,
           "min": 2.026086956521739,
           "max": 2.026086956521739
         },
@@ -447,7 +447,7 @@
         }
       },
       "shield-ai": {
-        "n": 3,
+        "n": 10,
         "scale_actions": {
           "mean": 1.0,
           "std": 0.0,
@@ -461,14 +461,14 @@
           "max": 0.0
         },
         "error_rate": {
-          "mean": 0.982608695652174,
-          "std": 0.0,
+          "mean": 0.9826086956521742,
+          "std": 2.340555645717801e-16,
           "min": 0.982608695652174,
           "max": 0.982608695652174
         },
         "p95_latency_ms": {
-          "mean": 2.026086956521739,
-          "std": 0.0,
+          "mean": 2.0260869565217385,
+          "std": 4.681111291435602e-16,
           "min": 2.026086956521739,
           "max": 2.026086956521739
         },
@@ -496,7 +496,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "heal_actions": {
           "wilcoxon_stat": 0.0,
@@ -504,7 +504,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "error_rate": {
           "wilcoxon_stat": 0.0,
@@ -512,7 +512,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "p95_latency_ms": {
           "wilcoxon_stat": 0.0,
@@ -520,7 +520,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "scaling_lag_s": {
           "wilcoxon_stat": 0.0,
@@ -528,7 +528,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "replicas_end": {
           "wilcoxon_stat": 0.0,
@@ -536,17 +536,17 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         }
       },
       "keda": {
         "scale_actions": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "heal_actions": {
           "wilcoxon_stat": 0.0,
@@ -554,7 +554,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "error_rate": {
           "wilcoxon_stat": 0.0,
@@ -562,7 +562,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "p95_latency_ms": {
           "wilcoxon_stat": 0.0,
@@ -570,7 +570,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "scaling_lag_s": {
           "wilcoxon_stat": 0.0,
@@ -578,25 +578,25 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "replicas_end": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         }
       },
       "firm": {
         "scale_actions": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "heal_actions": {
           "wilcoxon_stat": 0.0,
@@ -604,7 +604,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "error_rate": {
           "wilcoxon_stat": 0.0,
@@ -612,7 +612,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "p95_latency_ms": {
           "wilcoxon_stat": 0.0,
@@ -620,23 +620,23 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "scaling_lag_s": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "replicas_end": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         }
       }
     },
@@ -648,7 +648,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "heal_actions": {
           "wilcoxon_stat": 0.0,
@@ -656,7 +656,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "error_rate": {
           "wilcoxon_stat": 0.0,
@@ -664,7 +664,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "p95_latency_ms": {
           "wilcoxon_stat": 0.0,
@@ -672,7 +672,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "scaling_lag_s": {
           "wilcoxon_stat": 0.0,
@@ -680,7 +680,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "replicas_end": {
           "wilcoxon_stat": 0.0,
@@ -688,17 +688,17 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         }
       },
       "keda": {
         "scale_actions": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "heal_actions": {
           "wilcoxon_stat": 0.0,
@@ -706,7 +706,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "error_rate": {
           "wilcoxon_stat": 0.0,
@@ -714,7 +714,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "p95_latency_ms": {
           "wilcoxon_stat": 0.0,
@@ -722,7 +722,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "scaling_lag_s": {
           "wilcoxon_stat": 0.0,
@@ -730,25 +730,25 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "replicas_end": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         }
       },
       "firm": {
         "scale_actions": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "heal_actions": {
           "wilcoxon_stat": 0.0,
@@ -756,7 +756,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "error_rate": {
           "wilcoxon_stat": 0.0,
@@ -764,7 +764,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "p95_latency_ms": {
           "wilcoxon_stat": 0.0,
@@ -772,23 +772,23 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "scaling_lag_s": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "replicas_end": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         }
       }
     },
@@ -800,7 +800,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "heal_actions": {
           "wilcoxon_stat": 0.0,
@@ -808,7 +808,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "error_rate": {
           "wilcoxon_stat": 0.0,
@@ -816,7 +816,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "p95_latency_ms": {
           "wilcoxon_stat": 0.0,
@@ -824,7 +824,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "scaling_lag_s": {
           "wilcoxon_stat": 0.0,
@@ -832,7 +832,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "replicas_end": {
           "wilcoxon_stat": 0.0,
@@ -840,17 +840,17 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         }
       },
       "keda": {
         "scale_actions": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "heal_actions": {
           "wilcoxon_stat": 0.0,
@@ -858,7 +858,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "error_rate": {
           "wilcoxon_stat": 0.0,
@@ -866,7 +866,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "p95_latency_ms": {
           "wilcoxon_stat": 0.0,
@@ -874,7 +874,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "scaling_lag_s": {
           "wilcoxon_stat": 0.0,
@@ -882,15 +882,15 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "replicas_end": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         }
       },
       "firm": {
@@ -900,7 +900,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "heal_actions": {
           "wilcoxon_stat": 0.0,
@@ -908,7 +908,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "error_rate": {
           "wilcoxon_stat": 0.0,
@@ -916,7 +916,7 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "p95_latency_ms": {
           "wilcoxon_stat": 0.0,
@@ -924,23 +924,23 @@
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "scaling_lag_s": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         },
         "replicas_end": {
           "wilcoxon_stat": 0.0,
-          "wilcoxon_p": 0.25,
+          "wilcoxon_p": 0.001953125,
           "cohens_d": 0.0,
           "ci95_low": 0.0,
           "ci95_high": 0.0,
-          "n_pairs": 3
+          "n_pairs": 10
         }
       }
     }
