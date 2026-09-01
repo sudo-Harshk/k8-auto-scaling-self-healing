@@ -27,6 +27,8 @@ services:
       - KAFKA_BOOTSTRAP=kafka.kafka:9092
       - METRICS_TOPIC=k8s-metrics
       - PYTHONUNBUFFERED=1
+    volumes:
+      - ../src:/code/src
     network_mode: host
     restart: unless-stopped
 
@@ -41,6 +43,8 @@ services:
       - OUTPUT_TOPIC=k8s-features
       - WINDOW_SECONDS=30
       - PYTHONUNBUFFERED=1
+    volumes:
+      - ../src:/code/src
     network_mode: host
     depends_on:
       - producer
@@ -60,6 +64,7 @@ services:
       - DECISIONS_LOG=/code/logs/decisions.log
       - PYTHONUNBUFFERED=1
     volumes:
+      - ../src:/code/src
       - ../logs:/code/logs
       - ../data:/code/data
     network_mode: host
@@ -83,6 +88,7 @@ services:
       - OPERATOR_ACTIONS_LOG=/code/logs/operator_actions.log
       - PYTHONUNBUFFERED=1
     volumes:
+      - ../src:/code/src
       - ../logs:/code/logs
       - ../specs:/code/specs
     network_mode: host
