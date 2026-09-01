@@ -266,7 +266,7 @@ VARIABLES
                         \* 3 = tick (used only to interleave the paths so
                         \* TLC doesn't explore an unreachable product)
 
-vars == <<sh_vars, ml_vars, composition_step>>
+all_vars == <<sh_vars, ml_vars, composition_step>>
 
 Init ==
     /\ ShInit
@@ -294,7 +294,7 @@ Next ==
        /\ UNCHANGED ml_vars
        /\ composition_step' = 0
 
-Spec == Init /\ [][Next]_vars
+Spec == Init /\ [][Next]_all_vars
 
 \* ===========================================================================
 \* SAFETY INVARIANTS
