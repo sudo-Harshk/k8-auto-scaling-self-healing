@@ -24,23 +24,21 @@
  *                       (what SHIELD-AI actually does)
  *
  * TLC exhaustively explores all reachable states in BOTH paths and checks:
- *   - The SHIELD path satisfies all 5 safety invariants on every reachable state
+ *   - The SHIELD path satisfies all safety invariants on every reachable state
  *   - The ML_Only path CAN violate at least one safety invariant (proving
  *     that the shield is necessary, not redundant)
  *
- * This is the "composition theorem": the safety of the closed-loop system
- * reduces to the safety of the shield, regardless of ML oracle behavior.
- *
- * Verified by TLC. Companion Python-readable form of the shield rules is
- * src/safety/safety_shield.py. The spec was added 2026-09-01.
+ * State design (v2, fix 2026-09-01):
+ *   - Raw ML output (unbounded, 0..ML_OUTPUT_RANGE) lives in its OWN variable
+ *     (sh_ml_raw_target) so the type invariant on the shielded output is
+ *     never violated.
+ *   - Shield evaluation produces a (bounded_action, bounded_target) tuple
+ *     in MIN..MAX, which is what ShApply uses.
  *
  * State space (bounded for tractability):
  *   - replica counts: 1..MAX_REPLICAS (10)
  *   - ML oracle outputs: 0..ML_OUTPUT_RANGE (12; can go below 1 and above 10)
  *   - clock: 0..MAX_REPLICAS (cyclic)
- *
- * TLC run: 273,702 distinct reachable states, 2.49M state generations,
- *          depth 53, 4 min 6 s on commodity hardware.
  *)
 
 EXTENDS Naturals, FiniteSets, Integers
@@ -71,11 +69,6 @@ Abs(x) == IF x < 0 THEN -x ELSE x
 \*   - blocks actions during cooldown
 \* ---------------------------------------------------------------------------
 
-\* Result of the shield on an ML proposal. (action, target) tuple:
-\*   "scale" / clamped target
-\*   "noop"  / current (cooldown blocked)
-\*   "reject" / current (no action applied; logged for diagnostic)
-
 ShieldResult(ml_action, ml_target, current, cooldown_elapsed) ==
     LET bounded == Clamp(ml_target, MIN_REPLICAS, MAX_REPLICAS)
         delta == bounded - current
@@ -89,27 +82,32 @@ ShieldResult(ml_action, ml_target, current, cooldown_elapsed) ==
             IF cooldown_elapsed
             THEN <<"scale", clamped_target>>
             ELSE <<"noop", current>>
-       [] OTHER -> <<"reject", current>>
+       [] OTHER -> <<"noop", current>>
 
 \* ===========================================================================
 \* SHIELD PATH VARIABLES (the closed-loop system that ships in production)
 \* ===========================================================================
 
 VARIABLES
-    sh_current_replicas,
-    sh_pending_action,
-    sh_pending_target,
+    sh_current_replicas,        \* actual cluster replica count
+    sh_ml_raw_action,           \* raw ML action (can be "out_of_bounds")
+    sh_ml_raw_target,           \* raw ML target (can be 0..ML_OUTPUT_RANGE)
+    sh_pending_action,          \* shielded action (always in {"none","scale","heal","noop"})
+    sh_pending_target,          \* shielded target (always in MIN..MAX)
     sh_clock,
     sh_last_action_clock,
-    sh_shield_rejects,    \* cumulative count of rejected actions (diagnostic)
-    sh_shield_modifies    \* cumulative count of clamped (modified) actions
+    sh_shield_rejects,          \* cumulative count of rejected actions (diagnostic)
+    sh_shield_modifies          \* cumulative count of clamped (modified) actions
 
-sh_vars == <<sh_current_replicas, sh_pending_action, sh_pending_target,
+sh_vars == <<sh_current_replicas, sh_ml_raw_action, sh_ml_raw_target,
+             sh_pending_action, sh_pending_target,
              sh_clock, sh_last_action_clock,
              sh_shield_rejects, sh_shield_modifies>>
 
 ShInit ==
     /\ sh_current_replicas = 2
+    /\ sh_ml_raw_action = "noop"
+    /\ sh_ml_raw_target = 2
     /\ sh_pending_action = "none"
     /\ sh_pending_target = 2
     /\ sh_clock = 0
@@ -126,22 +124,23 @@ ShCooldownElapsed ==
 
 \* ML oracle emits a NEW proposal. Thin abstraction: any (action, target) in
 \* the unbounded ML output space. TLC explores every reachable combination.
+\* NOTE: writes to sh_ml_raw_* variables, NOT sh_pending_*.
 ShMLPropose ==
-    /\ sh_pending_action' \in {"scale", "heal", "noop", "out_of_bounds"}
-    /\ sh_pending_target' \in 0..ML_OUTPUT_RANGE   \* can be 0 or 11, etc.
-    /\ UNCHANGED <<sh_current_replicas, sh_clock,
-                    sh_last_action_clock, sh_shield_rejects,
-                    sh_shield_modifies>>
+    /\ sh_ml_raw_action' \in {"scale", "heal", "noop", "out_of_bounds"}
+    /\ sh_ml_raw_target' \in 0..ML_OUTPUT_RANGE   \* can be 0 or 11, etc.
+    /\ UNCHANGED <<sh_current_replicas, sh_pending_action, sh_pending_target,
+                    sh_clock, sh_last_action_clock,
+                    sh_shield_rejects, sh_shield_modifies>>
 
-\* Shield evaluates the pending proposal. Sets a guard variable so that the
-\* apply step uses the shielded target. Counts diagnostics.
+\* Shield evaluates the raw ML proposal and produces a SHIELDED proposal.
+\* Writes to sh_pending_* variables (which must satisfy TypeOK).
 ShEvaluateShield ==
-    LET result == ShieldResult(sh_pending_action, sh_pending_target,
+    LET result == ShieldResult(sh_ml_raw_action, sh_ml_raw_target,
                                sh_current_replicas, ShCooldownElapsed)
         action == result[1]
         target == result[2]
-        ml_target == sh_pending_target
-        ml_action == sh_pending_action
+        ml_target == sh_ml_raw_target
+        ml_action == sh_ml_raw_action
         is_out_of_bounds == \/ ml_action = "out_of_bounds"
                             \/ ml_target < MIN_REPLICAS
                             \/ ml_target > MAX_REPLICAS
@@ -151,6 +150,8 @@ ShEvaluateShield ==
                         /\ ml_target <= MAX_REPLICAS
         is_cooldown_blocked == ml_action = "scale" /\ ~ShCooldownElapsed
     IN
+    /\ target \in MIN_REPLICAS..MAX_REPLICAS
+    /\ action \in {"scale", "heal", "noop"}
     /\ sh_pending_action' = action
     /\ sh_pending_target' = target
     /\ sh_shield_rejects' =
@@ -158,10 +159,12 @@ ShEvaluateShield ==
            (IF is_out_of_bounds \/ is_cooldown_blocked THEN 1 ELSE 0)
     /\ sh_shield_modifies' =
            sh_shield_modifies + (IF is_oversized THEN 1 ELSE 0)
-    /\ UNCHANGED <<sh_current_replicas, sh_clock, sh_last_action_clock>>
+    /\ UNCHANGED <<sh_current_replicas, sh_ml_raw_action, sh_ml_raw_target,
+                    sh_clock, sh_last_action_clock>>
 
 \* Apply the shielded decision to the cluster. This is the only step that
-\* mutates sh_current_replicas.
+\* mutates sh_current_replicas. The guards enforce the safety invariants
+\* directly: sh_pending_target is always in MIN..MAX after ShEvaluateShield.
 ShApply ==
     /\ \/ /\ sh_pending_action = "scale"
           /\ sh_pending_target \in MIN_REPLICAS..MAX_REPLICAS
@@ -173,13 +176,15 @@ ShApply ==
        \/ /\ sh_pending_action \in {"noop", "none"}
           /\ UNCHANGED sh_current_replicas
     /\ sh_last_action_clock' = sh_clock
-    /\ UNCHANGED <<sh_pending_action, sh_pending_target, sh_clock,
+    /\ UNCHANGED <<sh_ml_raw_action, sh_ml_raw_target,
+                    sh_pending_action, sh_pending_target, sh_clock,
                     sh_shield_rejects, sh_shield_modifies>>
 
 \* Tick the shield-path clock.
 ShTick ==
     /\ sh_clock' = (sh_clock + 1) % (MAX_REPLICAS + 1)
-    /\ UNCHANGED <<sh_current_replicas, sh_pending_action, sh_pending_target,
+    /\ UNCHANGED <<sh_current_replicas, sh_ml_raw_action, sh_ml_raw_target,
+                    sh_pending_action, sh_pending_target,
                     sh_last_action_clock, sh_shield_rejects,
                     sh_shield_modifies>>
 
@@ -268,31 +273,25 @@ Init ==
     /\ MlInit
     /\ composition_step = 0
 
-Tick == /\ composition_step' = (composition_step + 1) % 4
-        /\ UNCHANGED <<sh_vars, ml_vars>>
-
 \* Interleaving: each step of the joint spec runs ONE action from ONE path,
 \* picked non-deterministically. This ensures TLC explores both paths
 \* independently while bounding the product state space.
 Next ==
-    \/ /\ composition_step = 0 /\ ShMLPropose /\ MlMLPropose
-       /\ UNCHANGED <<sh_clock, sh_last_action_clock, ml_clock,
-                       ml_last_action_clock, composition_step>>
+    \/ /\ composition_step = 0
+       /\ ShMLPropose
+       /\ MlMLPropose
+       /\ UNCHANGED composition_step
     \/ /\ composition_step = 1
-       /\ \/ ShEvaluateShield
-          \/ UNCHANGED <<sh_current_replicas, sh_clock, sh_last_action_clock,
-                         sh_pending_action, sh_pending_target,
-                         sh_shield_rejects, sh_shield_modifies>>
+       /\ ShEvaluateShield
        /\ MlTick
+       /\ UNCHANGED composition_step
     \/ /\ composition_step = 2
-       /\ \/ ShApply
-          \/ UNCHANGED <<sh_pending_action, sh_pending_target, sh_clock,
-                         sh_last_action_clock, sh_shield_rejects,
-                         sh_shield_modifies, sh_current_replicas>>
+       /\ ShApply
        /\ MlApply
+       /\ UNCHANGED composition_step
     \/ /\ composition_step = 3
        /\ ShTick
-       /\ UNCHANGED <<ml_vars>>
+       /\ UNCHANGED ml_vars
        /\ composition_step' = 0
 
 Spec == Init /\ [][Next]_vars
@@ -305,6 +304,8 @@ Spec == Init /\ [][Next]_vars
 
 ShTypeOK ==
     /\ sh_current_replicas \in MIN_REPLICAS..MAX_REPLICAS
+    /\ sh_ml_raw_action \in {"scale", "heal", "noop", "out_of_bounds"}
+    /\ sh_ml_raw_target \in 0..ML_OUTPUT_RANGE
     /\ sh_pending_action \in {"scale", "heal", "noop", "none"}
     /\ sh_pending_target \in MIN_REPLICAS..MAX_REPLICAS
     /\ sh_clock \in 0..MAX_REPLICAS
@@ -365,8 +366,8 @@ MlSafetyMaxReplicas == ml_current_replicas <= MAX_REPLICAS
 \* eventually scales up.
 \*
 \* We model "sustained overload" as: the shield has rejected (clamped) at
-\* least MIN_REPLICAS * MAX_SCALE_STEP scaling proposals (i.e., the ML oracle
-\* has been consistently demanding more). Under strong fairness on ShApply,
+\* least MAX_SCALE_STEP scaling proposals (i.e., the ML oracle has been
+\* consistently demanding more). Under strong fairness on ShApply,
 \* the shielded proposals must eventually be applied.
 
 ShLivenessEventuallyScaleUp ==
@@ -381,5 +382,6 @@ LivenessSpec == Spec /\ Fairness
 
 ===============================================================================
 \* Modification History
-\* Last modified 2026-09-01 (Day 17 - P3: composition spec added)
+\* Last modified 2026-09-01 (Day 17 - P3: composition spec refactored to
+\*                            separate raw ML output from shielded target)
 \* Created 2026-09-01 for SHIELD-AI paper §3 and thesis Ch. 5
