@@ -1,4 +1,4 @@
-# SHIELD-AI — A Formally-Verified Online Learning Controller for Kubernetes Auto-Scaling and Self-Healing
+# SHIELD-AI - A Formally-Verified Online Learning Controller for Kubernetes Auto-Scaling and Self-Healing
 
 M.Tech project: a formally-safe autonomous Kubernetes controller that unifies
 online-machine-learning auto-scaling and auto-healing behind a
@@ -358,10 +358,3 @@ ssh k8-vm 'cd ~/k8-auto-scaling-self-healing && make tla && make tla-composition
 ```
 
 If any of these fail, the paper is not ready.
-
-## Acknowledgment
-
-This work used Anthropic Claude as a coding assistant for code
-scaffolding and copy editing; all design decisions and claims were
-verified by the author. (See `evidence-freeze.md §K` and `docs/paper/main.tex`
-Acknowledgment.)
