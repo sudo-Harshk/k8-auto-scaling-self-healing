@@ -18,11 +18,34 @@
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-primary-500;
   }
+
+  code, pre, kbd, samp {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
 }
 
 @layer utilities {
   .prose-custom {
     @apply text-text-secondary leading-relaxed;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+/* Subtle scroll progress bar at the very top of the page */
+@layer utilities {
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4F46E5, #14B8A6);
+    z-index: 60;
+    transition: width 80ms linear;
   }
 }
 

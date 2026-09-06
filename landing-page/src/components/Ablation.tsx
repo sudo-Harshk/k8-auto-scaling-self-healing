@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
 interface Variant {
   name: string
@@ -9,12 +10,13 @@ interface Variant {
   rejected: number
   applied: number
   color: 'purple' | 'blue' | 'red'
+  barColor: string
 }
 
 const variants: Variant[] = [
-  { name: 'Full AI', scale: 0, heal: 1, noop: 0, rejected: 54, applied: 1, color: 'purple' },
-  { name: '-SHAP', scale: 0, heal: 1, noop: 0, rejected: 54, applied: 1, color: 'blue' },
-  { name: '-Safety Shield', scale: 0, heal: 55, noop: 0, rejected: 0, applied: 55, color: 'red' },
+  { name: 'Full AI', scale: 0, heal: 1, noop: 0, rejected: 54, applied: 1, color: 'purple', barColor: '#4F46E5' },
+  { name: '-SHAP', scale: 0, heal: 1, noop: 0, rejected: 54, applied: 1, color: 'blue', barColor: '#0EA5E9' },
+  { name: '-Safety Shield', scale: 0, heal: 55, noop: 0, rejected: 0, applied: 55, color: 'red', barColor: '#EF4444' },
 ]
 
 const badgeClasses: Record<Variant['color'], string> = {
@@ -23,10 +25,16 @@ const badgeClasses: Record<Variant['color'], string> = {
   red: 'bg-red-100 text-red-700 border-red-200',
 }
 
+const chartData = [
+  { name: 'Full AI', applied: 1, rejected: 54 },
+  { name: '-SHAP', applied: 1, rejected: 54 },
+  { name: '-Shield', applied: 55, rejected: 0 },
+]
+
 function Stat({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   return (
-    <div className="p-3 rounded-lg bg-surface-50 border border-border">
-      <p className="text-xs text-text-muted">{label}</p>
+    <div className="p-2.5 rounded-lg bg-surface-50 border border-border">
+      <p className="text-[10px] uppercase tracking-wider text-text-muted">{label}</p>
       <p className={`text-lg font-semibold ${highlight ? 'text-red-600' : 'text-text-primary'}`}>{value}</p>
     </div>
   )
@@ -34,27 +42,57 @@ function Stat({ label, value, highlight }: { label: string; value: number; highl
 
 export function Ablation() {
   return (
-    <section id="ablation" className="py-20 md:py-28 lg:py-32 px-6 md:px-12 max-w-7xl mx-auto" aria-labelledby="ablation-heading">
+    <section id="ablation" className="py-20 md:py-28 lg:py-32 px-6 md:px-12 max-w-6xl mx-auto" aria-labelledby="ablation-heading">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.6 }}
-        className="text-center max-w-3xl mx-auto mb-16"
+        className="text-center max-w-3xl mx-auto mb-12"
       >
         <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-50 text-purple-700 text-sm font-medium border border-purple-200 mb-4">
           Ablation Study
         </span>
         <h2 id="ablation-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary leading-tight mb-6">
-          Ablation: <span className="text-red-600">Safety Shield</span> Is the Critical Component
+          Ablation: <span className="text-red-600">removing the shield</span> produces
+          runaway automation
         </h2>
         <p className="text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
-          Removing the Safety Shield allows the AI to apply 55 unconstrained heal actions.
-          With the shield, only 1 is applied (cooldown enforced).
+          Three variants × identical replay. Removing the shield lets the AI apply 55 unconstrained
+          heal actions; with the shield, only 1 is applied.
         </p>
       </motion.div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.5 }}
+        className="bg-white rounded-2xl border border-border p-5 mb-10 shadow-sm"
+      >
+        <h3 className="text-base font-semibold text-text-primary mb-3">Actions per variant (55 windows)</h3>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 0 }}>
+              <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" stroke="#475569" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="#475569" fontSize={12} tickLine={false} axisLine={false} />
+              <Tooltip
+                cursor={{ fill: 'rgba(99,102,241,0.06)' }}
+                contentStyle={{ borderRadius: 8, border: '1px solid #E2E8F0', fontSize: 12 }}
+              />
+              <Bar dataKey="applied" stackId="a" fill="#4F46E5" radius={[0, 0, 0, 0]} name="Applied" />
+              <Bar dataKey="rejected" stackId="a" fill="#EF4444" radius={[6, 6, 0, 0]} name="Rejected" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex items-center justify-center gap-6 text-xs text-text-secondary mt-3">
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-primary-600" />Applied</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-red-500" />Rejected by shield</span>
+        </div>
+      </motion.div>
+
+      <div className="grid md:grid-cols-3 gap-5">
         {variants.map((variant, index) => (
           <motion.div
             key={variant.name}
@@ -62,34 +100,34 @@ export function Ablation() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ delay: index * 0.15, duration: 0.5 }}
-            className={`bg-white rounded-xl border p-6 hover:shadow-lg transition-all duration-300 ${
+            className={`bg-white rounded-xl border p-5 hover:shadow-lg transition-all duration-300 ${
               variant.color === 'purple' ? 'border-purple-200' :
               variant.color === 'blue' ? 'border-blue-200' :
-              'border-red-300'
+              'border-red-300 ring-2 ring-red-200'
             }`}
           >
             <div className="flex items-center gap-3 mb-4">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium border ${badgeClasses[variant.color]}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium border ${badgeClasses[variant.color]}`}>
                 {variant.name}
               </span>
               {variant.name === '-Safety Shield' && (
-                <span className="px-2 py-0.5 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
+                <span className="px-2 py-0.5 text-[10px] font-semibold bg-red-100 text-red-700 rounded-full">
                   Critical
                 </span>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-2 gap-2.5 mb-4">
               <Stat label="Scale" value={variant.scale} />
               <Stat label="Heal" value={variant.heal} />
               <Stat label="Noop" value={variant.noop} />
               <Stat label="Rejected" value={variant.rejected} />
               <Stat label="Applied" value={variant.applied} highlight={variant.name === '-Safety Shield'} />
             </div>
-            <div className="pt-4 border-t border-border">
-              <p className="text-sm text-text-secondary">
+            <div className="pt-3 border-t border-border">
+              <p className="text-xs text-text-secondary leading-relaxed">
                 {variant.name === '-Safety Shield'
-                  ? 'Without shield: 55 unconstrained heal actions applied!'
-                  : 'Safety Shield correctly enforces cooldown'}
+                  ? 'Without the shield, all 55 proposals get applied. The cluster gets delete-spammed.'
+                  : 'With the shield, the cooldown gate reduces 55 proposals to 1 applied.'}
               </p>
             </div>
           </motion.div>
@@ -100,20 +138,20 @@ export function Ablation() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
-        className="mt-16 p-6 bg-red-50 rounded-2xl border border-red-200"
+        className="mt-12 p-6 bg-red-50 rounded-2xl border border-red-200"
       >
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
-            <X className="w-6 h-6 text-red-600" />
+            <X className="w-6 h-6 text-red-600" aria-hidden="true" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-text-primary mb-1">Without Safety Shield: Runaway Automation</h3>
-            <p className="text-text-secondary mt-1">
+            <p className="text-text-secondary mt-1 text-sm leading-relaxed">
               The AI engine would apply <strong>55 unconstrained heal actions</strong> in 55 consecutive windows.
-              The Safety Shield's cooldown gate reduces this to <strong>1 applied action</strong>.
+              The shield's cooldown gate reduces this to <strong>1 applied action</strong> per minute.
             </p>
-            <p className="text-text-secondary mt-2 text-sm">
-              This is the paper's strongest safety claim: the Shield prevents runaway automation
+            <p className="text-text-secondary mt-2 text-xs leading-relaxed">
+              This is the paper's strongest empirical safety claim: the Shield prevents runaway automation
               by enforcing cooldown, bounded step size, and heal-preserves-replicas invariants.
             </p>
           </div>

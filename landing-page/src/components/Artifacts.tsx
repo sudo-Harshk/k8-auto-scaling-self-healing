@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { FileText, BarChart3, TrendingUp, BarChart, Download, ExternalLink } from 'lucide-react'
+import { FileText, BarChart3, BarChart, Download, ExternalLink } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 interface Artifact {
@@ -7,58 +7,58 @@ interface Artifact {
   desc: string
   path: string
   icon: LucideIcon
-  color: 'blue' | 'purple' | 'teal' | 'green'
+  color: 'blue' | 'purple' | 'teal' | 'green' | 'red'
 }
 
 const artifacts: Artifact[] = [
   {
-    name: 'IEEE Paper Draft',
-    desc: '6-page conference-format draft (Markdown) with threat model and defense-in-depth.',
-    path: 'docs/ieee_paper.md',
+    name: 'IEEE Paper (5pp)',
+    desc: 'IEEE conference, 20 references, threat model + reproducibility, every claim cited.',
+    path: 'docs/paper/main.pdf',
     icon: FileText,
     color: 'blue',
   },
   {
-    name: 'Grafana Dashboard',
-    desc: '10-panel JSON export (decisions, replicas, anomaly, CPU, memory, audit).',
-    path: 'docs/dashboard.json',
-    icon: BarChart3,
-    color: 'purple',
+    name: 'Paper Source (.tex)',
+    desc: 'main.tex + refs.bib; build with cd docs/paper && pdflatex && bibtex && pdflatex x2.',
+    path: 'docs/paper/main.tex',
+    icon: FileText,
+    color: 'blue',
   },
   {
-    name: 'Day-15 N=3 Results',
-    desc: 'HPA vs KEDA vs AI comparison, 27 cells (mean ± std).',
-    path: 'data/evaluation/comparison_results_N3.csv',
-    icon: BarChart,
-    color: 'green',
-  },
-  {
-    name: 'v2 N=3 Comparison',
-    desc: 'HPA/KEDA/AI on workload-v2 with metrics filled from Locust CSVs.',
-    path: 'data/evaluation/comparison_v2_N3.csv',
-    icon: TrendingUp,
-    color: 'purple',
-  },
-  {
-    name: 'Ablation Results (N=3)',
-    desc: 'Full AI / –SHAP / –Shield action counts across three repetitions.',
-    path: 'data/evaluation/ablation_results_N3.csv',
-    icon: BarChart,
-    color: 'purple',
-  },
-  {
-    name: 'v2 Dataset (Day 16)',
-    desc: '285 rows, 48× p95 range (290ms to 14,000ms).',
-    path: 'data/features_v2.csv',
+    name: 'Evidence Freeze',
+    desc: 'Single source of truth for every paper number (sections A-L).',
+    path: 'evidence-freeze.md',
     icon: FileText,
     color: 'teal',
   },
   {
-    name: 'v2 Models',
-    desc: 'Replica predictor v2 (MAE 0.007) + Anomaly detector v3.',
-    path: 'data/replica_model_v2.pkl',
-    icon: TrendingUp,
+    name: 'N=10 Stats Report',
+    desc: 'results_N10/stats_report.md - 4 operators, 3 scenarios, 10 trials, sigma=0.',
+    path: 'results_N10/stats_report.md',
+    icon: BarChart,
+    color: 'green',
+  },
+  {
+    name: 'Day-15 N=3 (AI Failure)',
+    desc: '100% error rate / replicas <= 2 across 9 of 9 runs (the motivating finding).',
+    path: 'data/evaluation/comparison_results_N3.csv',
+    icon: BarChart3,
     color: 'purple',
+  },
+  {
+    name: 'TLC Trace - Composition',
+    desc: 'ML+Shield joint spec: 53 reachable states, 0 errors, 1 s wall time.',
+    path: 'specs/tlc_run_ml_composition.txt',
+    icon: BarChart3,
+    color: 'purple',
+  },
+  {
+    name: 'TLC Trace - ML-only Counterexample',
+    desc: 'Shield disabled; MlSafetyMinReplicas violated at depth 4 across 93 states.',
+    path: 'specs/tlc_run_ml_only_counterexample.txt',
+    icon: BarChart3,
+    color: 'red',
   },
 ]
 
@@ -67,6 +67,7 @@ const colorClasses: Record<Artifact['color'], string> = {
   purple: 'bg-purple-100 text-purple-600',
   teal: 'bg-teal-100 text-teal-600',
   green: 'bg-green-100 text-green-600',
+  red: 'bg-red-100 text-red-600',
 }
 
 export function Artifacts() {

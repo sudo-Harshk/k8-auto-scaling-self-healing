@@ -23,10 +23,12 @@ export function Footer() {
           <nav aria-label="Artifact links">
             <h4 className="font-semibold text-text-primary mb-4">Artifacts</h4>
             <ul className="space-y-2 text-sm text-text-secondary">
-              <li><a href="docs/ieee_paper.md" className="hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">IEEE Paper Draft</a></li>
-              <li><a href="docs/dashboard.json" className="hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">Grafana Dashboard</a></li>
-              <li><a href="data/evaluation/comparison_results_N3.csv" className="hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">Day-15 N=3 Results</a></li>
-              <li><a href="data/evaluation/comparison_v2_N3.csv" className="hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">Day-18 v2 N=3</a></li>
+              <li><a href="docs/paper/main.pdf" className="hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">IEEE Paper (5pp)</a></li>
+              <li><a href="docs/paper/main.tex" className="hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">Paper source (.tex)</a></li>
+              <li><a href="docs/paper/refs.bib" className="hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">20 Refs (BibTeX)</a></li>
+              <li><a href="results_N10/stats_report.md" className="hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">N=10 Stats Report</a></li>
+              <li><a href="evidence-freeze.md" className="hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">Evidence Freeze</a></li>
+              <li><a href="RUN_DEMO.md" className="hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">Viva Cheat-Sheet</a></li>
             </ul>
           </nav>
           <div>
@@ -44,8 +46,8 @@ export function Footer() {
                 GitHub
               </a>
               <p className="text-sm text-text-secondary">
-                <a href="mailto:author@example.com" className="hover:text-primary-600 transition-colors">
-                  author@example.com
+                <a href="mailto:harshk1744@gmail.com" className="hover:text-primary-600 transition-colors">
+                  harshk1744@gmail.com
                 </a>
               </p>
             </div>
@@ -53,16 +55,14 @@ export function Footer() {
         </div>
         <div className="border-t border-border pt-8 text-center">
           <p className="text-text-muted text-sm">
-            MIT License &copy; 2026. Built with React, Tailwind CSS, Framer Motion.{' '}
+            Research prototype &mdash; provided as-is. License file pending commit.{' '}
             <a href="https://github.com/sudo-Harshk/k8-auto-scaling-self-healing" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
               View source on GitHub
             </a>
           </p>
           <p className="text-text-muted text-sm mt-2">
-            Research prototype — not production software.{' '}
-            <a href="https://github.com/sudo-Harshk/k8-auto-scaling-self-healing" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
-              Reproducible artifacts
-            </a>
+            Built with React, TypeScript, Tailwind CSS, Framer Motion, Recharts.
+            Acknowledgment: Claude was used as a coding assistant (see evidence-freeze.md &sect;K).
           </p>
         </div>
       </div>

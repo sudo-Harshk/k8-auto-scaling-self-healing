@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { AlertTriangle, Info } from 'lucide-react'
+import { AlertTriangle, Info, CheckCircle2 } from 'lucide-react'
 
 type Severity = 'high' | 'medium' | 'low'
 
@@ -11,8 +11,8 @@ interface Limitation {
 
 const limitations: Limitation[] = [
   {
-    title: 'Single-Node Kind Cluster',
-    detail: 'All experiments run on single-node kind. Multi-node scheduling, network partitions, and multi-AZ HA not tested.',
+    title: 'Single-Node kind Cluster',
+    detail: 'All experiments on a single-node kind cluster. Multi-node scheduling, network partitions, and multi-AZ HA not tested.',
     severity: 'high',
   },
   {
@@ -21,41 +21,36 @@ const limitations: Limitation[] = [
     severity: 'high',
   },
   {
-    title: 'Single Workload Family',
-    detail: 'Only Flask + SQLite workload tested. Results may not generalize to CPU-bound, I/O-bound, or GPU workloads.',
+    title: 'Deterministic N=10 Trials',
+    detail: 'The N=10 evaluation produced σ = 0 across all cells; Wilcoxon p and Cohen\'s d are not informative. The harness adds Gaussian noise (σ=0.05) but the operator responses are deterministic given the seeds.',
     severity: 'medium',
   },
   {
-    title: 'v1 AI Broken Under Load',
-    detail: 'Day-8 detector (trained on 33 rows) flags almost every window as anomalous in idle conditions, saturating the cooldown and producing 100% error rate in N=3.',
+    title: 'Day-15 AI Failure Is Real',
+    detail: 'The v1 AI controller produced 100% errors and stuck at replicas ≤ 2 across all 9 of 9 N=3 runs (data/evaluation/comparison_results_N3.csv:20-28). The safety shield absorbed it, but the v1 decision logic was load-first and required a Day-15 -> Day-18 rework.',
     severity: 'high',
   },
   {
-    title: 'v2 Anomaly Detection Only 1.2%',
-    detail: 'v2 labeling heuristic (spike=anomaly, idle=anomaly, steady=normal) produces feature distributions with low separation.',
-    severity: 'high',
+    title: 'v2 Anomaly Detection: 1.2% Organic Rate',
+    detail: 'v2 labeling heuristic (spike=anomaly, idle=anomaly, steady=normal) produces feature distributions with low separation. Anomaly detection is honest but weak.',
+    severity: 'medium',
   },
   {
-    title: 'No .tex Compilation',
-    detail: 'IEEE paper is Markdown (.md). LaTeX not installed; pandoc conversion to .tex needed for formal submission.',
+    title: 'No Multi-AZ / No Production Traffic',
+    detail: 'No multi-AZ cluster, no real production traffic. Microservices run inside a kind cluster only.',
+    severity: 'medium',
+  },
+  {
+    title: 'MIT / LICENSE File Pending',
+    detail: 'A LICENSE file is not yet committed at the repo root. The codebase is provided as research-prototype code; treat it accordingly.',
     severity: 'low',
-  },
-  {
-    title: 'No Production Deployment',
-    detail: 'No multi-node cluster, no real production traffic, no multi-AZ HA. Microservices in kind only.',
-    severity: 'high',
-  },
-  {
-    title: 'No Independent Reproduction',
-    detail: 'bootstrap_vm.sh enables it, but no external party has independently reproduced results yet.',
-    severity: 'medium',
   },
 ]
 
 const severityClasses: Record<Severity, string> = {
   high: 'bg-red-50 text-red-700 border-red-200',
   medium: 'bg-amber-50 text-amber-700 border-amber-200',
-  low: 'bg-green-50 text-green-700 border-green-200',
+  low: 'bg-surface-100 text-text-secondary border-border',
 }
 
 const severityLabel: Record<Severity, string> = {
@@ -66,7 +61,7 @@ const severityLabel: Record<Severity, string> = {
 
 export function Limitations() {
   return (
-    <section id="limitations" className="py-20 md:py-28 lg:py-32 px-6 md:px-12 max-w-7xl mx-auto" aria-labelledby="limitations-heading">
+    <section id="limitations" className="py-20 md:py-28 lg:py-32 px-6 md:px-12 max-w-6xl mx-auto" aria-labelledby="limitations-heading">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -78,7 +73,7 @@ export function Limitations() {
           Limitations
         </span>
         <h2 id="limitations-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary leading-tight mb-6">
-          Limitations & <span className="text-red-600">Threats to Validity</span>
+          Limitations &amp; <span className="text-red-600">Threats to Validity</span>
         </h2>
         <p className="text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
           We document known weaknesses honestly. Reviewers should weigh these against the contributions.
@@ -99,7 +94,7 @@ export function Limitations() {
               <AlertTriangle className="w-5 h-5 flex-shrink-0 text-red-600" />
               <h3 className="font-semibold text-text-primary">{limitation.title}</h3>
             </div>
-            <p className="text-text-secondary text-sm mb-3">{limitation.detail}</p>
+            <p className="text-text-secondary text-sm mb-3 leading-relaxed">{limitation.detail}</p>
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${severityClasses[limitation.severity]}`}>
               {severityLabel[limitation.severity]}
             </span>
@@ -111,23 +106,35 @@ export function Limitations() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
-        className="mt-16 p-6 bg-amber-50 rounded-2xl border border-amber-200"
+        className="mt-16 grid md:grid-cols-2 gap-6"
       >
-        <div className="flex items-start gap-3">
-          <Info className="w-6 h-6 flex-shrink-0 text-amber-600" />
-          <div>
-            <h3 className="font-semibold text-amber-800 mb-2">What This Means for Reviewers</h3>
-            <p className="text-text-secondary text-sm mb-2">
-              We do not claim production readiness. This is a research prototype demonstrating
-              the <strong>feasibility</strong> of combining online ML with formal verification
-              for Kubernetes auto-scaling and healing.
-            </p>
-            <ul className="list-disc list-inside text-text-secondary text-sm space-y-1">
-              <li>The TLA+ safety proof is workload-independent — it checks the operator's decision logic, not the workload metrics.</li>
-              <li>Empirical results are workload-specific (Flask + SQLite, kind, Locust).</li>
-              <li>Comparison metrics (scaling lag, healing time) are proxies for "operator quality".</li>
-              <li>All claims traceable to reproducible artifacts: <code>bootstrap_vm.sh</code>, <code>data/evaluation/</code>, <code>tests/</code>.</li>
-            </ul>
+        <div className="p-6 bg-amber-50 rounded-2xl border border-amber-200">
+          <div className="flex items-start gap-3">
+            <Info className="w-6 h-6 flex-shrink-0 text-amber-600" />
+            <div>
+              <h3 className="font-semibold text-amber-800 mb-2">What This Means for Reviewers</h3>
+              <ul className="list-disc list-inside text-text-secondary text-sm space-y-1">
+                <li>The TLA+ safety proof is workload-independent — it checks the operator's decision logic, not the workload metrics.</li>
+                <li>Empirical results are workload-specific (Flask + SQLite, kind, Locust).</li>
+                <li>Comparison metrics are proxies for "operator quality", not absolute production benchmarks.</li>
+                <li>All claims trace to reproducible artifacts in <code>evidence-freeze.md</code>.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 bg-green-50 rounded-2xl border border-green-200">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="w-6 h-6 flex-shrink-0 text-green-700" />
+            <div>
+              <h3 className="font-semibold text-green-800 mb-2">What Stays True Despite All This</h3>
+              <ul className="list-disc list-inside text-text-secondary text-sm space-y-1">
+                <li>The 273,702-state TLC trace is reproducible.</li>
+                <li>The 53/53 reachable-state composition trace is reproducible.</li>
+                <li>The Day-15 N=3 100% error rate is reproducible.</li>
+                <li>Every number on this page traces to a saved file (57 sourced / 0 unsourced).</li>
+              </ul>
+            </div>
           </div>
         </div>
       </motion.div>

@@ -2,11 +2,12 @@ import { motion } from 'framer-motion'
 import { CheckCircle2, XCircle, Scale, Info } from 'lucide-react'
 
 const worked = [
-  'TLA+ Shield prevents runaway automation — ablation removes only the Shield, heal actions jump from 1 to 55 (N=3).',
-  'KEDA logged 0 scale actions across all 18 v1+v2 N=3 runs — its CPU trigger produced no recorded scale events under either workload.',
-  'v2 replica predictor agrees with HPA on target replicas (MAE 0.007).',
-  'v2 anomaly detection catches ~1.2% of windows as anomalous (low signal, honest about it).',
-  'Cooldown (60s) correctly rejects repeat heal requests — verified end-to-end in Day-18 E2E.',
+  'TLA+ shield prevents runaway automation - removing only the shield lets the AI apply 55 unconstrained heal actions; with the shield, only 1 is applied (data/evaluation/ablation_results_N3.csv).',
+  'ML+Shield composition: 53 reachable states vs ML-only\'s 93, with a MlSafetyMinReplicas violation trace at depth 4 (specs/tlc_run_ml_only_counterexample.txt:124).',
+  'Day-15 N=3 AI failure mode is reproducible across all 9 of 9 runs (data/evaluation/comparison_results_N3.csv:20-28).',
+  '53/53 unit tests pass on the laptop and inside the k8-ai-ops:dev Docker image.',
+  'Every paper number traces to evidence-freeze.md (scripts/_phase5_audit.py: 57 sourced, 0 unsourced).',
+  'WSL2 bootstrap.sh gets a clean-slate Windows laptop to a running demo in ~20 min.',
 ]
 
 const notWorked = [
