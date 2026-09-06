@@ -1222,10 +1222,12 @@ oop decision. Previously the live model was frozen at the Day-7
 
 **Side effects**
 
-- **uild_dataset_v2.py equest_rate parsing bug** documented for
+- **uild_dataset_v2.py 
+equest_rate parsing bug** documented for
   P2 fix: 	arget_replicas() heuristic uses y_req = (request_rate +
   14) // 15, but the Locust stats_history parse captures
-  equest_rate = float(total_req) and many rows show 0.0 because the
+  
+equest_rate = float(total_req) and many rows show 0.0 because the
   endpoint filter (ndpoint.startswith("Total")) drops per-endpoint
   rows in some Locust versions. Symptom: spike scenarios in
   features_v2.csv have 	arget_replicas=2.0 even when CPU=85% and
@@ -1475,3 +1477,74 @@ ALL P0-P5 phases done. ALL artifacts committed under sudo-Harshk.
 ALL commits visible in green on GitHub contribution graph.
 
 **Project sealed.**
+
+
+## 2026-09-01 (paper closure: P0-freeze + refs + IEEE compliance + audit)
+
+All P0-P5 phases closed. Final 6-phase paper closure executed:
+
+### Phase 1 - Evidence Freeze
+- **NEW FILE**: vidence-freeze.md (sections A-L). 396 lines. Single source of truth for every number in the paper or thesis.
+- scripts/_evidence_freeze_inspect.py (152 lines): re-runs all assertions from raw data.
+
+### Phase 2 - 20 BibTeX entries (was 8)
+- **NEW FILE**: docs/paper/refs.bib (20 entries, all with DOI/URL).
+- Semantic Scholar verified: Montiel et al. 2020 (River, e7924a71); KEDA + Karpenter 2026 (a16f4a2e); Kafka 2015 (7e02c7f9); Karpenter/KEDA tuning (karpenter_keda_2026, doi 10.70917).
+- Web-verified for HTR 2001, Tan et al. 2011 half-space trees, Bifet MOA 2010, Webb concept drift 2016 (doi 10.1007/s10618-015-0448-4), Alshiekh shielding 2018, Newcombe AWS TLA+ 2015 (doi 10.1145/2699417), Lamport TLA+ 1994 (doi 10.1145/177492.177725), Prometheus docs, Faust docs, Locust docs, Kopf docs, TLC docs, Lim FIRM 2020 (arXiv 2009.01142), Kafka, Bifet MOA, k8s HPA tuning 2024 (doi 10.3390/app14020646).
+
+### Phase 3 - main.tex rewrite (5pp IEEE, 20 refs)
+- docs/paper/main.tex: rewritten from 497 lines (8 \\\bibitem, 8 manual refs) to 5 pages with \\bibliography{refs} (ieeetr.bst).
+- TikZ pipeline diagram (Fig. 1) replacing text-only description.
+- Tables I (5 invariants + 1 liveness), II (N=10 mean+/-sd), III (Day-15 N=3 9 rows), IV (ablation), V equivalent inline in text.
+- Day-15 evidence locked to N=3 only (comparison_results_N3.csv:20-28); 69.2% (single-trial) banned from Abstract/Intro.
+- 47 (20.9%) clamp number banned (was stdout-only from scripts/replay_shield.py); replaced with 12 of 28 (42.9%) from logs/safety_audit.log:1-28 for Abstract, 8/9 applied from logs/operator_actions.log:4-20 for body.
+- **Locked citation**: src/decision/decision_engine.py:262-268 (load-first) + :283 (explain + learn). Old citation :50-95 was docstring + imports.
+- Anomaly threshold locked to  .484 (exact  .4837573385518591; source data/anomaly_model.pkl:1).
+- ML_Composition.tla composition theorem: SHIELD path 53 reachable states / 0 errors; ML-only counterexample path violates MlSafetyMinReplicas at depth 4 (93 distinct states).
+- AI disclosure line in Acknowledgment.
+
+### Phase 4 - IEEE compliance
+- All 20 cites resolve (zero [?]).
+- ieeetr.bst bibliography style; no manual \\bibitem{} in main.tex.
+- pdflatex + ibtex + 2x pdflatex cycle, 0 warnings (only BibTeX style warnings on volume+number fixed).
+- pdfinfo main.pdf shows Pages: 5.
+
+### Phase 5 - Audit script (CI gate)
+- **NEW FILE**: scripts/_phase5_audit.py (152 lines). Extracts every numeric literal from docs/paper/main.tex, checks each appears in vidence-freeze.md.
+- Initial run: SOURCED=57, UNSOURCED=0.
+- Filters 12 noise numbers (cite-key years 1994/2010/2015/...; structural line numbers 262/268/283; derived values 0.968=2*0.484; environment literals 24.04/500).
+- Fail-CI: exit code 1 if any unsourced number is added later.
+
+### Phase 6 - Build + verify + push
+- Rebuilt docs/paper/main.pdf on VM: clean build, 0 warnings, 5 pages.
+- **53/53 pytest** pass on laptop (with pip install kafka-python kubernetes for the laptop Python 3.12 env; the canonical test env is the k8-ai-ops:dev Docker image).
+- defense_deck.pdf rebuilt (20 slides).
+- 8 commits pushed to origin main between 707ffaf..95e8369.
+
+### Documentation updates
+- README.md rewritten (139 lines): pipeline diagram, locked thesis, 3 contributions, stack with pinned versions, full evidence-freeze pointer, defense artifacts table with file:line, full repo layout, single-command demo, daily ops, day-by-day status, rescue plan status (P0-P5 all closed), verification commands.
+- docs/GOLDEN_RUN.md rewritten (60 lines): 12-step table updated (workload-v2 not podinfo; pipeline-up is docker compose; inject-fault probe name corrected), 6 single-command quick-path targets, repro-verification cheatsheet (scripts/_phase5_audit.py -> 57/0; pytest -> 53 pass; make tla + make tla-composition; pdfinfo -> 5 pages; uild_deck.py -> 20 slides).
+
+### Files added/modified in paper closure
+- **NEW**: vidence-freeze.md (396 lines)
+- **NEW**: docs/paper/refs.bib (20 entries)
+- **NEW**: scripts/_phase5_audit.py (152 lines)
+- **NEW**: scripts/_evidence_freeze_inspect.py (152 lines)
+- **MODIFIED**: docs/paper/main.tex (497 -> ~300 lines, IEEE 5pp, 20 refs via refs.bib)
+- **MODIFIED**: README.md (139 lines, full rewrite)
+- **MODIFIED**: docs/GOLDEN_RUN.md (60 lines, full rewrite)
+- **MODIFIED**: 	asks/THESIS.md (anomaly threshold 0.48 -> 0.484; row 'Live demo logs (paper)' added; row 'Evidence freeze' added)
+- **MODIFIED**: docs/thesis/06_implementation.md (anomaly threshold 0.48 -> 0.484; MAE 0.82 dropped because no saved file)
+- **MODIFIED**: docs/thesis/07_results.md (heal_threshold 2x0.484 = 0.967; cites Day-15 N=3 evidence)
+- **MODIFIED**: docs/VIVA_GAUNTLET.md (Q16 dropped 47/(20.9%); Q17 cites cooldown + safety rejections from logs/operator_actions.log:4-20 and logs/safety_audit.log:1-28)
+- **MODIFIED**: logs/operator_actions.log (3 -> 20 lines; live Sep-1 audit)
+- **MODIFIED**: logs/safety_audit.log (11 -> 28 lines; live Sep-1 audit)
+- **MODIFIED**: logs/decisions.log (55 -> 72 lines)
+
+### Project status
+
+**DEFENSE IS READY.**
+
+All numbers in docs/paper/main.pdf (SOURCED=57, UNSOURCED=0). All 53 unit tests pass. Both TLA+ specs verify (273,702 and 53 reachable states, 0 violations). ML-only counterexample proves shield necessity. Live docker-compose audit shows 8/9 applied shield-modified and 9/17 cooldown-rejected. Paper, thesis, deck, viva prep all consistent.
+
+All commits authored by sudo-Harshk <harshk1744@gmail.com>. The GitHub contribution graph should light up green for all 150+ commits.
