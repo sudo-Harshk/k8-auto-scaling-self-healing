@@ -132,9 +132,9 @@ Four parser bugs closed during dataset regeneration:
 - `featurise()` accepts both epoch-seconds ints and ISO strings.
 - `build_dataset_v2.py` uses Locust's `Aggregated` row (not per-endpoint) for clean per-second rate.
 - Per-second `request_rate` computed as delta of `Total Request Count` (not the unreliable `Requests/s` field).
-- `anomaly_threshold` updated to 0.48 after retrain from the 285-row live dataset.
+- `anomaly_threshold` updated to **0.484** after retrain from the 285-row live dataset (exact value `0.4837573385518591`; source `data/anomaly_model.pkl:1`; `evidence-freeze.md §C`).
 
-**Live dataset regenerated.** 285 rows across spike (85) / steady (85) / idle (55) from a fresh Locust run against workload-v2. Canonical models retrained: replica MAE 0.82, anomaly threshold 0.48.
+**Live dataset regenerated.** 285 rows across spike (85) / steady (85) / idle (55) from a fresh Locust run against workload-v2. Canonical models retrained; see `evidence-freeze.md §C` for the locked anomaly threshold value. (Earlier docs referenced an MAE of 0.82 on the 0.24-from-original-podinfo training; that running MAE is **not currently saved to any file** in the repo and is therefore dropped from this paper per the `evidence-freeze.md §H` ban on numbers without a saved source.)
 
 **FIRM-style baseline added** (`src/baselines/firm_controller.py`). Threshold-based controller using the same 8 features; FIRM hits the target exactly (84/85 on spike) — proves the AI controller has room to improve on accuracy, but the Safety Shield closes the safety gap.
 

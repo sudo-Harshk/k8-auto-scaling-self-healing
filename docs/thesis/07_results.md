@@ -45,7 +45,7 @@ Cohen's d effect sizes (`data/evaluation/effect_sizes.md`):
 
 **Key observations:**
 - **HPA and KEDA scale faster** (15 s and 5 s scaling lag respectively). Both reach 10 replicas under load.
-- **AI operator stayed at 2 replicas** during this scenario. The reason: every Faust window's anomaly_score exceeded the heal_threshold (0.4834), so the engine emitted `heal` actions. The Safety Shield's 60-second cooldown blocked all but one heal. Since heal preserves replicas (per design), no scaling occurred.
+- **AI operator stayed at 2 replicas** during this scenario. The reason: every Faust window's anomaly_score exceeded `2 × heal_threshold = 0.967` (`data/anomaly_model.pkl:1 = 0.4837573385518591`; `evidence-freeze.md §C`), so the engine emitted `heal` actions. The Safety Shield's 60-second cooldown blocked all but one heal. Since heal preserves replicas (per design), no scaling occurred. (Day-15 N=3 evidence: 9 of 9 AI runs in `data/evaluation/comparison_results_N3.csv:20-28` show `error_rate_pct = 100.00` and `replicas_end ≤ 2`, with monotonically increasing `safety_rejected_count` from 14 to 37.)
 - **AI's tradeoff: anomaly detection over scaling speed.** This is by design — the Safety Shield's cooldown is intended to prevent oscillation. A real anomaly would still be acted on within the cooldown window.
 
 ## 7.3 Auto-scaling under load (scenario: spike)

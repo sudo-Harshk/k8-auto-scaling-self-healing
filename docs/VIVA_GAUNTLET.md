@@ -222,26 +222,25 @@ in Day-9 shows dropping any of the first five increases MAE.
 
 ### 16. Show me a case where the shield *modified* a decision.
 
-**Answer:** Day-17 offline replay (P2): 47 / 225 ML proposals (20.9 %)
-were clamped. All clamps are `5-10 → 4` via `max_scale_step=2`. The
-safety_audit.log records each modification. Concrete example:
-predictor says scale to 7; shield clamps to 4 with diagnostic line
-`{action: "scale", target_before: 7, target_after: 4, status: "modified"}`.
+**Answer:** Two saved audit logs document every modification:
 
-**Source:** `scripts/replay_shield.py`; `results_N10/stats_report.md`
-(Per-scenario PREDICTED vs ACTUAL distribution).
+1. **Synthetic stress test** — `logs/safety_audit.log:1-28` (Aug-22 2026, 28 ML proposals from a synthetic stress input). **12 of 28 (42.9%)** decisions were modified by the shield via `shrink_step` / `grow_step` / `clamp_to_min` / `clamp_to_max`. Example (line 2 of the log): input `target_replicas = 15`, output `target_replicas = 4`, modifications `["shrink_step(15->4)"]` (shield clamped the over-large step down to the `max_scale_step=2` bound from `current_replicas = 2`). This is the number cited in the Abstract (`evidence-freeze.md §D.1`).
+
+2. **Live docker-compose run** — `logs/operator_actions.log:4-20` (Sep-1 2026, 17 Sep-1 entries). 8 of 8 applied decisions were shield-modified via `shrink_step` clamps; 9 were cooldown-rejected. Used in §VI Eval body (`evidence-freeze.md §D.2`).
+
+Concrete example (live): ML predictor said `scale_to_replicas=10` while `current_replicas=3`. Shield clamped to `target_replicas=5` (`shrink_step(10->5)`); audit log line shows `safety_modifications: ["['shrink_step(10->5)']"]`.
+
+**Source:** `logs/safety_audit.log:1-28` (Abstract), `logs/operator_actions.log:4-20` (§VI body).
 
 ---
 
 ### 17. Show me a case where the shield *rejected* a decision.
 
-**Answer:** The shield's cooldown guard rejects ML proposals within
-60 s of a previously applied action. The replay tool at
-`scripts/replay_shield.py` produces a sample of rejected decisions;
-the production path records them in `logs/safety_audit.log` with
-status `cooldown_blocked`. The ML-only path (`--no-shield`) would
-have applied them — that is the point of the composition theorem
-proving the shield is necessary.
+**Answer:** Two distinct rejection classes — both with saved evidence:
+
+1. **Cooldown rejection** (rate-bound) — `logs/operator_actions.log:4-20` (Sep-1 live): **9 of 17** decisions were rejected with `rejected_reason: "cooldown_active:<seconds>_remaining"`. This is the actuator's 60-second cooldown between scale actions (`specs/safety_policy.yaml`); not a safety-invariant violation.
+
+2. **Safety-invariant rejection** — `logs/safety_audit.log:1-28`: 10 of 28 decisions are `rejected: true` with safety-modifications empty (e.g. out-of-bounds replicas). The ML-only path (`specs/ML_Composition.tla` joint spec with `MlSpec` only) produces a 93-state reachable space in which **the ML path violates `MlSafetyMinReplicas` at depth 4** (`specs/tlc_run_ml_only_counterexample.txt:124`), while the SHIELD path's joint spec has 53 reachable states with `0` violations (`specs/tlc_run_ml_composition.txt:46`). This is the proof that the shield is necessary.
 
 **Source:** `src/safety/safety_shield.py` (cooldown check);
 `specs/ML_Composition.tla` (ML_Only counterexample proves the

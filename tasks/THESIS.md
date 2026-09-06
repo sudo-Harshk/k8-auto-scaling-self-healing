@@ -57,13 +57,15 @@ Locked. See `docs/VIVA_GAULTLET.md`. Every answer must cite file:line, paper, or
 | TLA+ spec #2 | `specs/ML_Composition.tla` (composition theorem) | TLC: 7,314,321 states, 0 errors, 1s |
 | TLA+ spec #3 | `specs/ML_Only_counterexample.cfg` (counterexample) | TLC: Invariant violated (proof shield needed) |
 | TLC run logs | `specs/tlc_run_safety_shield.txt` + `tlc_run_ml_composition.txt` + `tlc_run_ml_only_counterexample.txt` | |
-| N=10 stats | `results_N10/comparison_N10.csv` (120 trials) + `stats_report.md` + `stats_report.json` | Wilcoxon + Cohen's d + 95% CI |
+| N=10 stats | `results_N10/comparison_N10.csv` (120 trials) + `stats_report.md` + `stats_report.json` | deterministic mean ± std (σ=0); degenerate Wilcoxon; see `evidence-freeze.md §A` |
 | N=10 harness | `scripts/eval/run_N10.sh` + `run_one_trial.py` + `stats_report.py` + `run_quick.py` | |
 | Demo | `scripts/demo/run_all.sh` (12 steps matching `docs/GOLDEN_RUN.md`) | |
-| Docker compose | `ops/compose/pipeline.yaml` (4 services: producer, stream-processor, decision-engine, actuator) | Live demo: workload-v2 scaled 2->1->3->5 |
+| Docker compose | `ops/compose/pipeline.yaml` (4 services: producer, stream-processor, decision-engine, actuator) | Live demo: workload-v2 scaled 2→1→3→5; see `evidence-freeze.md §D.2` |
 | Tests | `tests/` (53 tests, all passing) | |
-| Models | `data/replica_model.pkl` (MAE 0.82), `data/anomaly_model.pkl` (threshold 0.48) | |
-| Live demo logs | `logs/operator_actions_demo.log` + `decisions_demo.log` + `safety_audit_demo.log` | Real audit trail from VM run |
+| Models | `data/replica_model.pkl`, `data/anomaly_model.pkl` (threshold **0.484** — `evidence-freeze.md §C`; `data/anomaly_model.pkl:1 = 0.4837573385518591`) | |
+| Live demo logs (paper) | `logs/operator_actions.log:4-20` (17 Sep-1 entries) | 8 applied, 9 cooldown-rejected, 8 shield-modified; `evidence-freeze.md §D.2` |
+| Synthetic shield audit (paper) | `logs/safety_audit.log:1-28` | 12 modified, 6 unchanged, 10 rejected; **`evidence-freeze.md §D.1`, cited in Abstract** |
+| Evidence freeze | `evidence-freeze.md` (A–L sections) | Single source of truth for every paper claim |
 
 ## Author identity (verified on GitHub)
 
