@@ -119,6 +119,9 @@ Run from repo root: `python scripts/_phase5_audit.py`. If
 | Anomaly threshold (`data/anomaly_model.pkl:1`) | `0.484` (`0.4837573385518591` exact) | `evidence-freeze.md §C` |
 | 53 unit tests | `tests/test_*.py` | **53/53 pass** |
 | Live audit chain (Docker) | `ops/compose/pipeline.yaml` | 4 services (producer, stream, decision, actuator) |
+| **Student-viva bootstrap** (`Day 19`) | `bootstrap.sh` | one-command WSL2/Ubuntu 24.04 installer (idempotent) |
+| **Viva cheat-sheet** | `RUN_DEMO.md` | single-page guide for the student |
+| **Highlight-run script** | `scripts/demo/quick.sh` | 2-min evidence dump for the viva |
 
 ## Repo layout
 
@@ -228,15 +231,60 @@ locustfile.py                     # load generator entrypoint
 ## Single-command demo
 
 ```bash
+make bootstrap            # One-time installer on Ubuntu 24.04 / WSL2 (~15 min)
 make tla                  # TLC on SafetyShield.tla (~3 s, 273,702 states, 0 errors)
 make tla-composition      # TLC on ML_Composition.tla (~4 min, 53 states, 0 errors)
 make paper                # pdflatex + bibtex + pdflatex x2 -> docs/paper/main.pdf
 make demo                 # 12-step golden run on kind (~30 min)
+make demo-quick           # 2-min highlight: TLC traces + paper + audit logs + stats
 make eval                 # N=10 deterministic offline replay (~3 h)
 make stats                # regenerate results_N10/stats_report.md
 ```
 
 Each target is idempotent where possible.
+
+## Running on a fresh Windows laptop (WSL2)
+
+For an M.Tech student who has a 16 GB Windows laptop and zero pre-installed
+tools:
+
+1. Open PowerShell **as Administrator**, run:
+   ```powershell
+   wsl --install -d Ubuntu-24.04
+   ```
+   (Windows 11 / Windows 10 build 19041+ have this built in.)
+   Reboot when prompted.
+
+2. Open "Ubuntu 24.04" from the Start menu; pick a username
+   (e.g. `student`) and a password.
+
+3. Paste the entire bootstrap command:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/sudo-Harshk/k8-auto-scaling-self-healing/main/bootstrap.sh | bash
+   ```
+   This installs Docker CE, kubectl 1.30, kind 0.23, Helm 3,
+   OpenJDK 17, clones the repo, pre-builds the Docker image, and
+   adds `demo` / `demo-quick` / `demo-reset` / `tlac` / `paper`
+   aliases to `~/.bashrc`. Idempotent — safe to re-run.
+
+4. Open a fresh terminal and type:
+   ```bash
+   demo-help        # print the cheat-sheet
+   demo-quick       # 2-min highlight run for the viva
+   demo             # full 30-min live 12-step demo
+   ```
+
+Pin WSL2 RAM before the demo (in `%UserProfile%\.wslconfig`):
+```ini
+[wsl2]
+memory=11GB
+processors=4
+swap=4GB
+```
+Then `wsl --shutdown` and reopen Ubuntu.
+
+The full install guide is **`RUN_DEMO.md`** (one page; print and
+bring to the viva).
 
 ## Daily ops (Azure VM: `k8-vm`)
 
@@ -280,6 +328,7 @@ All commits authored by `sudo-Harshk <harshk1744@gmail.com>`.
 - [x] Day 16 — p95 Variability Rework, IEEE Paper Draft, Dashboard
 - [x] Day 17 — Paper Strengthening for Viva Defense (Threat Model + Production Roadmap)
 - [x] Day 18 — Close Research Gaps (workload-v2 AI pipeline + Day-13 E2E + N=3 v2 + 5 tests)
+- [x] Day 19 — WSL2 Bootstrap & Student Delivery (`bootstrap.sh` + `RUN_DEMO.md` + `make demo-quick`)
 
 ## Rescue plan (P0 → P5, all closed)
 

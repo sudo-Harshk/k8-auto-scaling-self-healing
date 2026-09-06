@@ -75,6 +75,52 @@ make stats                # ~10 s — regenerate results_N10/stats_report.md
 - `make reset` cleans up to a known state (deletes cluster, images, volumes).
 - All run output is captured to `logs/demo_<timestamp>/` for postmortem.
 
+## On the student's Windows machine (WSL2 path)
+
+For a student running the demo locally on a 16 GB Windows laptop
+without any pre-installed dev tools:
+
+1. **One PowerShell command (admin):** `wsl --install -d Ubuntu-24.04`
+   then reboot.
+
+2. **One bootstrap line inside the WSL Ubuntu shell:**
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/sudo-Harshk/k8-auto-scaling-self-healing/main/bootstrap.sh | bash
+   ```
+   Installs Docker CE + kubectl 1.30 + kind 0.23 + helm 3 +
+   OpenJDK 17, clones the repo, pre-builds `k8-ai-ops:dev`, and adds
+   demo aliases to `~/.bashrc`. ~15 min, unattended, idempotent.
+
+3. **Pin WSL2 RAM** so the 12-step demo has headroom (in
+   `%UserProfile%\.wslconfig`):
+   ```ini
+   [wsl2]
+   memory=11GB
+   processors=4
+   swap=4GB
+   ```
+   Then `wsl --shutdown` and reopen Ubuntu.
+
+4. **Demo:**
+   ```bash
+   demo-help     # print RUN_DEMO.md
+   demo-quick    # 2-min highlight (TLC traces + paper + audit + stats)
+   demo          # full 30-min 12-step live demo
+   demo-reset    # rebuild cluster + image
+   ```
+
+5. **Recovery** — if `make demo` mid-step crashes:
+   ```bash
+   cd ~/k8-auto-scaling-self-healing
+   make reset        # wipe kind cluster + image cache
+   make bootstrap    # rebuild image, leave cluster up
+   ```
+   If even that fails, `demo-quick` works without a running cluster
+   (uses pre-recorded TLC traces and committed logs).
+
+See `RUN_DEMO.md` for the printable single-page cheat-sheet the
+student brings to the viva.
+
 ## Exact reproducibility checks
 
 The following commands verify the paper claims from scratch on a fresh

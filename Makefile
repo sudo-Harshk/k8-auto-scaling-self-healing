@@ -156,3 +156,13 @@ thesis: ## Build M.Tech thesis PDF (pandoc from docs/thesis/)
 .PHONY: deck
 deck: ## Build 20-slide defense deck
 	python scripts/build_deck.py --output defense_deck.pdf
+
+# --------------------------------------------------------------- student-viva
+
+.PHONY: bootstrap
+bootstrap: ## One-command Ubuntu 24.04 / WSL2 installer (5-min)
+	bash bootstrap.sh
+
+.PHONY: demo-quick
+demo-quick: ## 2-min highlight run (TLC traces + paper + audit logs + stats)
+	bash scripts/demo/quick.sh

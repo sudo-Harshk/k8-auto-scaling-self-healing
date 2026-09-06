@@ -1548,3 +1548,37 @@ All P0-P5 phases closed. Final 6-phase paper closure executed:
 All numbers in docs/paper/main.pdf (SOURCED=57, UNSOURCED=0). All 53 unit tests pass. Both TLA+ specs verify (273,702 and 53 reachable states, 0 violations). ML-only counterexample proves shield necessity. Live docker-compose audit shows 8/9 applied shield-modified and 9/17 cooldown-rejected. Paper, thesis, deck, viva prep all consistent.
 
 All commits authored by sudo-Harshk <harshk1744@gmail.com>. The GitHub contribution graph should light up green for all 150+ commits.
+## 2026-09-01c - WSL2 bootstrap for student laptop delivery (Day 19)
+
+Context: viva student will run the demo on his OWN 16 GB Windows laptop (no pre-installed tools). Solution is a one-command WSL2 installer that gets him to a working demo in ~20 min.
+
+### Files added
+- `bootstrap.sh` (root, ~190 lines, idempotent, set -euo pipefail). One-command installer for Ubuntu 24.04 / WSL2 / native / VM / cloud. Detects architecture (amd64/arm64), installs Docker CE via the official apt repo (NOT Docker Desktop - no license, no GUI), OpenJDK 17 (for TLC), kubectl 1.30.0, kind 0.23.0, Helm 3, clones the repo at `$HOME/k8-auto-scaling-self-healing`, pre-builds the `k8-ai-ops:dev` Docker image, and appends 6 demo aliases to `~/.bashrc`. Idempotent: skips apt packages already installed, skips kubectl/kind/helm binaries already on PATH, runs `git pull` instead of re-cloning. Detects WSL2 (`/proc/version` contains `microsoft`) and writes `/etc/wsl.conf [boot] systemd=true` so the docker daemon persists across reboots. Falls back to `service docker start` if systemd is unavailable.
+- `RUN_DEMO.md` (root, ~140 lines). Printable single-page cheat-sheet for the viva. Lists 5 daily commands (`demo-help`, `demo-quick`, `demo`, `demo-reset`, `tlac`, `paper`), explains what each one shows, has a recovery matrix (8 common symptoms x fixes), an open-PDF snippet, a live-tail snippet, and a 5-step defense-day checklist.
+- `scripts/demo/quick.sh` (~90 lines, set -euo pipefail). The 2-minute highlight run. Dumps in order: TLC safety shield trace, composition theorem trace, ML-only counterexample trace, live audit log, synthetic stress audit log, N=10 stats report, runs `python3 scripts/_phase5_audit.py` (the strongest single claim: SOURCED=57, UNSOURCED=0), and points to the paper PDF. No cluster required.
+
+### Files modified
+- `Makefile:160-168` - added two targets: `bootstrap` (`bash bootstrap.sh`) and `demo-quick` (`bash scripts/demo/quick.sh`).
+- `README.md` - new `Running on a fresh Windows laptop (WSL2)` section between `Single-command demo` and `Build plan`. Added `make bootstrap` and `make demo-quick` to single-command demo block. Added Day 19 to build status. Added 3 new rows to `Defense artifacts` table (bootstrap.sh, RUN_DEMO.md, quick.sh).
+- `docs/GOLDEN_RUN.md` - new `On the student's Windows machine (WSL2 path)` sub-section with 5-step install procedure and recovery matrix.
+- `docs/VIVA_GAUNTLET.md` - new Q21 `How does a fresh-out-of-box student install and run your system?` (full 6-step answer with 5 cited sources). Q1's source line updated to mention `bootstrap.sh`. Final-check list extended from 5 to 8 items (added `bash -n bootstrap.sh`, `make -n bootstrap`, `bash scripts/demo/quick.sh`, `python scripts/_phase5_audit.py`).
+
+### Verification gate added
+`bootstrap.sh` was reviewed line-by-line for:
+
+- idempotency (re-run is safe; only skips states)
+- error handling (set -euo pipefail; explicit ERROR exits)
+- supported arches (amd64, arm64) and explicit error on others
+- graceful degradation: if systemd absent, falls back to `service docker start`
+- no hard-coded paths other than `$HOME/k8-auto-scaling-self-healing` (user-configurable via env)
+- no destructive ops outside docker / kind / git in `$HOME`
+- `bash -n bootstrap.sh` succeeds (syntax), `make -n bootstrap` shows target
+
+### Why this design choice
+- WSL2 chosen over VirtualBox OVA: zero student-side install beyond built-in Windows feature.
+- Docker CE in Ubuntu chosen over Docker Desktop on Windows: no license, no GUI bloat, native apt updates.
+- `make bootstrap` + aliases chosen over multi-command sequence: student sees only `demo` and `demo-help`.
+- Public `https://github.com/sudo-Harshk/k8-auto-scaling-self-healing.git` clone chosen over SSH: works with one curl, no key distribution.
+
+### Status
+Project sealed. WSL2 bootstrap + 2-min highlight run committed and pushed. Defense artifacts unchanged.

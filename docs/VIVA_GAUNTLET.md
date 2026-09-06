@@ -21,7 +21,8 @@ vector (CPU, memory, request rate, p95, error rate, current replicas,
 hour, weekday) and emits a decision every 30 s.
 
 **Source:** `docs/thesis/04_existing_system.md:14-26` (HPA limitations);
-`docs/thesis/07_results.md` (HPA evaluation).
+`docs/thesis/07_results.md` (HPA evaluation); `bootstrap.sh` (the
+single installer a fresh student laptop pulls on day 1).
 
 ---
 
@@ -294,6 +295,38 @@ verification on the 285-row dataset).
 
 ---
 
+### 21. How does a fresh-out-of-box student install and run your system?
+
+**Answer:** Two steps on a 16 GB Windows laptop with no prior tools
+installed:
+
+1. PowerShell (admin): `wsl --install -d Ubuntu-24.04` then reboot
+   (built-in to Windows 10 19041+ and Windows 11 — no separate
+   installer).
+2. Inside the new Ubuntu terminal:
+   `curl -fsSL https://raw.githubusercontent.com/sudo-Harshk/k8-auto-scaling-self-healing/main/bootstrap.sh | bash`
+   which installs Docker CE (NOT Docker Desktop — no license, no GUI),
+   OpenJDK 17, kubectl 1.30, kind 0.23, Helm 3, clones the repo,
+   pre-builds the `k8-ai-ops:dev` image, and adds five demo aliases
+   (`demo`, `demo-quick`, `demo-reset`, `tlac`, `paper`) to
+   `~/.bashrc`. Idempotent (~15 min, unattended).
+3. Type `demo-help` for the cheat-sheet; type `demo-quick` for a
+   2-min highlight run; type `demo` for the full 30-min 12-step
+   demo on a `kind` cluster.
+
+The student never touches Docker, kind, helm, Java, or kubectl
+directly — every interaction is through `demo`/`demo-quick`/
+`tlac`/`paper` aliases. If a step crashes, `demo-reset` rebuilds
+the cluster cleanly.
+
+**Source:** `bootstrap.sh` (the installer, ~180 lines, idempotent);
+`RUN_DEMO.md` (the printable cheat-sheet);
+`scripts/demo/quick.sh` (the 2-min highlight run);
+`Makefile:160-168` (the `bootstrap` and `demo-quick` targets);
+`README.md` ("Running on a fresh Windows laptop (WSL2)" section).
+
+---
+
 ## Final check before submission
 
 Run these before every mock viva:
@@ -314,6 +347,16 @@ python scripts/build_deck.py                  # 20 slides PDF
 
 # 5. Paper compiles (if pdflatex available)
 cd docs/paper && pdflatex main.tex
+
+# 6. Bootstrap is syntactically valid + idempotent
+bash -n bootstrap.sh                          # parse check
+make -n bootstrap                             # dry-run shows targets
+
+# 7. The highlight run produces all 8 sections cleanly
+bash scripts/demo/quick.sh                    # expect 8 banners, no errors
+
+# 8. Audit script still passes post-bootstrap (no new unsourced numbers)
+python scripts/_phase5_audit.py               # expect SOURCED=57, UNSOURCED=0
 ```
 
 If any of these fail, you are not ready for the viva.
