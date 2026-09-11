@@ -96,7 +96,7 @@ If a command is "not found", run `source ~/.bashrc` once.
 | **Day 2** | Run `demo` end-to-end on a fresh cluster; read the audit log | 20 min |
 | **Day 3** | Open `docs/VIVA_GAUNTLET.md` (20 viva questions) and `evidence-freeze.md` | 30 min |
 | **Day 4** | Read `docs/paper/main.pdf` (5 pages); trace every number back to evidence-freeze | 45 min |
-| **Day 5** | Re-run the audit: `python3 scripts/_phase5_audit.py`. Expect 57/0 | 1 min |
+| **Day 5** | Re-run the audit: `python3 scripts/_phase5_audit.py`. Expect 56/0 | 1 min |
 | **Day 6** | Run `pytest` from the repo root. Expect 53/53 | 1 min |
 | **Day 7** | Open the landing page locally: `cd landing-page && npm install && npm run dev` | 5 min |
 
