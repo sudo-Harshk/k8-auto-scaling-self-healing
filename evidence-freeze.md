@@ -4,7 +4,7 @@
 > must trace to a line in this file. Numbers not in this file are FORBIDDEN
 > from the paper. The agent is not permitted to invent or estimate.
 
-> **Lock date:** 2026-09-01. **Owner:** sudo-Harshk `<harshk1744@gmail.com>`.
+> **Lock date:** 2026-09-01. **Owner:** sudo-Harshk `<[YOUR_EMAIL]>`.
 
 ---
 

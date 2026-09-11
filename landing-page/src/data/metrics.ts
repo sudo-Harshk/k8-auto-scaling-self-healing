@@ -92,7 +92,7 @@ export const auditSnippet = `$ python scripts/_phase5_audit.py
   Reading docs/paper/main.tex     ............ 84 numeric literals
   Reading evidence-freeze.md      ............ (canonical)
 
-  SOURCED   : 57   (every cited number traces to EF)
+  SOURCED   : 56   (every cited number traces to EF)
   UNSOURCED : 0    (zero fabricated paper claims)
 
   Audit PASSED (exit code 0).`

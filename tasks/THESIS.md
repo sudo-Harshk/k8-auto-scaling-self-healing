@@ -69,14 +69,14 @@ Locked. See `docs/VIVA_GAULTLET.md`. Every answer must cite file:line, paper, or
 
 ## Author identity (verified on GitHub)
 
-All 144 commits authored as `sudo-Harshk <harshk1744@gmail.com>`. The
+All 144 commits authored as `sudo-Harshk <[YOUR_EMAIL]>`. The
 contribution graph on GitHub should light up green because
-harshk1744@gmail.com is the user's GitHub-linked email.
+[YOUR_EMAIL] is the user's GitHub-linked email.
 
 To verify: `git log --pretty=format:"%an <%ae>" | sort -u`
 should show exactly:
 ```
-sudo-Harshk <harshk1744@gmail.com>
+sudo-Harshk <[YOUR_EMAIL]>
 ```
 
 ## Non-goals (explicit, to keep scope honest)

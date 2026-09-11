@@ -46,8 +46,8 @@ export function Footer() {
                 GitHub
               </a>
               <p className="text-sm text-text-secondary">
-                <a href="mailto:harshk1744@gmail.com" className="hover:text-primary-600 transition-colors">
-                  harshk1744@gmail.com
+                <a href="mailto:[YOUR_EMAIL]" className="hover:text-primary-600 transition-colors">
+                  [YOUR_EMAIL]
                 </a>
               </p>
             </div>

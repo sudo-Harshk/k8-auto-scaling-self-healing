@@ -14,7 +14,7 @@
 # No cluster required - everything is either pre-recorded text files or
 # deterministic replays. Total runtime: ~2 minutes (mostly the printer).
 #
-# Author: sudo-Harshk <harshk1744@gmail.com>
+# Author: sudo-Harshk <[YOUR_EMAIL]>
 
 set -euo pipefail
 
@@ -115,7 +115,7 @@ hr
 python3 scripts/_phase5_audit.py || true
 
 echo
-echo "Interpretation: 'SOURCED=57, UNSOURCED=0' means that every numeric"
+echo "Interpretation: 'SOURCED=56, UNSOURCED=0' means that every numeric"
 echo "claim in docs/paper/main.pdf (5 pages, IEEE conference, 20 refs)"
 echo "maps to an entry in evidence-freeze.md. There is no fabricated number"
 echo "in the paper."

@@ -24,7 +24,7 @@ const reproSteps: Step[] = [
   },
   {
     label: 'Verify every paper claim locally',
-    cmd: 'python3 scripts/_phase5_audit.py    # 57 sourced / 0 unsourced\npython3 -m pytest tests/ -q             # 53 passed',
+    cmd: 'python3 scripts/_phase5_audit.py    # 56 sourced / 0 unsourced\npython3 -m pytest tests/ -q             # 53 passed',
     desc: 'Two commands. The audit script proves every numeric claim in docs/paper/main.pdf traces to evidence-freeze.md. Pytest proves the implementation matches.',
     icon: 'cpu',
   },

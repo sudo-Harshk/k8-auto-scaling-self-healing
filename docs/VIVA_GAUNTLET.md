@@ -356,7 +356,7 @@ make -n bootstrap                             # dry-run shows targets
 bash scripts/demo/quick.sh                    # expect 8 banners, no errors
 
 # 8. Audit script still passes post-bootstrap (no new unsourced numbers)
-python scripts/_phase5_audit.py               # expect SOURCED=57, UNSOURCED=0
+python scripts/_phase5_audit.py               # expect SOURCED=56, UNSOURCED=0
 ```
 
 If any of these fail, you are not ready for the viva.

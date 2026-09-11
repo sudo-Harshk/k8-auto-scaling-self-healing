@@ -129,7 +129,7 @@ clone:
 ```bash
 # 1. Confirm every number in the paper traces to evidence-freeze.md
 python scripts/_phase5_audit.py
-#   expected: SOURCED=57, UNSOURCED=0
+#   expected: SOURCED=56, UNSOURCED=0
 
 # 2. Confirm 53/53 unit tests pass on the laptop
 pip install kafka-python kubernetes

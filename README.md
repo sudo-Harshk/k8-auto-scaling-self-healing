@@ -89,7 +89,7 @@ acknowledgment line.
 
 The audit script `scripts/_phase5_audit.py` enforces this:
 ```
-SOURCED (in both main + EF): 57
+SOURCED (in both main + EF): 56
 UNSOURCED (in main, NOT in EF): 0
 ```
 Run from repo root: `python scripts/_phase5_audit.py`. If
@@ -107,7 +107,7 @@ Run from repo root: `python scripts/_phase5_audit.py`. If
 | Defense deck (20 slides) | `defense_deck.pdf` | built via `python scripts/build_deck.py` |
 | Viva prep | `docs/VIVA_GAUNTLET.md` | 20 questions with file:line citations |
 | Single source of truth | `evidence-freeze.md` | sections A-L |
-| Claim audit script | `scripts/_phase5_audit.py` | 57 sourced / 0 unsourced |
+| Claim audit script | `scripts/_phase5_audit.py` | 56 sourced / 0 unsourced |
 | TLC trace (single shield, 273,702 states) | `specs/tlc_run_safety_shield.txt` | finished 01m47s, 0 violations |
 | TLC trace (joint SHIELD path, 53 states) | `specs/tlc_run_ml_composition.txt` | finished 1s, 0 violations |
 | TLC trace (ML-only counterexample, 93 states) | `specs/tlc_run_ml_only_counterexample.txt` | `MlSafetyMinReplicas` violated |
@@ -306,7 +306,7 @@ order; each day is committed and tagged (`day-1` … `day-18-v2-n3`).
 
 Final phase (`P0`-`P5`) closed all the rescue-plan gaps; see
 `tasks/THESIS.md` and `tasks/AMENDMENTS.md` (2026-09-01 closing entry).
-All commits authored by `sudo-Harshk <harshk1744@gmail.com>`.
+All commits authored by `sudo-Harshk <[YOUR_EMAIL]>`.
 
 ## Status — Day-by-day build
 
@@ -340,7 +340,7 @@ All commits authored by `sudo-Harshk <harshk1744@gmail.com>`.
 | **P0 (sections)** | 8-section paper rewrite, every claim cited | ✅ done | `docs/paper/main.tex` (5pp, 20 refs, 0 `[?]`) |
 | **P1 (rigor)** | Threats + Reproducibility para | ✅ done | `docs/paper/main.tex §VIII` (5 threats + 6 make targets) |
 | **P1 (IEEE)** | IEEE compliance, captioned figs/tabs, ≤200-word abstract | ✅ done | `docs/paper/main.tex` (clean build, 0 warnings) |
-| **P2 (final audit)** | every Abstract sentence traces to evidence-freeze.md | ✅ done | `scripts/_phase5_audit.py` (57 sourced / 0 unsourced) |
+| **P2 (final audit)** | every Abstract sentence traces to evidence-freeze.md | ✅ done | `scripts/_phase5_audit.py` (56 sourced / 0 unsourced) |
 | **P3 (formal)** | TLA+ composition theorem + ML-only counterexample | ✅ done | `specs/ML_Composition.tla` |
 | **P3 (artifact)** | docker-compose live pipeline | ✅ done | `ops/compose/pipeline.yaml` |
 | **P4 (paper)** | IEEE 8/6 pages → trimmed to 5pp | ✅ done | `docs/paper/main.pdf` |
@@ -352,7 +352,7 @@ All commits authored by `sudo-Harshk <harshk1744@gmail.com>`.
 Run from repo root:
 
 ```bash
-python scripts/_phase5_audit.py       # 57 sourced, 0 unsourced
+python scripts/_phase5_audit.py       # 56 sourced, 0 unsourced
 python -m pytest tests/ -q --tb=line  # 53 passed
 ssh k8-vm 'cd ~/k8-auto-scaling-self-healing && make tla && make tla-composition && make paper && make stats'
 ```

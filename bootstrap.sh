@@ -27,7 +27,7 @@
 #   - kubectl / kind / helm binaries skip if already on PATH
 #   - git clone skips if the repo already exists (runs git pull instead)
 #
-# Author: sudo-Harshk <harshk1744@gmail.com>
+# Author: sudo-Harshk <[YOUR_EMAIL]>
 # License: repository LICENSE
 
 set -euo pipefail
@@ -215,7 +215,7 @@ echo "    helm version                 # 3.x"
 echo "    java -version                # 17.x"
 echo "    tla2sany --version           # should print 'Version 2.2 of 2026.08.21' or similar"
 echo "    cd ~/k8-auto-scaling-self-healing && python3 scripts/_phase5_audit.py"
-echo "        expect: SOURCED=57, UNSOURCED=0"
+echo "        expect: SOURCED=56, UNSOURCED=0"
 echo
 echo "  Open a fresh terminal now, then type:  demo-help"
 echo

@@ -132,7 +132,7 @@ export function Limitations() {
                 <li>The 273,702-state TLC trace is reproducible.</li>
                 <li>The 53/53 reachable-state composition trace is reproducible.</li>
                 <li>The Day-15 N=3 100% error rate is reproducible.</li>
-                <li>Every number on this page traces to a saved file (57 sourced / 0 unsourced).</li>
+                <li>Every number on this page traces to a saved file (56 sourced / 0 unsourced).</li>
               </ul>
             </div>
           </div>

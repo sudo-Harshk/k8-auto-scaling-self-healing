@@ -49,7 +49,7 @@ What `demo-quick` does (in order, all pre-recorded or pre-computed):
 | 4 | Live audit log (Sep-1 docker-compose run) | `cat logs/operator_actions.log` |
 | 5 | Synthetic shield stress audit | `cat logs/safety_audit.log` |
 | 6 | N=10 deterministic stats report | `cat results_N10/stats_report.md` |
-| 7 | **The strongest single claim:** every number in our paper traces to `evidence-freeze.md` | `python3 scripts/_phase5_audit.py` (expect `SOURCED=57, UNSOURCED=0`) |
+| 7 | **The strongest single claim:** every number in our paper traces to `evidence-freeze.md` | `python3 scripts/_phase5_audit.py` (expect `SOURCED=56, UNSOURCED=0`) |
 | 8 | IEEE paper PDF (5 pages, IEEE conference, 20 refs) | `docs/paper/main.pdf` |
 
 If the examiner asks "show me the formal proof", point to steps 1-3.
@@ -191,6 +191,6 @@ python3 scripts/build_deck.py --output defense_deck.pdf
 
 ## Author
 
-This guide was written by `sudo-Harshk <harshk1744@gmail.com>` as
+This guide was written by `sudo-Harshk <[YOUR_EMAIL]>` as
 part of the SHIELD-AI M.Tech project. See `LICENSE` and
 `evidence-freeze.md` for the chain of custody on every claim.

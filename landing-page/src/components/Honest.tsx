@@ -6,7 +6,7 @@ const worked = [
   'ML+Shield composition: 53 reachable states vs ML-only\'s 93, with a MlSafetyMinReplicas violation trace at depth 4 (specs/tlc_run_ml_only_counterexample.txt:124).',
   'Day-15 N=3 AI failure mode is reproducible across all 9 of 9 runs (data/evaluation/comparison_results_N3.csv:20-28).',
   '53/53 unit tests pass on the laptop and inside the k8-ai-ops:dev Docker image.',
-  'Every paper number traces to evidence-freeze.md (scripts/_phase5_audit.py: 57 sourced, 0 unsourced).',
+  'Every paper number traces to evidence-freeze.md (scripts/_phase5_audit.py: 56 sourced, 0 unsourced).',
   'WSL2 bootstrap.sh gets a clean-slate Windows laptop to a running demo in ~20 min.',
 ]
 
