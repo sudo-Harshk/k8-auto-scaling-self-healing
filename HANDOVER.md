@@ -1,6 +1,9 @@
 # HANDOVER — Receiving the SHIELD-AI Project
 
-> Read this once. It is the shortest path from "new laptop" to "running demo".
+> **For a clean step-by-step setup guide (fresh Windows 11, no WSL, nothing installed), see [RECIPIENT_SETUP.md](RECIPIENT_SETUP.md) instead.**
+> This file is the comprehensive reference; `RECIPIENT_SETUP.md` is the quickstart.
+
+Read this once. It is the shortest path from "new laptop" to "running demo".
 
 ## What you are receiving
 
