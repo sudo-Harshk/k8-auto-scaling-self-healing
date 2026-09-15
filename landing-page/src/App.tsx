@@ -1,64 +1,28 @@
-import { Nav } from '@/components/Nav'
+import { Header } from '@/components/Header'
+import { Sidebar } from '@/components/Sidebar'
+import { Content } from '@/components/Content'
 import { Footer } from '@/components/Footer'
-import { Hero } from '@/components/Hero'
-import { HeadlineNumbers } from '@/components/HeadlineNumbers'
-import { Problem } from '@/components/Problem'
-import { Architecture } from '@/components/Architecture'
-import { Timeline } from '@/components/Timeline'
-import { SafetyShield } from '@/components/SafetyShield'
-import { Evaluation } from '@/components/Evaluation'
-import { Ablation } from '@/components/Ablation'
-import { V2Workload } from '@/components/V2Workload'
-import { Honest } from '@/components/Honest'
-import { Reproduce } from '@/components/Reproduce'
-import { Bootstrap } from '@/components/Bootstrap'
-import { TrustCallout } from '@/components/TrustCallout'
-import { Artifacts } from '@/components/Artifacts'
-import { Limitations } from '@/components/Limitations'
-
-import { MotionConfig } from 'framer-motion'
 
 const sections = [
-  { id: 'headline-numbers', label: 'Headline' },
-  { id: 'problem', label: 'Problem' },
+  { id: 'about', label: 'About' },
+  { id: 'stats', label: 'Stats' },
+  { id: 'features', label: 'Features' },
   { id: 'architecture', label: 'Architecture' },
-  { id: 'timeline', label: 'Timeline' },
-  { id: 'safety-shield', label: 'Safety Shield' },
-  { id: 'evaluation', label: 'Evaluation' },
-  { id: 'ablation', label: 'Ablation' },
-  { id: 'v2-workload', label: 'v2 Workload' },
-  { id: 'honest', label: 'Honest' },
-  { id: 'reproduce', label: 'Reproduce' },
-  { id: 'bootstrap', label: 'Bootstrap' },
-  { id: 'trust', label: 'Trust' },
-  { id: 'artifacts', label: 'Artifacts' },
-  { id: 'limitations', label: 'Limitations' },
+  { id: 'safety', label: 'Safety' },
+  { id: 'why', label: 'Why SHIELD-AI' },
+  { id: 'stack', label: 'Tech Stack' },
+  { id: 'start', label: 'Get Started' },
 ]
 
 export default function App() {
   return (
-    <MotionConfig reducedMotion="user">
-      <div id="top" className="min-h-screen bg-surface-50 text-text-primary">
-        <Nav sections={sections} />
-        <main id="main-content">
-          <Hero />
-          <HeadlineNumbers />
-          <Problem />
-          <Architecture />
-          <Timeline />
-          <SafetyShield />
-          <Evaluation />
-          <Ablation />
-          <V2Workload />
-          <Honest />
-          <Reproduce />
-          <Bootstrap />
-          <TrustCallout />
-          <Artifacts />
-          <Limitations />
-        </main>
-        <Footer />
+    <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col">
+      <Header />
+      <div className="flex-1 flex max-w-6xl mx-auto w-full px-6 py-8 gap-12">
+        <Sidebar sections={sections} />
+        <Content />
       </div>
-    </MotionConfig>
+      <Footer />
+    </div>
   )
 }

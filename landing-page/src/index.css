@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,57 +7,26 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   body {
-    @apply bg-surface-50 text-text-primary antialiased font-sans;
+    background-color: #0D0D0D;
+    color: #ffffff;
+    -webkit-font-smoothing: antialiased;
   }
 
   ::selection {
-    @apply bg-primary-200 text-primary-800;
+    background-color: #F12525;
+    color: white;
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary-500;
+    outline: 2px solid #F12525;
+    outline-offset: 2px;
   }
 
-  code, pre, kbd, samp {
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  }
-}
-
-@layer utilities {
-  .prose-custom {
-    @apply text-text-secondary leading-relaxed;
-  }
-  .text-balance {
-    text-wrap: balance;
-  }
-  .text-pretty {
-    text-wrap: pretty;
-  }
-}
-
-/* Subtle scroll progress bar at the very top of the page */
-@layer utilities {
-  .scroll-progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #4F46E5, #14B8A6);
-    z-index: 60;
-    transition: width 80ms linear;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
   }
 }

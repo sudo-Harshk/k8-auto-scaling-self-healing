@@ -6,6 +6,24 @@ TLA+-verified Safety Shield. Built across 18 days; verified end-to-end on a
 live `kind` cluster on Azure (`Standard_D4as_v5`, Ubuntu 24.04 LTS, cgroup v2,
 Central India).
 
+## Landing Page
+
+A premium, production-quality landing page is available at `landing-page/`.
+
+**Stack:** Vite + React 18 + TypeScript + Tailwind CSS + Framer Motion
+
+**Design:** Deep dark theme (#0D0D0D), red accent (#F12525), Inter typography, premium editorial aesthetic with animated SVG visualizations.
+
+**Sections:** Hero, Metrics, Problem, Three Layers, Architecture Diagram, Autoscaling, Self-Healing, Safety Shield, Observability, Evaluation, Research, Final CTA.
+
+**To run:**
+```bash
+cd landing-page
+npm install
+npm run dev     # development server
+npm run build   # production build
+```
+
 ## Thesis (locked)
 
 > **Naive ML-based Kubernetes controllers are unsafe under burst load.
@@ -148,7 +166,7 @@ docs/
 │   ├── 09_conclusion.md
 │   └── thesis.pdf               # pandoc + xelatex artifact
 ├── VIVA_GAUNTLET.md             # 20-question viva prep with file:line
-└── landing-page/                # optional static site (not paper deliverable)
+└── landing-page/                # Premium dark-themed landing page (Vite + React + Tailwind)
 
 evidence-freeze.md              # SINGLE SOURCE OF TRUTH for paper numbers
 scripts/
