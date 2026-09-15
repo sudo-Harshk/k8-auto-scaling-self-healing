@@ -4,6 +4,24 @@ All notable changes to this project are documented here. Versions follow
 loose [semver](https://semver.org/). The format is based on
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [v1.0.1] - 2026-09-15
+
+### Fixed
+- `make build-image` now builds with `ops/docker/` as the build context
+  (`Makefile`) instead of the repo root, so the Dockerfile's
+  `COPY requirements.txt /app/requirements.txt` resolves to
+  `ops/docker/requirements.txt`. Previously a fresh bootstrap failed with
+  `COPY requirements.txt /app/requirements.txt: not found` until the file
+  was manually copied to the repo root.
+- `bootstrap.sh` now installs `make` during pre-flight, so step [6/6]
+  (`make build-image`) no longer fails with `make: command not found` on a
+  clean Ubuntu 24.04 / WSL2 box.
+
+### Changed
+- `ops/docker/Dockerfile` and `scripts/build_image.sh` wording unchanged;
+  `scripts/build_image.sh` already used the `ops/docker/` context, so both
+  build entry points are now consistent.
+
 ## [v1.0-handover] - 2026-09-11
 
 ### Added

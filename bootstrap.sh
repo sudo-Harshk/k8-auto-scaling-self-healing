@@ -60,6 +60,13 @@ case "$ARCH" in
   arm64|aarch64) BIN_ARCH=arm64 ;;
   *) echo "ERROR: unsupported architecture $ARCH" >&2; exit 1 ;;
 esac
+# make is required by step [6/6] (make build-image) and the daily demo commands.
+if apt_installed make; then
+  skip "make already installed: $(make --version | head -1)"
+else
+  sudo apt-get install -y make
+  ok "make installed: $(make --version | head -1)"
+fi
 ok "arch=$ARCH, sudo ok, apt ok"
 
 # ----- [1/6] Docker Engine -----

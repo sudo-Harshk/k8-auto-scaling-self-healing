@@ -49,7 +49,7 @@ reset: kind-down ## Full reset: cluster + images + volumes
 
 .PHONY: build-image
 build-image: ## Build the shared Python image (3.11-slim)
-	docker build -t $(IMAGE) -f ops/docker/Dockerfile .
+	docker build -t $(IMAGE) -f ops/docker/Dockerfile ops/docker/
 
 .PHONY: load-image
 load-image: build-image ## Load image into kind
