@@ -220,6 +220,10 @@ alias paper='"'"'cd ~/k8-auto-scaling-self-healing && make paper && xdg-open doc
 
 if grep -q "SHIELD-AI demo aliases" "$HOME/.bashrc" 2>/dev/null; then
   skip "SHIELD-AI aliases already present in ~/.bashrc"
+  if ! grep -q 'alias demo-help' "$HOME/.bashrc" 2>/dev/null; then
+    printf '\nalias demo-help='"'"'cat ~/k8-auto-scaling-self-healing/RUN_DEMO.md'"'"'\n' >> "$HOME/.bashrc"
+    ok "added missing demo-help alias"
+  fi
 else
   printf '%s\n' "$ALIASES_BLOCK" >> "$HOME/.bashrc"
   ok "appended SHIELD-AI aliases to ~/.bashrc"

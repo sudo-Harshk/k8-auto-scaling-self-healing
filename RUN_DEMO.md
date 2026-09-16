@@ -64,43 +64,47 @@ single source of truth.
 ## 13-minute curated viva demo (`demo-viva`)
 
 Use this for a **live end-to-end walkthrough** that fits in a 15-minute
-presentation slot. It demonstrates the actual system running, not pre-recorded
-output.
+presentation slot. It demonstrates the actual system running — data flowing,
+decisions being made, the safety shield clamping, and self-healing in action.
 
 ```bash
-demo-viva
+make demo-viva
 ```
 
-The script runs these steps in order:
+The script runs these 10 steps. All are idempotent and have graceful fallbacks.
 
 | Step | What happens | Duration |
 |---|---|---|
-| 1 | `kind-up` — create local K8s cluster | ~30s |
-| 2 | `build-image` + `load-image` — build Docker image | ~3-5 min (cached if already built) |
-| 3 | `deploy-kafka` — KRaft Kafka, 3 topics | ~30s |
-| 4 | `deploy-prometheus` — kube-prometheus-stack | ~2-3 min |
-| 5 | `deploy-workload` — podinfo + workload-v2 | ~30s |
-| 6 | `pipeline-up` + **45s live log preview** | ~1 min |
-| 7 | **Live load: 1m baseline → 2m burst → 1m rampdown** | **4 min** |
-| 8 | TLC composition theorem (ML + SHIELD, 53 states) | ~1 min |
-| 9 | Fault injection (kill pod → self-healing) | ~1 min |
-| 10 | Export graphs + stats | ~10s |
+| 1 | **Pre-flight** — ensure cluster/image/infra/pipeline are all ready | ~30s (cached) |
+| 2 | **Pipeline log preview** — 60s of live data flowing (producer → stream → decision → actuator) | ~1 min |
+| 3 | **Smoke test** — curl podinfo to verify it responds on localhost:9898 | ~10s |
+| 4 | **Live load with decision capture** — 1m baseline + 2m burst + 1m rampdown; prints all captured decisions | **4 min** |
+| 5 | **TLC composition theorem** — live TLC (if installed) or pre-recorded trace | ~1 min |
+| 6 | **Self-healing** — scale to 0, wait 35s for AI heal decision, restore replicas | ~1.5 min |
+| 7 | **Unsafe injection** — prove the shield REJECTS a malicious ML output (replicas=20) | ~30s |
+| 8 | **Export figures** — latency/replicas/decisions PNGs + CSVs | ~5s |
+| 9 | **Statistical report** — from pre-recorded N=10 comparison CSV | ~5s |
+| 10 | **Summary banner** — prints counts observed (decisions / rejections / heals) | instant |
 
-**Total wall-clock: ~12-14 min**
+**Total wall-clock: ~10-14 min**
 
-What to look for during step 7 (load phases):
+What to look for during step 4 (load phases):
 - `shield-ai-decision` log: `action=scale target=N` — ML model prediction
 - `shield-ai-actuator` log: `WARNING operator: decision REJECTED by safety shield`
   — proves the TLA+-verified safety shield is actively clamping unsafe actions
-- Replica count changes via `kubectl get deploy workload-v2`
+- After step 4: replica count from `kubectl get deploy workload-v2`
 
-What to look for during step 8 (TLC):
-- `Model checking completed. No error.`
-- 53 reachable states with 0 violations — formally proven safe composition
+What to look for during step 5 (TLC):
+- `Model checking completed. No error.` — 53 states, 0 violations
+- Or the pre-recorded trace if TLC is not installed
 
-What to look for during step 9 (fault injection):
-- `kubectl delete pod` removes a workload-v2 pod
-- Kubernetes ReplicaSet immediately recreates it — self-healing verified
+What to look for during step 6 (self-healing):
+- `action=heal target=N` in the pipeline logs during the 35s wait
+- Replica count restores from 0 → 2 after the wait
+
+What to look for during step 7 (unsafe injection):
+- `inject_unsafe_decision.py` sends `replicas=20` (beyond MaxReplicas)
+- Shield REJECTS with `cooldown_active` or `SafetyMaxReplicas` violation
 
 ---
 

@@ -138,8 +138,11 @@ eval: ## Run N>=10 statistical evaluation (~3 hours)
 	./scripts/eval/run_N10.sh
 
 .PHONY: stats
-stats: ## Generate statistical report from $(RESULTS_DIR)
-	python scripts/eval/stats_report.py --input $(RESULTS_DIR)
+stats: ## Generate statistical report from $(RESULTS_DIR)/comparison_N10.csv
+	python scripts/eval/stats_report.py \
+	  --input $(RESULTS_DIR)/comparison_N10.csv \
+	  --output $(RESULTS_DIR)/stats_report.md \
+	  --json-out $(RESULTS_DIR)/stats_report.json
 
 # --------------------------------------------------------------- formal
 
