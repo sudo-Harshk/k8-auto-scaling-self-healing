@@ -89,6 +89,7 @@ The script runs these 10 steps. All are idempotent and have graceful fallbacks.
 **Total wall-clock: ~10-14 min**
 
 What to look for during step 4 (load phases):
+- A **heartbeat** prints every 15s showing: `producer:N decisions:N rejections:N`
 - `shield-ai-decision` log: `action=scale target=N` — ML model prediction
 - `shield-ai-actuator` log: `WARNING operator: decision REJECTED by safety shield`
   — proves the TLA+-verified safety shield is actively clamping unsafe actions
@@ -99,12 +100,24 @@ What to look for during step 5 (TLC):
 - Or the pre-recorded trace if TLC is not installed
 
 What to look for during step 6 (self-healing):
+- A **heartbeat** prints every 10s showing: `ready_replicas:N heal_decisions:N`
 - `action=heal target=N` in the pipeline logs during the 35s wait
 - Replica count restores from 0 → 2 after the wait
 
 What to look for during step 7 (unsafe injection):
 - `inject_unsafe_decision.py` sends `replicas=20` (beyond MaxReplicas)
-- Shield REJECTS with `cooldown_active` or `SafetyMaxReplicas` violation
+- Shield REJECTS with `SafetyMaxReplicas` violation
+
+**Heartbeat visibility**: During steps 4 and 6, the demo prints a heartbeat
+every 15s (load) or 10s (heal) showing live counters from the running
+pipeline. This guarantees visible activity every few seconds — the examiner
+never watches a silent waiting screen.
+
+**Synthetic fallback**: If the live pipeline does not emit any decisions
+during the demo (e.g., due to a transient port-forward failure), the script
+falls back to injecting clearly-marked `[SYNTHETIC]` decision lines so
+the examiner still sees the data-flow narrative. The summary banner notes
+whether counts are `(live capture)` or `(synthetic fallback)`.
 
 ---
 

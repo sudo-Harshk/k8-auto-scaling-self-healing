@@ -79,7 +79,7 @@ preflight() {
 
     # --- Pipeline + port-forwards ---
     info "checking pipeline..."
-    if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "shield-ai-producer"; then
+    if docker ps --filter name=shield-ai --format '{{.Names}}' 2>/dev/null | grep -q "shield-ai-producer"; then
         skip "pipeline containers already running"
     else
         info "starting Prometheus port-forward on :9090..."
@@ -101,10 +101,44 @@ preflight() {
         sleep 8
 
         info "verifying pipeline is alive..."
-        docker ps --format '{{.Names}}' 2>/dev/null | grep shield-ai \
+        docker ps --filter name=shield-ai --format '{{.Names}}' 2>/dev/null | grep shield-ai \
           && info "pipeline containers running" \
           || warn "pipeline containers may not have started — check: docker ps"
     fi
+
+    # --- Podinfo port-forward (for Locust traffic) ---
+    info "checking podinfo port-forward..."
+    pkill -f "port-forward.*svc/podinfo" 2>/dev/null || true
+    PODINFO_SVC=$(kubectl -n podinfo get svc -o name 2>/dev/null | grep -v prometheus | grep -v kube | head -1 | cut -d/ -f2)
+    if [ -z "$PODINFO_SVC" ]; then
+        warn "no podinfo service found in podinfo namespace — Locust may fail"
+    else
+        nohup kubectl -n podinfo port-forward "svc/$PODINFO_SVC" 9898:9898 \
+          > /tmp/pf-podinfo.log 2>&1 &
+        disown
+        sleep 3
+        curl -sf --max-time 5 http://localhost:9898/ >/dev/null 2>&1 \
+          && info "podinfo responding on localhost:9898 (service: $PODINFO_SVC)" \
+          || warn "podinfo not responding on :9898 — Locust will retry"
+    fi
+
+    # --- Pipeline warmup ---
+    warmup_pipeline() {
+        info "warming up pipeline — waiting for first metrics cycle..."
+        local cycles=0
+        local max_cycles=6
+        local sent=0
+        while [ "$cycles" -lt "$max_cycles" ]; do
+            sleep 10
+            cycles=$((cycles + 1))
+            sent=$(docker logs shield-ai-producer --tail 200 2>/dev/null | grep -c "sent #" || echo 0)
+            info "  warmup cycle $cycles/$max_cycles: producer sent $sent metrics so far"
+            [ "$sent" -gt 3 ] && { info "pipeline warmup complete — decisions will flow"; return 0; }
+        done
+        warn "pipeline warmup timed out — proceeding anyway (decisions may use synthetic fallback)"
+        return 1
+    }
+    warmup_pipeline
 
     # --- Tools ---
     info "checking tools..."
