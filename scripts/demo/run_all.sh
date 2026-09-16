@@ -28,6 +28,15 @@ ok() {
     echo -e "${GREEN}OK${NC}"
 }
 
+LOG() { printf '\033[1;34m[pipeline]\033[0m %s\n' "$*"; }
+
+# Clean up kubectl port-forwards on any exit (success, failure, Ctrl-C)
+cleanup_pf() {
+    pkill -f "port-forward.*kube-prometheus-stack-prometheus" 2>/dev/null || true
+    pkill -f "port-forward.*svc/kafka" 2>/dev/null || true
+}
+trap cleanup_pf EXIT
+
 step 1 "Cluster up (kind)"
 if ! kind get clusters 2>/dev/null | grep -q "k8-ai"; then
     make kind-up
@@ -54,6 +63,16 @@ make deploy-workload
 ok
 
 step 6 "Start the 4-service pipeline (producer / Faust / decision / actuator)"
+LOG "starting Prometheus port-forward (9090)"
+nohup kubectl -n monitoring port-forward svc/kube-prometheus-stack-prometheus 9090:9090 \
+  > /tmp/pf-prom.log 2>&1 &
+disown
+sleep 2
+LOG "starting Kafka port-forward (9094)"
+nohup kubectl -n kafka port-forward svc/kafka 9094:9094 \
+  > /tmp/pf-kafka.log 2>&1 &
+disown
+sleep 5
 make pipeline-up
 sleep 10
 make pipeline-logs || true
