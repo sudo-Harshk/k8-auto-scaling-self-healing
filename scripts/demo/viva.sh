@@ -100,6 +100,15 @@ echo "  WATCH: decision logs show ML predictions + shield clamping"
 echo "  LOOK FOR: 'action=scale target=N' followed by 'REJECTED by safety shield'"
 echo ""
 
+info "waiting for workload-v2 pods to be ready..."
+kubectl wait --for=condition=ready pod -l app=workload-v2 -n workload-v2 --timeout=120s 2>/dev/null || true
+sleep 2
+
+info "starting background pipeline log tail (decision + shield logs)..."
+nohup bash -c "make pipeline-logs 2>&1 | grep -E 'decision|actuator|REJECTED|sent #|window|action='" \
+  > /tmp/viva-pipeline.log 2>&1 &
+disown
+
 info "Phase A — baseline (30 users, 60s, ~15 RPS)"
 locust -f locustfile.py --headless -u 30 -r 10 -t 60s --host http://localhost:9898 \
   --html=/tmp/locust_baseline.html 2>/dev/null || true
@@ -112,13 +121,21 @@ info "Phase C — rampdown (20 users, 60s)"
 locust -f locustfile.py --headless -u 20 -r 5 -t 60s --host http://localhost:9898 \
   --html=/tmp/locust_rampdown.html 2>/dev/null || true
 
+info "stopping background pipeline tail..."
+pkill -f "pipeline-logs.*grep" 2>/dev/null || true
+sleep 1
+
+echo ""
+info "pipeline decisions during load (from /tmp/viva-pipeline.log):"
+cat /tmp/viva-pipeline.log 2>/dev/null | head -30 || echo "  (no decisions captured)"
+
 echo ""
 info "Replicas after burst:"
-kubectl get deploy workload-v2 -n workload-v2 -o jsonpath='{.spec.replicas}' 2>/dev/null
+kubectl get deploy workload-v2 -n workload-v2 -o jsonpath='{.spec.replicas}' 2>/dev/null || true
 echo " desired"
-kubectl get deploy workload-v2 -n workload-v2 -o jsonpath='{.status.readyReplicas}' 2>/dev/null
+kubectl get deploy workload-v2 -n workload-v2 -o jsonpath='{.status.readyReplicas}' 2>/dev/null || true
 echo " ready"
-kubectl get hpa workload-v2 -n workload-v2 -o jsonpath='{.status.currentReplicas}' 2>/dev/null
+kubectl get hpa workload-v2-hpa -n workload-v2 -o jsonpath='{.status.currentReplicas}' 2>/dev/null || true
 echo " HPA current"
 ok
 
