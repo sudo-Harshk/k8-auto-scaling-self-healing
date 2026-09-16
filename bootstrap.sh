@@ -11,7 +11,8 @@
 #
 # What this script does:
 #   [1] installs Docker Engine (NOT Docker Desktop - no license, no GUI)
-#   [2] installs OpenJDK 17       (for the TLA+ TLC model-checker)
+#   [2] installs OpenJDK 17       (for TLA+ TLC model-checker)
+#   [2.5] installs TLA+ tla2tools.jar + tlc wrapper
 #   [3] installs kubectl 1.30     (Kubernetes CLI)
 #   [4] installs kind 0.23        (local K8s in Docker)
 #   [5] installs Helm 3          (Kubernetes package manager)
@@ -130,6 +131,29 @@ else
   ok "openjdk-17 installed: $(java -version 2>&1 | head -1)"
 fi
 
+# ----- [2.5/6] TLA+ tools (tla2tools.jar for TLC model checker) -----
+step "[2.5/6] TLA+ tools (tla2tools.jar for TLC)"
+if [ -f "$HOME/tla/tla2tools.jar" ]; then
+  skip "tla2tools.jar already present at $HOME/tla/tla2tools.jar"
+else
+  mkdir -p "$HOME/tla"
+  ok "downloading tla2tools.jar (~4.5 MB, may take a minute on slow links)"
+  curl -fsSL \
+    https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar \
+    -o "$HOME/tla/tla2tools.jar"
+  ok "tla2tools.jar saved to $HOME/tla/tla2tools.jar"
+fi
+if command -v tlc >/dev/null 2>&1; then
+  skip "tlc already on PATH: $(which tlc)"
+else
+  sudo tee /usr/local/bin/tlc >/dev/null <<'TLCWRAPPER'
+#!/bin/bash
+exec java -jar "$HOME/tla/tla2tools.jar" "$@"
+TLCWRAPPER
+  sudo chmod +x /usr/local/bin/tlc
+  ok "tlc wrapper installed at /usr/local/bin/tlc"
+fi
+
 # ----- [3/6] kubectl -----
 step "[3/6] kubectl 1.30"
 if have kubectl; then
@@ -141,7 +165,7 @@ else
   ok "kubectl installed: $(kubectl version --client --short)"
 fi
 
-# ----- [4/6] kind -----
+# ----- [4/6] kind 0.23 -----
 step "[4/6] kind 0.23"
 if have kind; then
   skip "kind already installed: $(kind version)"
@@ -162,7 +186,7 @@ else
 fi
 
 # ----- [6/6] Clone repo + pre-build image + aliases -----
-step "[6/6] Clone SHIELD-AI repo, pre-build image, add aliases"
+step "[6/6] Clone repo, pre-build image, add aliases"
 if [ -d "$INSTALL_DIR/.git" ]; then
   skip "$INSTALL_DIR already exists - running git pull"
   git -C "$INSTALL_DIR" pull --ff-only "$REPO_URL" "$REPO_BRANCH" || warn "git pull failed (offline?); existing repo retained"
@@ -222,7 +246,7 @@ echo "    kubectl version --client     # 1.30.x"
 echo "    kind version                 # 0.23.x"
 echo "    helm version                 # 3.x"
 echo "    java -version                # 17.x"
-echo "    tla2sany --version           # should print 'Version 2.2 of 2026.08.21' or similar"
+echo "    tlc -help | head -3         # should print TLA+ tool options"
 echo "    cd ~/k8-auto-scaling-self-healing && python3 scripts/_phase5_audit.py"
 echo "        expect: SOURCED=56, UNSOURCED=0"
 echo

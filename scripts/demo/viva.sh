@@ -143,7 +143,19 @@ step 8 "TLC model checker — composition theorem (ML + SHIELD, 53 states)"
 echo ""
 echo "  WATCH: 0 errors — formal proof that SHIELD + ML composition is safe"
 echo ""
-make tla-composition
+if command -v tlc >/dev/null 2>&1; then
+    make tla-composition
+else
+    info "TLC not found on PATH — showing pre-recorded composition trace"
+    echo ""
+    head -30 specs/tlc_run_ml_composition.txt
+    echo "  ..."
+    tail -8 specs/tlc_run_ml_composition.txt
+    echo ""
+    info "Install TLC: mkdir -p ~/tla && curl -L -o ~/tla/tla2tools.jar"
+    info "  https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar"
+    info "  then: alias tlc='java -jar ~/tla/tla2tools.jar'"
+fi
 ok
 
 step 9 "Fault injection — self-healing demo"
