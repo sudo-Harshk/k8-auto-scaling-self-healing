@@ -10,7 +10,7 @@ CLUSTER       := k8-ai
 IMAGE         := k8-ai-ops:dev
 KAFKA_NS      := kafka
 MON_NS        := monitoring
-WORKLOAD_NS   := workload
+WORKLOAD_NS   := podinfo
 KIND_CONFIG   := ops/kind/kind-cluster.yaml
 RESULTS_DIR   := results_N10
 
@@ -59,7 +59,7 @@ load-image: build-image ## Load image into kind
 
 .PHONY: deploy-kafka
 deploy-kafka: ## Deploy Kafka (KRaft mode)
-	kubectl apply -f ops/manifests/kafka/ -n $(KAFKA_NS) --validate=false
+	kubectl apply -f ops/manifests/kafka.yaml -n $(KAFKA_NS) --validate=false
 	kubectl wait --for=condition=ready pod -l app=kafka -n $(KAFKA_NS) --timeout=120s
 
 .PHONY: deploy-prometheus
@@ -67,12 +67,16 @@ deploy-prometheus: ## Deploy Prometheus + Grafana via kube-prometheus-stack
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 	helm repo update
 	helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
-	  --namespace $(MON_NS) --create-namespace -f ops/manifests/prometheus/values.yaml
+	  --namespace $(MON_NS) --create-namespace -f ops/manifests/monitoring-values.yaml
 
 .PHONY: deploy-workload
-deploy-workload: ## Deploy podinfo (default) and workload-v2
-	kubectl apply -f ops/manifests/workload/podinfo.yaml
-	kubectl apply -f ops/manifests/workload/v2/
+deploy-workload: ## Deploy podinfo and workload-v2
+	kubectl apply -f ops/manifests/podinfo.yaml -n podinfo
+	kubectl apply -f ops/manifests/podinfo-hpa.yaml -n podinfo
+	kubectl apply -f ops/manifests/podinfo-service-monitor.yaml -n podinfo
+	kubectl apply -f ops/manifests/workload-v2.yaml -n workload-v2
+	kubectl apply -f ops/manifests/workload-v2-servicemonitor.yaml -n workload-v2
+	kubectl apply -f ops/manifests/workload-v2-hpa.yaml -n workload-v2
 
 .PHONY: deploy-all
 deploy-all: deploy-kafka deploy-prometheus deploy-workload ## Deploy all infra + workloads
@@ -96,15 +100,15 @@ pipeline-logs: ## Tail pipeline logs
 
 .PHONY: load-baseline
 load-baseline: ## Send baseline traffic (50 RPS, 5 min)
-	locust -f scripts/locustfile.py --headless -u 50 -r 10 -t 300s --host http://localhost:9898
+	locust -f locustfile.py --headless -u 50 -r 10 -t 300s --host http://localhost:9898
 
 .PHONY: load-burst
 load-burst: ## Send burst traffic (200 RPS, 5 min)
-	locust -f scripts/locustfile.py --headless -u 200 -r 50 -t 300s --host http://localhost:9898
+	locust -f locustfile.py --headless -u 200 -r 50 -t 300s --host http://localhost:9898
 
 .PHONY: load-rampdown
 load-rampdown: ## Send rampdown traffic (20 RPS, 3 min)
-	locust -f scripts/locustfile.py --headless -u 20 -r 5 -t 180s --host http://localhost:9898
+	locust -f locustfile.py --headless -u 20 -r 5 -t 180s --host http://localhost:9898
 
 .PHONY: inject-fault
 inject-fault: ## Inject podinfo fault (5xx)
