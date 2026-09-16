@@ -129,6 +129,10 @@ export-graphs: ## Export latency/replicas/decisions figures to $(RESULTS_DIR)/
 demo: ## Run the 12-step golden run end-to-end
 	./scripts/demo/run_all.sh
 
+.PHONY: demo-viva
+demo-viva: ## Run the curated 13-min viva demo (for presentation/defense)
+	./scripts/demo/viva.sh
+
 .PHONY: eval
 eval: ## Run N>=10 statistical evaluation (~3 hours)
 	./scripts/eval/run_N10.sh

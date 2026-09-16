@@ -19,6 +19,7 @@
 ```bash
 demo-help     # print this cheat-sheet
 demo-quick    # 2-minute highlight run (recommended if time is short)
+demo-viva     # 13-minute curated viva demo (for presentation/defense)
 demo          # full 30-minute 12-step live demo
 demo-reset    # wipe kind cluster + rebuild from scratch (only if demo breaks)
 tlac          # just the TLA+ composition theorem (~4 min)
@@ -57,6 +58,49 @@ If they ask "show me the empirical results", point to steps 4-6.
 If they ask "where do the numbers come from", show step 7 — that is the
 load-bearing claim that every value in the paper is traceable to a
 single source of truth.
+
+---
+
+## 13-minute curated viva demo (`demo-viva`)
+
+Use this for a **live end-to-end walkthrough** that fits in a 15-minute
+presentation slot. It demonstrates the actual system running, not pre-recorded
+output.
+
+```bash
+demo-viva
+```
+
+The script runs these steps in order:
+
+| Step | What happens | Duration |
+|---|---|---|
+| 1 | `kind-up` — create local K8s cluster | ~30s |
+| 2 | `build-image` + `load-image` — build Docker image | ~3-5 min (cached if already built) |
+| 3 | `deploy-kafka` — KRaft Kafka, 3 topics | ~30s |
+| 4 | `deploy-prometheus` — kube-prometheus-stack | ~2-3 min |
+| 5 | `deploy-workload` — podinfo + workload-v2 | ~30s |
+| 6 | `pipeline-up` + **45s live log preview** | ~1 min |
+| 7 | **Live load: 1m baseline → 2m burst → 1m rampdown** | **4 min** |
+| 8 | TLC composition theorem (ML + SHIELD, 53 states) | ~1 min |
+| 9 | Fault injection (kill pod → self-healing) | ~1 min |
+| 10 | Export graphs + stats | ~10s |
+
+**Total wall-clock: ~12-14 min**
+
+What to look for during step 7 (load phases):
+- `shield-ai-decision` log: `action=scale target=N` — ML model prediction
+- `shield-ai-actuator` log: `WARNING operator: decision REJECTED by safety shield`
+  — proves the TLA+-verified safety shield is actively clamping unsafe actions
+- Replica count changes via `kubectl get deploy workload-v2`
+
+What to look for during step 8 (TLC):
+- `Model checking completed. No error.`
+- 53 reachable states with 0 violations — formally proven safe composition
+
+What to look for during step 9 (fault injection):
+- `kubectl delete pod` removes a workload-v2 pod
+- Kubernetes ReplicaSet immediately recreates it — self-healing verified
 
 ---
 

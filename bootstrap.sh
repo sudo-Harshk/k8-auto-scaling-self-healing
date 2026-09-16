@@ -187,6 +187,7 @@ ALIASES_BLOCK='
 # ---- SHIELD-AI demo aliases (added by bootstrap.sh) ----
 alias demo='"'"'cd ~/k8-auto-scaling-self-healing && make demo'"'"'
 alias demo-quick='"'"'cd ~/k8-auto-scaling-self-healing && bash scripts/demo/quick.sh'"'"'
+alias demo-viva='"'"'cd ~/k8-auto-scaling-self-healing && make demo-viva'"'"'
 alias demo-reset='"'"'cd ~/k8-auto-scaling-self-healing && make reset && make bootstrap'"'"'
 alias demo-help='"'"'cat ~/k8-auto-scaling-self-healing/RUN_DEMO.md'"'"'
 alias tlac='"'"'cd ~/k8-auto-scaling-self-healing && make tla-composition'"'"'
@@ -209,6 +210,7 @@ echo
 echo "  Daily demo commands:"
 echo "    demo-help     print this cheat-sheet  $(type demo-help >/dev/null 2>&1 || echo '(re-run: source ~/.bashrc)')"
 echo "    demo-quick    2-min highlight run (TLC traces + paper + audit logs + stats)"
+echo "    demo-viva     13-min curated viva demo (live system, ML decisions + shield)"
 echo "    demo          full 30-min 12-step live demo on a kind cluster"
 echo "    demo-reset    wipe kind cluster + rebuild from scratch"
 echo "    tlac          just the TLA+ composition theorem (4 min)"
