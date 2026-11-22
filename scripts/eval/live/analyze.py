@@ -73,7 +73,7 @@ def run_metrics(d: Path) -> tuple[dict, pd.DataFrame, pd.DataFrame]:
     st = pd.read_csv(d / "run_stats.csv")
     agg = st[st["Name"] == "Aggregated"].iloc[0]
     hist = pd.read_csv(d / "run_stats_history.csv")
-    hist = hist[hist["Name"] == "Aggregated"].copy()
+    hist = hist[(hist["Name"] == "Aggregated") & (hist["Timestamp"] > 1e9)].copy()
     hist["t"] = hist["Timestamp"] - hist["Timestamp"].min()
     h = hist[(hist["t"] >= 5) & (hist["Requests/s"] > 0)]
     bad = (h["95%"] > slo) | (h["Failures/s"] > 0.01 * h["Requests/s"])

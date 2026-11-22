@@ -44,7 +44,7 @@ _pipe_env() {
   echo -e "-e KAFKA_BOOTSTRAP=localhost:9094 -e PROMETHEUS_URL=http://localhost:9090 \
  -e WORKLOAD_NAMESPACE=$NS -e WORKLOAD_DEPLOYMENT=podinfo \
  -e MIN_REPLICAS=$MIN_R -e MAX_REPLICAS=$MAX_R -e REQ_PER_REPLICA=$REQ_PER_REPLICA \
- -e CPU_TARGET_PCT=60 -e PYTHONUNBUFFERED=1"
+ -e CPU_TARGET_PCT=60 -e CPU_LIMIT_CORES=0.025 -e PYTHONUNBUFFERED=1"
 }
 
 start_feature_pipeline() {   # producer + Faust (shared by MT, ML-only, SHIELD-AI)
@@ -116,7 +116,7 @@ spec:
       image: $IMG
       imagePullPolicy: Never
       command: ["sh","-c"]
-      args: ["locust -f /lf/locust_scenarios.py --headless --processes 2 --host http://podinfo.podinfo.svc:9898 --csv /out/run --csv-full-history --only-summary > /out/locust.log 2>&1; touch /out/DONE; sleep 900"]
+      args: ["locust -f /lf/locust_scenarios.py --headless --host http://podinfo.podinfo.svc:9898 --csv /out/run --csv-full-history --only-summary > /out/locust.log 2>&1; touch /out/DONE; sleep 900"]
       env:
         - { name: SCENARIO, value: "$sc" }
         - { name: SEED, value: "$seed" }

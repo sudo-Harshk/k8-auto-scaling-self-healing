@@ -21,7 +21,7 @@ import math
 import os
 import random
 
-from locust import HttpUser, LoadTestShape, constant_pacing, task
+from locust import FastHttpUser, LoadTestShape, constant_pacing, task
 
 SCENARIO = os.environ.get("SCENARIO", "spike")
 PEAK = float(os.environ.get("PEAK_RPS", "200"))
@@ -30,21 +30,23 @@ DURATION = int(os.environ.get("DURATION", "360"))
 NOISE = float(os.environ.get("NOISE", "0.15"))
 
 
-class PodinfoUser(HttpUser):
+class PodinfoUser(FastHttpUser):
+    network_timeout = 2.0
+    connection_timeout = 2.0
     wait_time = constant_pacing(1.0)
 
     @task(6)
     def home(self):
-        self.client.get("/", name="GET /", timeout=2)
+        self.client.get("/", name="GET /")
 
     @task(3)
     def info(self):
-        self.client.get("/api/info", name="GET /api/info", timeout=2)
+        self.client.get("/api/info", name="GET /api/info")
 
     @task(1)
     def echo(self):
         self.client.post("/api/echo", json={"msg": "x" * 256},
-                         name="POST /api/echo", timeout=2)
+                         name="POST /api/echo")
 
 
 def base_profile(t: float) -> float:

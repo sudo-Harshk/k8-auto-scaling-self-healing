@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Measure the capacity of ONE podinfo replica (100m CPU), then derive the
+# Measure the capacity of ONE podinfo replica (25m CPU), then derive the
 # shared configuration written to calibration.env:
 #   CAPACITY_RPS     highest offered rate with p95 < SLO and errors < 1 %
 #   REQ_PER_REPLICA  0.6 * CAPACITY_RPS  (same 60 % headroom as the HPA CPU target)
 #   PEAK_RPS         load that needs ~16 replicas at REQ_PER_REPLICA (exercises >10 replicas)
 source "$(dirname "$0")/lib.sh"
 OUT="$ROOT/results_live/calibration"; mkdir -p "$OUT"
-STAIR_PEAK="${STAIR_PEAK:-400}"   # staircase goes 10 %..100 % of this, 30 s per step
+STAIR_PEAK="${STAIR_PEAK:-150}"   # staircase goes 10 %..100 % of this, 30 s per step
 
 stop_all_ops
 kubectl -n $NS scale deploy podinfo --replicas=1
@@ -19,7 +19,7 @@ wait_load_and_collect "$OUT"
 python3 - "$OUT/run_stats_history.csv" "$STAIR_PEAK" "$SLO_MS" > "$L/calibration.env" <<'EOF'
 import sys, pandas as pd
 h = pd.read_csv(sys.argv[1]); peak = float(sys.argv[2]); slo = float(sys.argv[3])
-h = h[h["Name"] == "Aggregated"].copy()
+h = h[(h["Name"] == "Aggregated") & (h["Timestamp"] > 1e9)].copy()
 h["t"] = h["Timestamp"] - h["Timestamp"].min()
 h["step"] = (h["t"] // 30).astype(int)
 best = 0.0

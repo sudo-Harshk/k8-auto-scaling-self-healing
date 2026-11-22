@@ -1,4 +1,4 @@
-# Workload under test. requests == limits (100m CPU) so that "CPU %" means the
+# Workload under test. requests == limits (25m CPU) so that "CPU %" means the
 # same thing for HPA (% of request) and for SHIELD-AI / MT (% of limit).
 # Pods are pinned to the two `tier: app` workers; load generator, Kafka and
 # Prometheus run on the `tier: infra` worker so they do not steal app CPU.
@@ -25,8 +25,8 @@ spec:
           command: ["./podinfo", "--port=9898", "--level=warn"]
           ports: [{ name: http, containerPort: 9898 }]
           resources:
-            requests: { cpu: 100m, memory: 64Mi }
-            limits:   { cpu: 100m, memory: 128Mi }
+            requests: { cpu: 25m, memory: 64Mi }
+            limits:   { cpu: 25m, memory: 128Mi }
           readinessProbe:
             httpGet: { path: /readyz, port: 9898 }
             periodSeconds: 2

@@ -169,7 +169,7 @@ class DecisionEngine:
         "current_replicas_avg": "current_replicas",
         "available_replicas_avg": "available_replicas",
     }
-    CPU_LIMIT_CORES_PER_POD = 0.1   # 100m per replica, from podinfo.yaml
+    CPU_LIMIT_CORES_PER_POD = float(os.environ.get("CPU_LIMIT_CORES", "0.1"))  # per-replica CPU limit
     MEM_LIMIT_BYTES_PER_POD = 128 * 1024 * 1024  # 128Mi per replica
 
     def _featurise(self, rec: dict) -> dict[str, float]:

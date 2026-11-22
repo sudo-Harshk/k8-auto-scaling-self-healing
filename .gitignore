@@ -76,4 +76,4 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # ===== Docker =====
-ops/docker/.docker/
+ops/docker/.docker/*.pem
