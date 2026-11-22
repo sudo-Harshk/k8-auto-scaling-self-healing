@@ -42,7 +42,14 @@ def finalize(decisions_log: str, out_json: str) -> None:
 
     # 1. Re-fit the anomaly detector on the training windows; threshold =
     #    99th percentile of the training scores (i.e. ~1 % false-alarm budget).
+    # River's HalfSpaceTrees assumes features in [0, 1]; without scaling every
+    # window falls into the same mass region and scores 0. Standard River usage
+    # is MinMaxScaler | HalfSpaceTrees.
+    from river import anomaly, compose, preprocessing
     det = AnomalyDetector(threshold=None)
+    det.model = compose.Pipeline(
+        preprocessing.MinMaxScaler(),
+        anomaly.HalfSpaceTrees(n_trees=10, height=8, window_size=10, seed=42))
     scores = []
     for f in feats:
         scores.append(det.score(f))
@@ -73,6 +80,8 @@ def finalize(decisions_log: str, out_json: str) -> None:
         "training_windows": len(feats),
         "anomaly_threshold_p99": thr,
         "anomaly_score_mean": float(np.mean(warm)),
+        "anomaly_score_p50": float(np.percentile(warm, 50)),
+        "anomaly_score_p95": float(np.percentile(warm, 95)),
         "predictor_prequential_MAE": float(np.mean(errs)) if errs else None,
         "predictor_prequential_RMSE": float(np.sqrt(np.mean(np.square(errs)))) if errs else None,
         "naive_last_value_MAE": float(np.mean(naive)) if naive else None,
