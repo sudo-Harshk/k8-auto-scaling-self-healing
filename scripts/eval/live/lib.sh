@@ -53,7 +53,7 @@ start_feature_pipeline() {   # producer + Faust (shared by MT, ML-only, SHIELD-A
     -v "$ROOT":/code -w /code $IMG src/kafka/producer.py >/dev/null
   docker run -d --rm --network host --name ev-faust $(_pipe_env) -e WINDOW_SECONDS=15 \
     -v "$ROOT":/code -w /code --entrypoint faust $IMG \
-    -A src.streaming.stream_processor worker -l warning >/dev/null
+    -A src.streaming.stream_processor worker -l warn >/dev/null
 }
 
 # $1 = run dir, $2 = replica model snapshot, $3 = NO_SHIELD (0/1), $4 = learn-out (optional)
