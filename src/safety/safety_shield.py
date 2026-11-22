@@ -36,8 +36,9 @@ from typing import Any
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_POLICY = ROOT / "specs" / "safety_policy.yaml"
-DEFAULT_AUDIT_LOG = ROOT / "logs" / "safety_audit.log"
+import os
+DEFAULT_POLICY = Path(os.environ.get("SHIELD_POLICY", ROOT / "specs" / "safety_policy.yaml"))
+DEFAULT_AUDIT_LOG = Path(os.environ.get("SHIELD_AUDIT_LOG", ROOT / "logs" / "safety_audit.log"))
 
 LOG = logging.getLogger("safety_shield")
 
@@ -125,6 +126,32 @@ class SafetyShield:
     def cooldown_seconds(self) -> int:
         return int(self.policy["cooldown_seconds"])
 
+    # ---- v2 (asymmetric) policy keys; default to the v1 symmetric values ----
+    @property
+    def step_up_abs(self) -> int:
+        return int(self.policy.get("max_step_up_abs", self.max_scale_step))
+
+    @property
+    def step_up_pct(self) -> float:
+        return float(self.policy.get("max_step_up_pct", 0))
+
+    @property
+    def step_down_abs(self) -> int:
+        return int(self.policy.get("max_step_down_abs", self.max_scale_step))
+
+    @property
+    def cooldown_up(self) -> float:
+        return float(self.policy.get("cooldown_up_seconds", self.cooldown_seconds))
+
+    @property
+    def cooldown_down(self) -> float:
+        return float(self.policy.get("cooldown_down_seconds", self.cooldown_seconds))
+
+    def max_up_step(self, current: int) -> int:
+        """HPA-style scale-up policy: max(abs pods, pct of current)."""
+        pct = int(current * self.step_up_pct / 100.0)
+        return max(self.step_up_abs, pct)
+
     @property
     def anomaly_threshold(self) -> float:
         return float(self.policy["anomaly_threshold"])
@@ -157,12 +184,14 @@ class SafetyShield:
         if action != "scale":
             return target, mods
         delta = target - current
-        if abs(delta) <= self.max_scale_step:
+        up_lim = self.max_up_step(current)
+        down_lim = self.step_down_abs
+        if -down_lim <= delta <= up_lim:
             return target, mods
         if delta > 0:
-            new_target = current + self.max_scale_step
+            new_target = current + up_lim
         else:
-            new_target = current - self.max_scale_step
+            new_target = current - down_lim
         mods.append(f"shrink_step({target}->{new_target})")
         return new_target, mods
 
@@ -187,11 +216,17 @@ class SafetyShield:
             return f"unknown_action:{action}"
         return None
 
-    def _check_cooldown(self) -> str | None:
-        """Mirror TLA+ SafetyBoundedRate: enforce cooldown between actions."""
+    def _check_cooldown(self, direction: str = "down") -> str | None:
+        """Mirror TLA+ SafetyBoundedRate: enforce cooldown between applied actions.
+
+        direction="up" uses cooldown_up_seconds (fast reaction to load);
+        "down"/"heal" use cooldown_down_seconds (anti-flapping). With the v1
+        policy both equal cooldown_seconds.
+        """
+        cd = self.cooldown_up if direction == "up" else self.cooldown_down
         now = time.time()
-        if now - self._last_action_time < self.cooldown_seconds:
-            remaining = self.cooldown_seconds - (now - self._last_action_time)
+        if now - self._last_action_time < cd:
+            remaining = cd - (now - self._last_action_time)
             return f"cooldown_active:{remaining:.1f}s_remaining"
         return None
 
@@ -218,9 +253,15 @@ class SafetyShield:
         if reject is not None:
             return self._reject(decision, reject)
 
+        # A noop (or a scale to the current value) changes nothing in the
+        # cluster: it must neither be throttled nor restart the cooldown timer.
+        # (v1 bug: every noop restarted the timer and blocked the next scale.)
+        is_change = action == "heal" or (action == "scale" and target != current)
+
         # Invariant: cooldown -> reject (skip when bypass_cooldown)
-        if not bypass_cooldown:
-            reject = self._check_cooldown()
+        if not bypass_cooldown and is_change:
+            direction = "up" if (action == "scale" and target > current) else "down"
+            reject = self._check_cooldown(direction)
             if reject is not None:
                 return self._reject(decision, reject)
 
@@ -245,7 +286,8 @@ class SafetyShield:
         mods.extend(Mmods)
 
         # All invariants passed (with possible clamps).
-        self._last_action_time = time.time() if not bypass_cooldown else self._last_action_time
+        if not bypass_cooldown and is_change and not (action == "scale" and target == current):
+            self._last_action_time = time.time()
         safe = Decision(
             service=decision.service,
             action=action,

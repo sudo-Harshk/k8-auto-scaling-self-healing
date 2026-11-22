@@ -62,10 +62,12 @@ from src.safety.safety_shield import (  # noqa: E402
 LOG = logging.getLogger("operator")
 
 DEFAULT_NAMESPACE = os.environ.get("WORKLOAD_NAMESPACE", "podinfo")
+# Ablation switch: NO_SHIELD=1 applies raw ML decisions (ML-only variant).
+NO_SHIELD = os.environ.get("NO_SHIELD", "0") == "1"
 DEFAULT_DEPLOYMENT = os.environ.get("WORKLOAD_DEPLOYMENT", "podinfo")
 DEFAULT_KAFKA_BOOTSTRAP = "localhost:9094"
 DEFAULT_KAFKA_TOPIC = "k8s-decisions"
-DEFAULT_AUDIT_LOG = ROOT / "logs" / "operator_actions.log"
+DEFAULT_AUDIT_LOG = Path(os.environ.get("OPERATOR_ACTIONS_LOG", ROOT / "logs" / "operator_actions.log"))
 
 ALLOWED_ACTIONS = {"scale", "heal", "noop"}
 
@@ -205,9 +207,9 @@ def run_operator(
     consumer = KafkaConsumer(
         kafka_topic,
         bootstrap_servers=kafka_bootstrap,
-        auto_offset_reset="earliest",
+        auto_offset_reset="latest",
         enable_auto_commit=True,
-        group_id="k8-operator",
+        group_id=os.environ.get("CONSUMER_GROUP", "k8-operator"),
         value_deserializer=lambda v: json.loads(v.decode("utf-8")),
     )
 
@@ -228,8 +230,25 @@ def run_operator(
             LOG.warning("bad decision payload: %s | raw=%s", exc, raw)
             continue
 
-        # Re-run the Safety Shield (defense-in-depth: every action is gated)
-        outcome = shield.validate(decision)
+        # Validate against the LIVE replica count, not the (up to one window
+        # old) value carried in the feature record.
+        try:
+            decision.current_replicas = op.get_current_replicas()
+        except Exception as exc:  # noqa: BLE001
+            LOG.warning("could not read live replicas, using record value: %s", exc)
+
+        if decision.action == "noop" or (
+            decision.action == "scale"
+            and int(decision.target_replicas) == int(decision.current_replicas)
+        ):
+            continue  # nothing to apply
+
+        if NO_SHIELD:
+            # Ablation (ML-only): apply the raw ML decision without the shield.
+            outcome = decision
+        else:
+            # Re-run the Safety Shield (defense-in-depth: every action is gated)
+            outcome = shield.validate(decision)
 
         if isinstance(outcome, RejectedDecision):
             LOG.warning(

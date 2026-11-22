@@ -1,0 +1,17 @@
+# Evaluation cluster for the paper revision: 1 control-plane + 3 workers.
+# Addresses the reviewer's "multi-node / >10 replicas" comment.
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: shield-eval
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.30.0
+  - role: worker
+    image: kindest/node:v1.30.0
+    labels: { tier: app }
+  - role: worker
+    image: kindest/node:v1.30.0
+    labels: { tier: app }
+  - role: worker
+    image: kindest/node:v1.30.0
+    labels: { tier: infra }

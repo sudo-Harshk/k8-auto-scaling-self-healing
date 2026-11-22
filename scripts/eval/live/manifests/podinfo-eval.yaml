@@ -1,0 +1,54 @@
+# Workload under test. requests == limits (100m CPU) so that "CPU %" means the
+# same thing for HPA (% of request) and for SHIELD-AI / MT (% of limit).
+# Pods are pinned to the two `tier: app` workers; load generator, Kafka and
+# Prometheus run on the `tier: infra` worker so they do not steal app CPU.
+apiVersion: v1
+kind: Namespace
+metadata: { name: podinfo }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podinfo
+  namespace: podinfo
+  labels: { app: podinfo }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: podinfo } }
+  template:
+    metadata: { labels: { app: podinfo } }
+    spec:
+      nodeSelector: { tier: app }
+      containers:
+        - name: podinfo
+          image: ghcr.io/stefanprodan/podinfo:6.14.1
+          command: ["./podinfo", "--port=9898", "--level=warn"]
+          ports: [{ name: http, containerPort: 9898 }]
+          resources:
+            requests: { cpu: 100m, memory: 64Mi }
+            limits:   { cpu: 100m, memory: 128Mi }
+          readinessProbe:
+            httpGet: { path: /readyz, port: 9898 }
+            periodSeconds: 2
+            initialDelaySeconds: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: podinfo
+  namespace: podinfo
+  labels: { app: podinfo }
+spec:
+  selector: { app: podinfo }
+  ports: [{ name: http, port: 9898, targetPort: 9898 }]
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: podinfo
+  namespace: podinfo
+  labels: { release: kube-prometheus-stack }
+spec:
+  selector: { matchLabels: { app: podinfo } }
+  namespaceSelector: { matchNames: [podinfo] }
+  endpoints: [{ port: http, path: /metrics, interval: 5s }]

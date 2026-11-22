@@ -82,11 +82,33 @@ FEATURES = [
 DEFAULT_REPLICA_MODEL = ROOT / "data" / "replica_model.pkl"
 DEFAULT_ANOMALY_MODEL = ROOT / "data" / "anomaly_model.pkl"
 DEFAULT_FEATURES_CSV = ROOT / "data" / "features.csv"
-DEFAULT_DECISIONS_LOG = ROOT / "logs" / "decisions.log"
+DEFAULT_DECISIONS_LOG = Path(os.environ.get("DECISIONS_LOG", ROOT / "logs" / "decisions.log"))
 DEFAULT_KAFKA_BOOTSTRAP = "localhost:9094"
 DEFAULT_KAFKA_TOPIC = "k8s-decisions"
 DEFAULT_KAFKA_INPUT_TOPIC = "k8s-features"
 DEFAULT_SERVICE = os.environ.get("WORKLOAD_DEPLOYMENT", "podinfo")
+
+# Capacity model used to build the self-supervised online label (paper rev.).
+# REQ_PER_REPLICA is calibrated per workload (scripts/eval/live/calibrate.sh);
+# CPU_TARGET_PCT equals the HPA target so all controllers share one SLO notion.
+REQ_PER_REPLICA = float(os.environ.get("REQ_PER_REPLICA", "15"))
+CPU_TARGET_PCT = float(os.environ.get("CPU_TARGET_PCT", "60"))
+ENGINE_MIN_REPLICAS = int(os.environ.get("MIN_REPLICAS", "1"))
+ENGINE_MAX_REPLICAS = int(os.environ.get("MAX_REPLICAS", "10"))
+REPLICA_MODEL_OUT = os.environ.get("REPLICA_MODEL_OUT")  # save trained model here
+LEARN_MODE = os.environ.get("LEARN_MODE", "forecast")  # forecast | legacy
+
+
+def demand_replicas(features: dict, lo: int, hi: int) -> int:
+    """Replicas the observed load needs (same rule as the offline label,
+    src/features/build_dataset.py::compute_target_replicas)."""
+    import math
+    n = max(int(round(features.get("current_replicas") or 1)), 1)
+    cpu = float(features.get("cpu_percent") or 0.0)
+    req = float(features.get("request_rate") or 0.0)
+    by_cpu = math.ceil(n * cpu / CPU_TARGET_PCT) if cpu > 0 else lo
+    by_req = math.ceil(req / REQ_PER_REPLICA) if req > 0 else lo
+    return max(lo, min(hi, max(by_cpu, by_req)))
 
 
 @dataclass
@@ -118,8 +140,12 @@ class DecisionEngine:
         kafka_topic: str = DEFAULT_KAFKA_TOPIC,
         service: str = DEFAULT_SERVICE,
     ) -> None:
-        self.replica = ReplicaPredictor.load(replica_model_path)
-        self.anomaly = AnomalyDetector.load(anomaly_model_path)
+        self.replica = ReplicaPredictor.load(
+            os.environ.get("REPLICA_MODEL_PATH", replica_model_path))
+        self.replica.min_replicas = ENGINE_MIN_REPLICAS
+        self.replica.max_replicas = ENGINE_MAX_REPLICAS
+        self.anomaly = AnomalyDetector.load(
+            os.environ.get("ANOMALY_MODEL_PATH", anomaly_model_path))
         self.decisions_log_path = Path(decisions_log_path)
         self.kafka_bootstrap = kafka_bootstrap
         self.kafka_topic = kafka_topic
@@ -388,20 +414,33 @@ def _run_online(engine: DecisionEngine, kafka_bootstrap: str, topic: str) -> Non
     signal.signal(signal.SIGINT, _stop)
 
     n_learned = 0
+    prev_features: dict | None = None
     for message in consumer:
         rec = message.value
         decision = engine.decide(rec)
         engine.log(decision)
 
-        # Online learning (P1 fix): when the system is stable (noop),
-        # teach both models that the current replica count was empirically
-        # correct. This was missing before; the live model was frozen at
-        # the Day-7 offline training output and never adapted.
-        if decision.action == "noop":
+        if LEARN_MODE == "forecast":
+            # Self-supervised forecasting label (paper revision). The v1 loop
+            # taught "current replicas were correct" on every noop; because
+            # current_replicas is itself an input feature, the model collapsed
+            # to the identity (predict = current) and never scaled. Instead we
+            # learn (features_{t-1} -> replicas demanded by the load at t),
+            # i.e. a one-window-ahead demand forecast.
+            demand_now = demand_replicas(
+                decision.features, ENGINE_MIN_REPLICAS, ENGINE_MAX_REPLICAS)
+            if prev_features is not None:
+                engine.replica.learn(prev_features, demand_now)
+                n_learned += 1
+            if decision.action == "noop":
+                engine.anomaly.learn(decision.features)
+            prev_features = dict(decision.features)
+        elif decision.action == "noop":  # legacy v1 behaviour
             engine.learn(decision.features, decision.current_replicas)
             n_learned += 1
-            if n_learned % 50 == 0:
-                LOG.info("online-learned %d stable windows", n_learned)
+        if REPLICA_MODEL_OUT and n_learned and n_learned % 10 == 0:
+            engine.replica.save(REPLICA_MODEL_OUT)
+            LOG.info("online-learned %d windows; model saved", n_learned)
 
         try:
             engine.publish(decision)
