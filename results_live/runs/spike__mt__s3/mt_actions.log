@@ -1,0 +1,26 @@
+{"timestamp": "2026-11-22T23:34:33.216989+00:00", "action": "noop", "target": 2, "before": 2, "after": 2, "applied": false, "reason": "FIRM: predictor agrees with current=2"}
+{"timestamp": "2026-11-22T23:34:48.281546+00:00", "action": "noop", "target": 2, "before": 2, "after": 2, "applied": false, "reason": "FIRM: predictor agrees with current=2"}
+{"timestamp": "2026-11-22T23:35:03.347246+00:00", "action": "noop", "target": 2, "before": 2, "after": 2, "applied": false, "reason": "FIRM: predictor agrees with current=2"}
+{"timestamp": "2026-11-22T23:35:18.942112+00:00", "action": "scale", "target": 3, "before": 2, "after": 3, "applied": true, "reason": "FIRM: by_cpu=2 by_mem=2 by_req=3 by_lat=2 -> target=3 (current=2)"}
+{"timestamp": "2026-11-22T23:35:33.520084+00:00", "action": "noop", "target": 3, "before": 3, "after": 3, "applied": false, "reason": "FIRM: predictor agrees with current=3"}
+{"timestamp": "2026-11-22T23:35:48.629483+00:00", "action": "noop", "target": 3, "before": 3, "after": 3, "applied": false, "reason": "FIRM: predictor agrees with current=3"}
+{"timestamp": "2026-11-22T23:36:04.264649+00:00", "action": "scale", "target": 5, "before": 3, "after": 5, "applied": true, "reason": "FIRM: by_cpu=5 by_mem=2 by_req=4 by_lat=3 -> target=5 (current=3)"}
+{"timestamp": "2026-11-22T23:36:19.365070+00:00", "action": "scale", "target": 9, "before": 5, "after": 9, "applied": true, "reason": "FIRM: by_cpu=9 by_mem=3 by_req=7 by_lat=5 -> target=9 (current=5)"}
+{"timestamp": "2026-11-22T23:36:34.489854+00:00", "action": "scale", "target": 20, "before": 9, "after": 20, "applied": true, "reason": "FIRM: by_cpu=9 by_mem=4 by_req=7 by_lat=28 -> target=20 (current=9)"}
+{"timestamp": "2026-11-22T23:36:49.126718+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:37:04.220625+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:37:19.341907+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:37:34.500642+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:37:49.661491+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:38:04.751438+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:38:19.855028+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:38:34.926935+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:38:50.015379+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:39:00.083088+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:39:15.166119+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:39:30.255362+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:39:45.338970+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:40:00.425833+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:40:15.540367+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:40:30.621128+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}
+{"timestamp": "2026-11-22T23:40:45.721210+00:00", "action": "noop", "target": 20, "before": 20, "after": 20, "applied": false, "reason": "FIRM: predictor agrees with current=20"}

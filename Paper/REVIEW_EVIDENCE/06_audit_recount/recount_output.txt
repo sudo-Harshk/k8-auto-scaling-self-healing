@@ -1,0 +1,31 @@
+ 1 scale     target=15: MODIFIED shrink_step(15->4)
+ 2 scale     target=-1: MODIFIED shrink_step(-1->0),clamp_to_min(0->1)
+ 3 scale     target=8: MODIFIED shrink_step(8->4)
+ 4 heal      target=4: MODIFIED heal_target_forced_to_current(4->2)
+ 5 noop      target=2: passed unchanged
+ 6 delete_pod target=2: REJECTED (delete_pod)
+ 7 heal      target=2: passed unchanged
+ 8 heal      target=2: passed unchanged
+ 9 scale     target=1: passed unchanged
+10 scale     target=1: passed unchanged
+11 scale     target=1: passed unchanged
+12 scale     target=1: REJECTED (cooldown)
+13 scale     target=10: MODIFIED shrink_step(10->5)
+14 scale     target=1: REJECTED (cooldown)
+15 scale     target=1: MODIFIED shrink_step(1->3)
+16 scale     target=1: REJECTED (cooldown)
+17 scale     target=10: MODIFIED shrink_step(10->5)
+18 scale     target=1: REJECTED (cooldown)
+19 scale     target=1: MODIFIED shrink_step(1->3)
+20 scale     target=1: REJECTED (cooldown)
+21 scale     target=10: MODIFIED shrink_step(10->5)
+22 scale     target=1: REJECTED (cooldown)
+23 scale     target=1: MODIFIED shrink_step(1->3)
+24 scale     target=1: REJECTED (cooldown)
+25 scale     target=10: MODIFIED shrink_step(10->5)
+26 scale     target=1: REJECTED (cooldown)
+27 scale     target=1: MODIFIED shrink_step(1->3)
+28 scale     target=1: REJECTED (cooldown)
+
+modified=12 rejected=10 {'delete_pod': 1, 'cooldown': 9} passed=6  -> corrected 22/28
+per-rule: {'clamp_to_min': 1, 'cooldown': 9, 'heal_target_forced_to_current': 1, 'shrink_step': 11, 'unknown_action:delete_pod': 1}

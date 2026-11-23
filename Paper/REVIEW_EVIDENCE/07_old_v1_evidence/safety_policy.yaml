@@ -1,0 +1,57 @@
+# Safety Shield policy rules.
+#
+# This is the canonical rule set the Python SafetyShield class (Day 11) loads
+# to enforce the same invariants verified by the TLA+ spec at
+# specs/SafetyShield.tla. Keeping the YAML and the .tla in sync is the
+# responsibility of every PR that changes a rule: edit both, run TLC, run
+# Day 11 unit tests.
+
+safety_shield:
+  # Hard bounds on replica count. The TLA+ SafetyMinReplicas and
+  # SafetyMaxReplicas invariants assert these.
+  min_replicas: 1
+  max_replicas: 10
+
+  # Maximum change in replica count permitted in a single decision.
+  # Mirrors Day 7's predictor behavior (predicts 1, 2, or 4) and the
+  # TLA+ SafetyScalingStep invariant.
+  max_scale_step: 2
+
+  # Heal actions must not modify replica count. The operator (Day 12)
+  # interprets a heal as "delete the unhealthy pod" without rescaling.
+  # Mirrors TLA+ SafetyHealNoScale invariant.
+  heal_target_equals_current: true
+
+  # Minimum number of seconds between consecutive applied decisions.
+  # Prevents oscillation under a misbehaving predictor.
+  # Mirrors TLA+ SafetyBoundedRate invariant (clock >= COOLDOWN).
+  cooldown_seconds: 60
+
+  # Day-8 anomaly detector threshold. Above this score, the engine
+  # emits a "heal" decision instead of "scale".
+  # (Same value as data/anomaly_model.pkl.threshold.)
+  anomaly_threshold: 0.2417
+
+# Action policy: how the safety layer modifies an engine decision before
+# the operator applies it. Modifications are clamped; rejections are
+# hard failures.
+action_policy:
+  scale:
+    allow: true
+    on_too_small: "clamp_to_min"      # target < min -> clamp
+    on_too_large: "clamp_to_max"      # target > max -> clamp
+    on_step_too_big: "shrink_step"    # |new-old| > max_scale_step -> reduce step
+
+  heal:
+    allow: true
+    require_target_equals_current: true
+
+  noop:
+    allow: true
+
+  # Reject anything we don't recognize. This is a defensive guard for
+  # Day 12 (Kopf) and Day 14 (KEDA baseline) — if a future code path
+  # emits an unknown action, the safety layer refuses it.
+  unknown_action:
+    allow: false
+    response: "reject_with_audit_log"

@@ -77,3 +77,6 @@ $RECYCLE.BIN/
 
 # ===== Docker =====
 ops/docker/.docker/*.pem
+
+# SSH keys
+*.pem

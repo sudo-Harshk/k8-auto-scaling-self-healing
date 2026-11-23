@@ -1,0 +1,32 @@
+{
+  "shield-ai": {
+    "actuations": 381,
+    "applied": 136,
+    "rejected_by_shield": 245,
+    "all_ms": {
+      "p50": 473.3,
+      "p95": 542.8,
+      "p99": 561.2,
+      "max": 645.7
+    },
+    "applied_ms": {
+      "p50": 528.9,
+      "p95": 554.3
+    }
+  },
+  "ml-only": {
+    "actuations": 385,
+    "applied": 385,
+    "rejected_by_shield": 0,
+    "all_ms": {
+      "p50": 536.8,
+      "p95": 9076.0,
+      "p99": 10846.1,
+      "max": 12053.0
+    },
+    "applied_ms": {
+      "p50": 536.8,
+      "p95": 9076.0
+    }
+  }
+}

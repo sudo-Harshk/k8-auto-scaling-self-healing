@@ -1,0 +1,57 @@
+[2026-11-22 18:30:04,098] locust/INFO/locust.runners: Shape test starting.
+[2026-11-22 18:30:04,099] locust/INFO/locust.runners: Shape worker starting
+[2026-11-22 18:30:04,099] locust/INFO/locust.runners: Shape test updating to 15 users at 50.00 spawn rate
+[2026-11-22 18:30:04,099] locust/INFO/locust.runners: Ramping to 15 users at a rate of 50.00 per second
+[2026-11-22 18:30:04,100] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 15} (15 total users)
+[2026-11-22 18:30:34,138] locust/INFO/locust.runners: Shape test updating to 30 users at 50.00 spawn rate
+[2026-11-22 18:30:34,138] locust/INFO/locust.runners: Ramping to 30 users at a rate of 50.00 per second
+[2026-11-22 18:30:34,139] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 30} (30 total users)
+[2026-11-22 18:31:04,174] locust/INFO/locust.runners: Shape test updating to 45 users at 50.00 spawn rate
+[2026-11-22 18:31:04,174] locust/INFO/locust.runners: Ramping to 45 users at a rate of 50.00 per second
+[2026-11-22 18:31:04,175] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 45} (45 total users)
+[2026-11-22 18:31:34,221] locust/INFO/locust.runners: Shape test updating to 60 users at 60.00 spawn rate
+[2026-11-22 18:31:34,221] locust/INFO/locust.runners: Ramping to 60 users at a rate of 60.00 per second
+[2026-11-22 18:31:34,222] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 60} (60 total users)
+[2026-11-22 18:32:04,271] locust/INFO/locust.runners: Shape test updating to 75 users at 75.00 spawn rate
+[2026-11-22 18:32:04,271] locust/INFO/locust.runners: Ramping to 75 users at a rate of 75.00 per second
+[2026-11-22 18:32:04,271] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 75} (75 total users)
+[2026-11-22 18:32:34,330] locust/INFO/locust.runners: Shape test updating to 90 users at 90.00 spawn rate
+[2026-11-22 18:32:34,330] locust/INFO/locust.runners: Ramping to 90 users at a rate of 90.00 per second
+[2026-11-22 18:32:34,331] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 90} (90 total users)
+[2026-11-22 18:33:04,395] locust/INFO/locust.runners: Shape test updating to 105 users at 105.00 spawn rate
+[2026-11-22 18:33:04,395] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-22 18:33:04,395] locust/INFO/locust.runners: Ramping to 105 users at a rate of 105.00 per second
+[2026-11-22 18:33:04,396] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 105} (105 total users)
+[2026-11-22 18:33:34,464] locust/INFO/locust.runners: Shape test updating to 120 users at 120.00 spawn rate
+[2026-11-22 18:33:34,464] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-22 18:33:34,464] locust/INFO/locust.runners: Ramping to 120 users at a rate of 120.00 per second
+[2026-11-22 18:33:34,464] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 120} (120 total users)
+[2026-11-22 18:34:04,542] locust/INFO/locust.runners: Shape test updating to 135 users at 135.00 spawn rate
+[2026-11-22 18:34:04,542] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-22 18:34:04,543] locust/INFO/locust.runners: Ramping to 135 users at a rate of 135.00 per second
+[2026-11-22 18:34:04,544] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 135} (135 total users)
+[2026-11-22 18:34:34,635] locust/INFO/locust.runners: Shape test updating to 150 users at 150.00 spawn rate
+[2026-11-22 18:34:34,635] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-22 18:34:34,636] locust/INFO/locust.runners: Ramping to 150 users at a rate of 150.00 per second
+[2026-11-22 18:34:34,636] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 150} (150 total users)
+[2026-11-22 18:35:04,733] locust/INFO/locust.runners: Shape test stopping
+[2026-11-22 18:35:04,772] locust/INFO/locust.main: --run-time limit reached, shutting down
+[2026-11-22 18:35:04,773] locust/INFO/locust.main: Starting Locust 2.31.1
+[2026-11-22 18:35:04,773] locust/INFO/locust.main: Shutting down (exit code 0)
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /                                                                          15037     0(0.00%) |     51       0     791      8 |   50.01        0.00
+GET      GET /api/info                                                                   7459     0(0.00%) |     50       0     792      8 |   24.81        0.00
+POST     POST /api/echo                                                                  2403     0(0.00%) |     51       0     693      8 |    7.99        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                     24899     0(0.00%) |     51       0     792      8 |   82.81        0.00
+
+Response time percentiles (approximated)
+Type     Name                                                                                  50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET      GET /                                                                                   8     55     66     86    160    210    340    440    630    760    790  15037
+GET      GET /api/info                                                                           8     44     65     75    160    210    360    430    690    790    790   7459
+POST     POST /api/echo                                                                          8     56     65     73    150    210    360    460    690    690    690   2403
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+         Aggregated                                                                              8     55     65     76    160    210    360    440    660    760    790  24899
+

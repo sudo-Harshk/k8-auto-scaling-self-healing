@@ -1,0 +1,49 @@
+# Safety Shield policy v2 (paper revision).
+#
+# Verified by specs/SafetyShieldV2.tla (TLC: specs/tlc_run_safety_shield_v2.txt).
+# Selected at runtime with SHIELD_POLICY=specs/safety_policy_v2.yaml.
+#
+# Differences from v1 (safety_policy.yaml):
+#   * Asymmetric rate limiting, following the Kubernetes HPA default behaviour
+#     (fast scale-up, slow scale-down): scale-up may follow the previous action
+#     after one decision window (15 s); scale-down / heal need 60 s.
+#   * Proportional scale-up step: max(4 pods, 100% of current) per action,
+#     identical to the HPA default scaleUp policy. Scale-down is limited to
+#     2 pods per action.
+#   * Range 2..20 replicas (same min/max given to HPA, KEDA and FIRM-style).
+#   * Noop decisions are never throttled and never restart the cooldown timer.
+#   * One decision window = 15 s (Faust WINDOW_SECONDS=15). In TLA+ one tick is
+#     one window, so COOLDOWN_UP = 1 tick and COOLDOWN_DOWN = 4 ticks.
+
+safety_shield:
+  min_replicas: 2
+  max_replicas: 20
+
+  # v1 keys (kept so older tooling still loads this file)
+  max_scale_step: 2
+  cooldown_seconds: 60
+
+  # v2 keys
+  max_step_up_abs: 4
+  max_step_up_pct: 100
+  max_step_down_abs: 2
+  cooldown_up_seconds: 15
+  cooldown_down_seconds: 60
+
+  heal_target_equals_current: true
+  anomaly_threshold: 0.4838
+
+action_policy:
+  scale:
+    allow: true
+    on_too_small: "clamp_to_min"
+    on_too_large: "clamp_to_max"
+    on_step_too_big: "shrink_step"
+  heal:
+    allow: true
+    require_target_equals_current: true
+  noop:
+    allow: true
+  unknown_action:
+    allow: false
+    response: "reject_with_audit_log"
