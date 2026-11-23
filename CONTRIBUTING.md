@@ -5,8 +5,8 @@
 
 ## Before you start
 
-1. **Read `HANDOVER.md`** to understand the project shape.
-2. **Read `evidence-freeze.md`** to understand which numbers are locked.
+1. **Read `docs/archive/v1/HANDOVER.md`** to understand the project shape.
+2. **Read `docs/archive/v1/evidence-freeze.md`** to understand which numbers are locked.
 3. **Run the baseline checks** and confirm they all pass:
    ```bash
    pytest                                  # 53/53 must pass
@@ -16,15 +16,15 @@
 
 ## The golden rule
 
-> Never edit a paper number without also updating `evidence-freeze.md`.
+> Never edit a paper number without also updating `docs/archive/v1/evidence-freeze.md`.
 
 The audit script (`scripts/_phase5_audit.py`) cross-checks every numeric
-literal in `docs/paper/main.tex` against `evidence-freeze.md`. If they
+literal in `docs/paper/main.tex` against `docs/archive/v1/evidence-freeze.md`. If they
 diverge, the script reports `UNSOURCED > 0`. This is a hard failure:
 **no commit may land with `UNSOURCED > 0`.**
 
 If your change moves a number:
-1. Edit `evidence-freeze.md` first.
+1. Edit `docs/archive/v1/evidence-freeze.md` first.
 2. Edit `docs/paper/main.tex` to match.
 3. Re-run the audit; confirm `SOURCED=56, UNSOURCED=0`.
 4. Commit both files in the same commit.
@@ -85,7 +85,7 @@ When you open a PR (or describe a change in chat):
 - [ ] `scripts/_phase5_audit.py` shows `SOURCED=56, UNSOURCED=0`
 - [ ] `landing-page` builds cleanly (`npm run build` → 0 errors)
 - [ ] If TLA+ changed, `make tla` and `make tla-composition` pass
-- [ ] If paper numbers changed, `evidence-freeze.md` and `docs/paper/main.tex` updated together
+- [ ] If paper numbers changed, `docs/archive/v1/evidence-freeze.md` and `docs/paper/main.tex` updated together
 - [ ] `CHANGELOG.md` updated
 - [ ] Commit message uses the conventional format
 
@@ -96,7 +96,7 @@ When you open a PR (or describe a change in chat):
 1. Add a new case in `scripts/eval/run_one_trial.py` (look for the
    `if operator == "hpa"` branches).
 2. Add the operator name to `Makefile` (`eval` and `demo` targets).
-3. Update `evidence-freeze.md` with the new operator's stats.
+3. Update `docs/archive/v1/evidence-freeze.md` with the new operator's stats.
 4. Update `docs/paper/main.tex` if the operator is mentioned in text.
 5. Re-run the audit.
 
@@ -113,7 +113,7 @@ When you open a PR (or describe a change in chat):
    `SafetyInvariant`).
 2. Edit `specs/SafetyShield.cfg` if you need new constants.
 3. Re-run `make tla` (~4 min).
-4. Update the `tlaDistinctStates` field in `evidence-freeze.md` if the
+4. Update the `tlaDistinctStates` field in `docs/archive/v1/evidence-freeze.md` if the
    count changed.
 5. Update the paper.
 
@@ -128,8 +128,8 @@ When you open a PR (or describe a change in chat):
 
 ## When in doubt
 
-- Read `evidence-freeze.md` first.
-- Read `HANDOVER.md` second.
+- Read `docs/archive/v1/evidence-freeze.md` first.
+- Read `docs/archive/v1/HANDOVER.md` second.
 - Read `docs/VIVA_GAUNTLET.md` third.
 - Then read the code.
 

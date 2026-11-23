@@ -1,378 +1,169 @@
-# SHIELD-AI - A Formally-Verified Online Learning Controller for Kubernetes Auto-Scaling and Self-Healing
+# SHIELD-AI: Safety-Aware Online-Learning Kubernetes Autoscaling
 
-M.Tech project: a formally-safe autonomous Kubernetes controller that unifies
-online-machine-learning auto-scaling and auto-healing behind a
-TLA+-verified Safety Shield. Built across 18 days; verified end-to-end on a
-live `kind` cluster on Azure (`Standard_D4as_v5`, Ubuntu 24.04 LTS, cgroup v2,
-Central India).
+SHIELD-AI is a Kubernetes autoscaling and self-healing controller. It combines **online machine learning** with a **runtime safety shield whose rules are formally verified in TLA+**. The model proposes; the shield decides what may reach the cluster.
 
-## Landing Page
+![Architecture](Paper/figures/fig1_architecture.png)
 
-A premium, production-quality landing page is available at `landing-page/`.
+| Layer | Implementation |
+|---|---|
+| 1. Telemetry | Prometheus (5 s scrape) → metrics producer → Kafka |
+| 2. Streaming | Kafka (KRaft) + Faust, 15 s feature windows |
+| 3. ML decision | River Hoeffding Adaptive Tree (replica forecast), Half-Space Trees (anomaly score) |
+| 4. Safety shield | Replica bounds, asymmetric step limit, direction-aware cooldowns, heal-keeps-replicas; verified with TLC |
+| 5. Actuation | Python operator (official Kubernetes client); re-validates every decision against the live replica count |
 
-**Stack:** Vite + React 18 + TypeScript + Tailwind CSS + Framer Motion
+---
 
-**Design:** Deep dark theme (#0D0D0D), red accent (#F12525), Inter typography, premium editorial aesthetic with animated SVG visualizations.
+## Key results
 
-**Sections:** Hero, Metrics, Problem, Three Layers, Architecture Diagram, Autoscaling, Self-Healing, Safety Shield, Observability, Evaluation, Research, Final CTA.
+All numbers are from the files linked; the full evidence index is [`Paper/REVIEW_EVIDENCE/README.md`](Paper/REVIEW_EVIDENCE/README.md).
 
-**To run:**
-```bash
-cd landing-page
-npm install
-npm run dev     # development server
-npm run build   # production build
-```
+### Formal verification (TLA+ / TLC)
+| Check | Result | Evidence |
+|---|---|---|
+| Safety: 5 invariants + 2 action properties, untrusted ML output 0–25 | **2,535,840 distinct states, no violation** (depth 28, 68 s) | [`specs/tlc_run_v2_safety.txt`](specs/tlc_run_v2_safety.txt) |
+| Liveness: overload is eventually answered by a scale-up | **holds** (234,639 states) | [`specs/tlc_run_v2_liveness.txt`](specs/tlc_run_v2_liveness.txt) |
+| Mutation testing: each shield rule disabled in turn | **7 / 7 mutants caught** | [`specs/tlc_run_v2_mutants.txt`](specs/tlc_run_v2_mutants.txt) |
+| Unit and conformance tests | **80 passed** | `pytest tests` |
 
-## Thesis (locked)
+### Live evaluation: 75 runs (5 controllers × 3 scenarios × 5 seeds)
+Four-node kind cluster, replicas 2–20, Locust load up to 1,006 req/s. Controllers: HPA, KEDA, a FIRM-inspired multi-threshold controller (MT), ML-only (no shield) and SHIELD-AI.
 
-> **Naive ML-based Kubernetes controllers are unsafe under burst load.
-> SHIELD-AI combines online ML (River Hoeffding Adaptive Tree Regressor +
-> Half-Space-Trees anomaly detection) with a formally-verified safety
-> shield (TLA+ / TLC) to retain ML adaptability while provably satisfying
-> safety invariants that bare controllers violate.**
+| Finding | Value | Significance (Mann–Whitney U, Holm) |
+|---|---|---|
+| Unsafe replica changes, ML-only → SHIELD-AI | **179 → 1** | p_Holm ≤ 0.039 in every scenario |
+| Scale events per run, ML-only → SHIELD-AI | 13.6–15.0 → **7.6–9.0** | significant in every scenario |
+| SLO-violation time vs HPA | lower in **15 / 15** seed–scenario pairs | large effect (δ −0.68 to −0.92), not significant at n = 5 |
+| Under-provisioned time vs HPA (spike, diurnal) | 17–23 % vs 57–62 % (median) | p_Holm = 0.032 |
+| Latency and SLO vs KEDA and MT | **on par** | no significant difference |
+| Cost (replica-minutes) | higher than HPA and KEDA, similar to MT | trade-off, reported openly |
+| Shield overhead | 55 µs per check; decision → actuation median 529 ms (537 ms without the shield) | [`pipeline_latency.json`](results_live/analysis/pipeline_latency.json) |
 
-## Three contributions
+Full tables: [`results_live/analysis/RESULTS.md`](results_live/analysis/RESULTS.md). Per-seed hardware-blocked check: [`ROBUSTNESS.md`](results_live/analysis/ROBUSTNESS.md).
 
-1. **Hybrid ML + Formal Safety Controller** — a Kubernetes operator whose
-   action space is the intersection of ML-driven decisions and a
-   TLA+-verified invariant set. ML contributes adaptability; the shield
-   contributes provable safety.
-2. **Empirically-validated failure mode of pure ML controllers** —
-   the Day-15 N=3 replication in
-   `data/evaluation/comparison_results_N3.csv:20-28` shows the ML-only
-   operator producing **100.00% error rate** and stuck replicas at
-   `≤ 2` across all 9 AI runs, while HPA and KEDA both scale correctly
-   to `10`.
-3. **Reproducible artifact** — 53 unit tests, `make demo` 12-step golden
-   run, containerized docker compose, three TLC model-checking trace
-   files in `specs/tlc_run_*.txt`, and a deterministic N=10 offline
-   evaluation in `results_N10/`.
+### Self-healing study (in progress)
+A fault-injection study is running: a hung pod (SIGSTOP) under constant load, comparing SHIELD-AI with and without healing, an anomaly-gated variant and HPA, with no-fault controls for false heals. Four pilot runs settled the method: an in-pod CPU hog did not degrade service, and the aggregate anomaly score did not flag a single-pod failure. Pilot data is kept in `results_live/heal_pilots/` (not counted). Results will be added to `results_live/heal_analysis/`.
 
-## Pipeline (Fig. 1 of paper)
+---
+
+## Repository layout
 
 ```
-Prometheus (10s scrape)
-        │ k8s-metrics Kafka topic
-        ▼
-Python producer
-        │
-        ▼
-Faust 30-s windowed aggregator
-        │ k8s-features Kafka topic
-        ▼
-Decision Engine (River HTR + Half-Space-Trees)
-        │
-        ▼
-Safety Shield  ←  TLA+ state machine  (TLC verified offline)
-        │ k8s-decisions Kafka topic
-        ▼
-Kafka actuator (re-validates, then patches Deployment.spec.replicas
-                     or deletes a pod via the official Kubernetes client)
-        │
-        ▼
-workload-v2 Deployment (DB-backed Flask + SQLite)
+src/                     controller source
+  kafka/  streaming/     metrics producer, Faust stream processor
+  models/ decision/      River models, decision engine (scale / heal / noop)
+  safety/                runtime safety shield (Python mirror of the TLA+ spec)
+  kopf_operator/         actuator (Kubernetes API)
+  baselines/             FIRM-inspired multi-threshold controller (MT)
+specs/                   TLA+ specifications, TLC configs and outputs, safety policies
+tests/                   unit and conformance tests
+scripts/eval/live/       live evaluation harness (cluster setup, calibration, training, run matrix, analysis)
+results_live/            raw data of all live runs + analysis outputs
+Paper/REVIEW_EVIDENCE/   evidence package for the paper revision (one folder per reviewer topic)
+Paper/figures/           paper figures and the scripts that generate them
+ops/                     Docker image, kind config, Kubernetes manifests
+docs/                    thesis, v1 paper, development log, archived v1 docs
 ```
 
-Three Kafka topics thread the data through: `k8s-metrics → k8s-features
-→ k8s-decisions`. Diagram in `docs/paper/main.tex` §II (TikZ).
+---
 
-## Stack (pinned versions)
+## Reproduce
 
-| Layer | Version | Source |
-|-------|---------|--------|
-| Kubernetes (kind) | `v1.30.0` single-node | `ops/kind/kind-cluster.yaml` |
-| Cloud | Azure `Standard_D4as_v5` (4 vCPU AMD EPYC, 16 GB RAM) | infrastructure |
-| Container image | `k8-ai-ops:dev` built on `python:3.11-slim` | `ops/docker/Dockerfile` |
-| Python ML | **River 0.26.0** (HTR + HST + online learning) | `River`, Montiel et al. 2020 |
-| Stream processing | **Faust 0.11.3** (30-s manual-window aggregation) | `faust-streaming` |
-| Message bus | **Kafka 3.9.1 KRaft** (no Zookeeper) | Kafka, Kreps et al. 2013 |
-| Kubernetes client | **Python `kubernetes` 30.1.0** | official client |
-| Formal verification | **TLA+ / TLC 2026.08.21.155922** | Lamport 1994 + TLC |
-| Monitoring | **Prometheus** (`kube-prometheus-stack`) | Prometheus |
-| Load generator | **Locust 2.31.1** | Locust |
-
-## Evidence freeze (read this before reading the paper)
-
-**`evidence-freeze.md`** is the single source of truth for every number
-that appears in the IEEE paper (`docs/paper/main.tex`) and the M.Tech
-thesis (`docs/thesis/*.md`).
-
-If a number is not in `evidence-freeze.md`, it does not exist and
-must not be cited. Sections A-L cover N=10 offline replay, Day-15 N=3
-motivating failure, anomaly threshold, shield clamping audit, three
-TLC specs, source code citations, banned numbers (such as `47 (20.9%)`
-and `69.2%`), figure/table inventory, and the AI-disclosure
-acknowledgment line.
-
-The audit script `scripts/_phase5_audit.py` enforces this:
-```
-SOURCED (in both main + EF): 56
-UNSOURCED (in main, NOT in EF): 0
-```
-Run from repo root: `python scripts/_phase5_audit.py`. If
-`UNSOURCED > 0`, exit code is `1`.
-
-## Defense artifacts (as of 2026-09-01)
-
-| Artifact | Location | Status |
-|----------|----------|--------|
-| IEEE paper (PDF) | `docs/paper/main.pdf` | **5 pages**, IEEE conference, 20 refs, 0 warnings |
-| IEEE paper (source) | `docs/paper/main.tex` | `\bibliography{refs}`, no `[?]` |
-| IEEE refs (BibTeX) | `docs/paper/refs.bib` | 20 entries with DOI/URL |
-| M.Tech thesis (PDF) | `docs/thesis/thesis.pdf` | 28 pages, pandoc + xelatex |
-| M.Tech thesis (source) | `docs/thesis/01_abstract.md` through `09_conclusion.md` | 9 chapters, fully populated |
-| Defense deck (20 slides) | `defense_deck.pdf` | built via `python scripts/build_deck.py` |
-| Viva prep | `docs/VIVA_GAUNTLET.md` | 20 questions with file:line citations |
-| Single source of truth | `evidence-freeze.md` | sections A-L |
-| Claim audit script | `scripts/_phase5_audit.py` | 56 sourced / 0 unsourced |
-| TLC trace (single shield, 273,702 states) | `specs/tlc_run_safety_shield.txt` | finished 01m47s, 0 violations |
-| TLC trace (joint SHIELD path, 53 states) | `specs/tlc_run_ml_composition.txt` | finished 1s, 0 violations |
-| TLC trace (ML-only counterexample, 93 states) | `specs/tlc_run_ml_only_counterexample.txt` | `MlSafetyMinReplicas` violated |
-| N=10 deterministic offline replay | `results_N10/comparison_N10.csv` + `stats_report.{md,json}` | 4 ops × 3 scenarios × 10 trials |
-| Day-15 N=3 motivating failure (100% error) | `data/evaluation/comparison_results_N3.csv:20-28` | 9 rows, all 100% / replicas_end ≤ 2 |
-| Shield OFF ablation | `data/evaluation/ablation_results_N3.csv` | full=no_shield: 55 of 55 heal applied |
-| Live docker-compose audit | `logs/operator_actions.log:4-20` | 8 shield-modified, 9 cooldown-rejected |
-| Synthetic shield stress audit (used in Abstract) | `logs/safety_audit.log:1-28` | **12 of 28 modified = 42.9%** |
-| Anomaly threshold (`data/anomaly_model.pkl:1`) | `0.484` (`0.4837573385518591` exact) | `evidence-freeze.md §C` |
-| 53 unit tests | `tests/test_*.py` | **53/53 pass** |
-| Live audit chain (Docker) | `ops/compose/pipeline.yaml` | 4 services (producer, stream, decision, actuator) |
-| **Student-viva bootstrap** (`Day 19`) | `bootstrap.sh` | one-command WSL2/Ubuntu 24.04 installer (idempotent) |
-| **Viva cheat-sheet** | `RUN_DEMO.md` | single-page guide for the student |
-| **Highlight-run script** | `scripts/demo/quick.sh` | 2-min evidence dump for the viva |
-
-## Repo layout
-
-```
-README.md                        # this file
-LICENSE                         (not yet committed)
-Makefile                        # make demo / eval / tla / tla-composition / stats / paper
-
-docs/
-├── GOLDEN_RUN.md               # 12-step reproducible demo
-├── paper/                       # IEEE paper (target venue)
-│   ├── main.tex                 # 5pp IEEE conference, 20 refs
-│   ├── main.pdf                 # built artifact
-│   └── refs.bib                 # 20 BibTeX entries
-├── thesis/                      # M.Tech thesis source
-│   ├── 01_abstract.md
-│   ├── 02_introduction.md
-│   ├── 03_literature_survey.md
-│   ├── 04_existing_system.md
-│   ├── 05_proposed_system.md
-│   ├── 06_implementation.md
-│   ├── 07_results.md
-│   ├── 08_discussion.md
-│   ├── 09_conclusion.md
-│   └── thesis.pdf               # pandoc + xelatex artifact
-├── VIVA_GAUNTLET.md             # 20-question viva prep with file:line
-└── landing-page/                # Premium dark-themed landing page (Vite + React + Tailwind)
-
-evidence-freeze.md              # SINGLE SOURCE OF TRUTH for paper numbers
-scripts/
-├── _phase5_audit.py             # CI gate: every number in main.tex must trace to evidence-freeze.md
-├── _evidence_freeze_inspect.py  # re-runs all evidence-freeze assertions from raw data
-├── build_dataset_v2.py
-├── build_deck.py                # defense_deck.pdf generator
-├── replay_shield.py             # offline replay (banned output, see EF §H)
-├── retrain_*.sh                 # model retraining
-├── eval/                         # N=10 harness + stats report + ablation
-│   ├── run_N10.sh               # canonical entry (used by make eval)
-│   ├── run_quick.py             # PowerShell-friendly small-N runner
-│   ├── run_one_trial.py         # per-trial simulator
-│   └── stats_report.py          # per-(op, scenario) mean ± std + Wilcoxon + Cohen's d + 95% CI
-├── smoke_test_scripts.py
-└── demo/
-    └── run_all.sh                # 12-step golden run driver
-
-src/
-├── metrics/                      # Prometheus + kube-state-metrics client
-├── kafka/                        # producer / consumer
-├── streaming/                    # Faust 30-s windowed aggregator
-├── features/                     # feature engineering
-├── models/                       # River HTR + HalfSpaceTrees
-├── decision/                     # decision engine (load-first at :262-268)
-├── safety/                       # SafetyShield Python + TLA+
-├── kopf_operator/                # Kafka consumer + K8s actuator
-└── baselines/
-    └── firm_controller.py        # FIRM-style threshold baseline
-
-ops/
-├── compose/pipeline.yaml         # 4-service live demo docker-compose
-├── docker/Dockerfile             # k8-ai-ops:dev (Python 3.11-slim, River, Faust, k8s client)
-├── kafka/                        # KRaft manifests
-├── manifests/                    # podinfo, workload-v2, ServiceMonitor
-└── kind/kind-cluster.yaml
-
-specs/
-├── SafetyShield.tla              # 5 invariants + 1 liveness
-├── SafetyShield.cfg
-├── ML_Composition.tla            # SHIELD path + ML_Only path
-├── ML_Composition.cfg
-├── ML_Only_counterexample.cfg    # proves the shield is necessary
-├── safety_policy.yaml            # runtime policy consumed by Python shield
-├── tlc_run_safety_shield.txt     # TLC trace, 273,702 states
-├── tlc_run_ml_composition.txt    # joint spec, 53 states
-└── tlc_run_ml_only_counterexample.txt  # counterexample trace
-
-results_N10/
-├── comparison_N10.csv            # 121 rows (header + 120 deterministic trials)
-├── comparison_N3.csv             # legacy N=3 file (not cited in current paper)
-├── stats_report.md               # per-(op, scenario) summary
-├── stats_report.json             # machine-readable
-└── test.csv                      # legacy dev artifact (gitignored candidate)
-
-data/
-├── anomaly_model.pkl             # HalfSpaceTrees + threshold 0.484
-├── replica_model.pkl             # HoeffdingAdaptiveTreeRegressor
-├── features_v2.csv               # 285 rows from live workload-v2 traffic
-├── evaluation/                   # Day-15 CSV + effect sizes
-└── .archive/                     # timestamped backups before retrain
-
-tests/                            # 53 unit tests
-├── test_actuator.py
-├── test_decision_engine.py
-├── test_liveness.py
-├── test_p1_scale_heal_separation.py
-├── test_safety_shield.py
-├── test_v2_models.py
-└── __init__.py
-
-tasks/
-├── THESIS.md                     # central thesis tracker (now reflects locked state)
-└── AMENDMENTS.md                 # day-by-day decisions (final closing entry appended 2026-09-01)
-
-defense_deck.pdf                  # 20-slide deck
-locustfile.py                     # load generator entrypoint
-```
-
-## Single-command demo
+Requirements: Ubuntu 24.04 (or WSL2) with 4 vCPU / 16 GB, Docker, kind, kubectl, Helm, Python 3.11+, Java 11+.
 
 ```bash
-make bootstrap            # One-time installer on Ubuntu 24.04 / WSL2 (~15 min)
-make tla                  # TLC on SafetyShield.tla (~3 s, 273,702 states, 0 errors)
-make tla-composition      # TLC on ML_Composition.tla (~4 min, 53 states, 0 errors)
-make paper                # pdflatex + bibtex + pdflatex x2 -> docs/paper/main.pdf
-make demo                 # 12-step golden run on kind (~30 min)
-make demo-quick           # 2-min highlight: TLC traces + paper + audit logs + stats
-make eval                 # N=10 deterministic offline replay (~3 h)
-make stats                # regenerate results_N10/stats_report.md
+bash bootstrap.sh                                   # install tooling
+bash scripts/eval/live/setup_cluster.sh             # kind cluster, Prometheus, KEDA, Kafka, podinfo (~10 min)
+bash scripts/eval/live/calibrate.sh                 # per-replica capacity -> calibration.env
+bash scripts/eval/live/train_ml.sh                  # train models on a disjoint trace
+SEEDS="1 2 3 4 5" bash scripts/eval/live/run_matrix.sh      # 75 live runs (~9 h on one VM)
+python scripts/eval/live/analyze.py results_live/runs results_live/analysis
 ```
 
-Each target is idempotent where possible.
-
-## Running on a fresh Windows laptop (WSL2)
-
-For an M.Tech student who has a 16 GB Windows laptop and zero pre-installed
-tools:
-
-1. Open PowerShell **as Administrator**, run:
-   ```powershell
-   wsl --install -d Ubuntu-24.04
-   ```
-   (Windows 11 / Windows 10 build 19041+ have this built in.)
-   Reboot when prompted.
-
-2. Open "Ubuntu 24.04" from the Start menu; pick a username
-   (e.g. `student`) and a password.
-
-3. Paste the entire bootstrap command:
-   ```bash
-   curl -fsSL https://raw.githubusercontent.com/sudo-Harshk/k8-auto-scaling-self-healing/main/bootstrap.sh | bash
-   ```
-   This installs Docker CE, kubectl 1.30, kind 0.23, Helm 3,
-   OpenJDK 17, clones the repo, pre-builds the Docker image, and
-   adds `demo` / `demo-quick` / `demo-reset` / `tlac` / `paper`
-   aliases to `~/.bashrc`. Idempotent — safe to re-run.
-
-4. Open a fresh terminal and type:
-   ```bash
-   demo-help        # print the cheat-sheet
-   demo-quick       # 2-min highlight run for the viva
-   demo             # full 30-min live 12-step demo
-   ```
-
-Pin WSL2 RAM before the demo (in `%UserProfile%\.wslconfig`):
-```ini
-[wsl2]
-memory=11GB
-processors=4
-swap=4GB
-```
-Then `wsl --shutdown` and reopen Ubuntu.
-
-The full install guide is **`RUN_DEMO.md`** (one page; print and
-bring to the viva).
-
-## Daily ops (Azure VM: `k8-vm`)
+Formal verification (download the TLA+ tools first, see [`tools/README.md`](tools/README.md)):
 
 ```bash
-ssh k8-vm                                     # Azure VM alias
-docker start k8-ai-control-plane              # only if kind node stopped
-kubectl -n monitoring port-forward svc/kube-prometheus-stack-prometheus 9090:9090 &
-kubectl -n kafka port-forward svc/kafka 9094:9094 &
-kubectl -n workload-v2 port-forward svc/workload-v2 8080:8080 &  # for live compose demo
+cd specs
+java -cp ../tools/tla2tools.jar tlc2.TLC -config SafetyShieldV2_safety.cfg   SafetyShieldV2.tla
+java -cp ../tools/tla2tools.jar tlc2.TLC -config SafetyShieldV2_liveness.cfg SafetyShieldV2.tla
 ```
 
-The Windows laptop setup (Days 1-3) remains as a fallback. See
-`tasks/AMENDMENTS.md` (2026-08-18) for the laptop-vs-VM history.
+Tests: `python -m pytest tests -q`
 
-## Build plan
+---
 
-See `tasks/README.md` for the 18-day plan. Days 1-18 are implemented in
-order; each day is committed and tagged (`day-1` … `day-18-v2-n3`).
+## Reviewer questions and answers
 
-Final phase (`P0`-`P5`) closed all the rescue-plan gaps; see
-`tasks/THESIS.md` and `tasks/AMENDMENTS.md` (2026-09-01 closing entry).
-All commits authored by `sudo-Harshk <[YOUR_EMAIL]>`.
+The paper was revised in response to a detailed review. Each comment is listed with its answer and the evidence behind it. Evidence paths are relative to [`Paper/REVIEW_EVIDENCE/`](Paper/REVIEW_EVIDENCE/README.md) unless they start with a top-level folder.
 
-## Status — Day-by-day build
+### 1. Missing evaluation
+| Reviewer comment | Answer | Evidence |
+|---|---|---|
+| Describe the workloads and traffic scenarios | Three 360 s scenarios: spike, diurnal, bursty; seeded ±15 % noise; peak 1,006 req/s (≈ 16 replicas). Training uses a separate random-walk trace. | `scripts/eval/live/locust_scenarios.py`, `03_calibration_training/` |
+| Define the metrics (SLO violations, latency, recovery, cost, oscillation) | SLO-violation time (p95 > 250 ms or errors > 1 %), p95/p99, error rate, reaction and recovery time, replica-minutes, oscillations, scale events, policy violations | `scripts/eval/live/analyze.py` |
+| Results against HPA, KEDA and FIRM with repeated runs and statistics | 75 live runs, randomised order; mean ± SD; Mann–Whitney U with Holm correction and Cliff's δ; per-seed analysis for the two VM types | `04_live_experiments/analysis/` |
+| Ablation: ML-only vs ML + shield | Same model with and without the shield: unsafe changes 179 → 1, scale events halved | `04_live_experiments/analysis/RESULTS.md` |
+| "Matches KEDA on recovery, matches FIRM on safety" has no numbers | Removed; replaced by measured results | — |
 
-- [x] Day 1 — Cluster & Workload Deployment
-- [x] Day 2 — Monitoring Stack
-- [x] Day 3 — Metrics API & Baseline Load Test
-- [x] Day 4 — Kafka Streaming Pipeline
-- [x] Day 5 — Faust Stream Processor
-- [x] Day 6 — Feature Engineering & Dataset
-- [x] Day 7 — Replica Prediction Model
-- [x] Day 8 — Anomaly Detection Model
-- [x] Day 9 — Decision Engine & SHAP Explainability → replaced with leave-one-out perturbation
-- [x] Day 10 — TLA+ Safety Shield Specification
-- [x] Day 11 — Safety Shield Implementation
-- [x] Day 12 — Kubernetes Operator (Kafka actuator, not Kopf)
-- [x] Day 13 — End-to-End Integration & Chaos Testing
-- [x] Day 14 — Evaluation, Dashboards & Final Documentation
-- [x] Day 15 — Statistical Rigor, Liveness & Reproducibility
-- [x] Day 16 — p95 Variability Rework, IEEE Paper Draft, Dashboard
-- [x] Day 17 — Paper Strengthening for Viva Defense (Threat Model + Production Roadmap)
-- [x] Day 18 — Close Research Gaps (workload-v2 AI pipeline + Day-13 E2E + N=3 v2 + 5 tests)
-- [x] Day 19 — WSL2 Bootstrap & Student Delivery (`bootstrap.sh` + `RUN_DEMO.md` + `make demo-quick`)
+### 2. Text from another paper (CPS / industrial control)
+| Reviewer comment | Answer |
+|---|---|
+| Heading "Classification of Injection Attacks in CPS" | Removed |
+| Actuator described as PLCs / remote terminal units | Rewritten: Python operator using the Kubernetes API |
+| "SWaT for water treatment" in the conclusion | Removed |
+| Reference [4] is a smart-grid survey | Replaced by Qu, Calheiros, Buyya, *ACM Computing Surveys* 51(4), 2018 |
+| "SHEID-AI" typo | Corrected |
 
-## Rescue plan (P0 → P5, all closed)
+### 3. Text and figures contradict each other
+| Reviewer comment | Answer | Evidence |
+|---|---|---|
+| Fig. 1 shows Flink and six layers; text says Faust and five | The system uses Faust; Fig. 1 redrawn with five layers | `src/streaming/stream_processor.py`, `Paper/figures/fig1_architecture.png` |
+| "Threats to Validity" and "Section VI" promised but missing | Threats to Validity section added; the non-existent CI reference removed (CI listed as future work) | — |
+| Cooldown 60 s encoded as `(clock − last) % 11 ≥ 6` | Old cyclic clock replaced by a saturating counter with explicit units: 1 tick = 15 s; cooldown up 15 s, down 60 s, identical in TLA+, YAML and Python | `01_formal_verification/` |
+| "17 decisions per minute" vs a 60 s cooldown | Wrong: 17 decisions in ≈ 8 min (≈ 2.1/min). Removed | — |
 
-| Phase | Goal | Status | Where |
-|-------|------|--------|-------|
-| **P0 (thesis lock)** | freeze thesis sentence, primary scaffold, golden run outline | ✅ done | `tasks/THESIS.md`, `docs/paper/main.tex`, `docs/VIVA_GAUNTLET.md` |
-| **P0 (evidence freeze)** | single source of truth for every number in paper | ✅ done | **`evidence-freeze.md`** (sections A-L) |
-| **P0 (refs)** | 8 → 20 BibTeX entries, Related Work rewritten | ✅ done | `docs/paper/refs.bib`, `docs/paper/main.tex §VII` |
-| **P0 (sections)** | 8-section paper rewrite, every claim cited | ✅ done | `docs/paper/main.tex` (5pp, 20 refs, 0 `[?]`) |
-| **P1 (rigor)** | Threats + Reproducibility para | ✅ done | `docs/paper/main.tex §VIII` (5 threats + 6 make targets) |
-| **P1 (IEEE)** | IEEE compliance, captioned figs/tabs, ≤200-word abstract | ✅ done | `docs/paper/main.tex` (clean build, 0 warnings) |
-| **P2 (final audit)** | every Abstract sentence traces to evidence-freeze.md | ✅ done | `scripts/_phase5_audit.py` (56 sourced / 0 unsourced) |
-| **P3 (formal)** | TLA+ composition theorem + ML-only counterexample | ✅ done | `specs/ML_Composition.tla` |
-| **P3 (artifact)** | docker-compose live pipeline | ✅ done | `ops/compose/pipeline.yaml` |
-| **P4 (paper)** | IEEE 8/6 pages → trimmed to 5pp | ✅ done | `docs/paper/main.pdf` |
-| **P4 (thesis)** | 9 chapters, 28 pages | ✅ done | `docs/thesis/thesis.pdf` |
-| **P5 (viva)** | 20 questions with file:line citations | ✅ done | `docs/VIVA_GAUNTLET.md` |
+### 4. Claims that did not hold
+| Reviewer comment | Answer | Evidence |
+|---|---|---|
+| 273,702 states mixed up with 28 proposals | Separate experiments, now reported separately. New model: 2,535,840 states, no violation; 7/7 mutants caught | `01_formal_verification/` |
+| "All 28 clamped or rejected", yet 6 passed | Recount: 12 modified, 10 rejected, 6 passed (already safe) → all 22 unsafe proposals corrected | `06_audit_recount/` |
+| "Min-replica rule alone not responsible for 25 proposals" is unclear | Withdrawn. Per rule: step 11, min 1, max 0, heal 1, cooldown 9, unknown action 1, passed 6 | `06_audit_recount/recount_output.txt` |
+| 9/17 cooldown rejections show throttling, not effectiveness | Agreed; claim removed. Effect of the shield now measured in the live ablation | `04_live_experiments/` |
+| "100 % error in 9 of 9 runs" cites only an internal report | Raw data now shown (v1 table); root causes explained: label collapse, no-op resetting the cooldown, stale replica count, all fixed | `07_old_v1_evidence/` |
 
-## How to verify every claim before submission
+### 5. References
+| Reviewer comment | Answer |
+|---|---|
+| [3], [8], [9], [11] are internal project files | Removed (two of the cited files did not exist) |
+| FIRM attributed to "Lim et al." and described as rule-based | Corrected to Qiu et al., OSDI 2020 (SVM + RL); our baseline is labelled "FIRM-inspired" |
+| [20] DOI points to another journal | Removed |
+| [21]–[23] unrelated self-citations | Removed |
+| [10], [12]–[14], [17]–[19] never cited | All remaining references are cited where used |
 
-Run from repo root:
+### 6. Language and presentation
+| Reviewer comment | Answer |
+|---|---|
+| Language errors ("weather", "corn jobs", "Fauset", "hallucinate", "whi") | Full rewrite and proofreading |
+| Ethics section in first person | Rewritten in the third person |
+| No repository link despite "clone and reproduce in 90 minutes" | This repository; untested time claim removed; exact reproduction scripts listed |
+| TLA+ spec, TLC configuration and Python enforcement code not shown | Added as Listings 1–3 in the paper |
 
-```bash
-python scripts/_phase5_audit.py       # 56 sourced, 0 unsourced
-python -m pytest tests/ -q --tb=line  # 53 passed
-ssh k8-vm 'cd ~/k8-auto-scaling-self-healing && make tla && make tla-composition && make paper && make stats'
-```
+### 7. Figures and tables
+| Reviewer request | Answer | Evidence |
+|---|---|---|
+| Setup, scenarios, main comparison, ablation, per-invariant audit, TLC results, ML accuracy tables | All added (nine tables) | paper; `04_live_experiments/`, `06_audit_recount/`, `01_formal_verification/` |
+| Replicas and load over time; latency / SLO | Timelines per scenario | `results_live/analysis/fig/timeline_*.png` |
+| Anomaly detector ROC/PR and threshold justification | ROC-AUC 0.806, AP 0.950; threshold = p99 of training scores (1 % false-alarm budget). This analysis also showed that the old 2× heal gate was unreachable | `08_anomaly_detector/` |
+| Kafka / latency overhead of the shield | Shield check 55 µs; decision → actuation median 529 ms with vs 537 ms without the shield | `05_shield_overhead/`, `09_pipeline_overhead/` |
+| Scaling beyond 10 replicas / multi-node | Four-node cluster, replicas up to 20 | `04_live_experiments/analysis/per_run_metrics.csv` |
 
-If any of these fail, the paper is not ready.
+---
+
+## Limitations
+- The cluster is kind on a single VM per seed group; seeds 1–3 and 4–5 ran on two VM types (disclosed and blocked in the analysis).
+- MT is a FIRM-*inspired* threshold controller, not the original RL-based FIRM.
+- SLO and error improvements over the baselines have large effect sizes but are not statistically significant at n = 5.
+- The aggregate anomaly detector does not flag single-pod failures; self-healing relies on per-pod localisation (study in progress).
+
+## License
+[MIT](LICENSE)

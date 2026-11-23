@@ -64,6 +64,7 @@ start_ml() {
     -e REPLICA_MODEL_PATH=/code/${rd#$ROOT/}/replica_model_start.pkl \
     -e ANOMALY_MODEL_PATH=/code/data/anomaly_model_eval.pkl \
     -e DECISIONS_LOG=/code/${rd#$ROOT/}/decisions.log \
+    -e HEAL_MODE=${HEAL_MODE:-legacy} -e HEAL_GATE=${HEAL_GATE:-anomaly} -e OUTLIER_MIN_MS=$SLO_MS \
     ${out:+-e REPLICA_MODEL_OUT=/code/${out#$ROOT/}} \
     -v "$ROOT":/code -w /code $IMG src/decision/decision_engine.py >/dev/null
   if [[ "$noshield" != "skip" ]]; then

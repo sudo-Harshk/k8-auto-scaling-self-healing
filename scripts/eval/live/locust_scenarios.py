@@ -10,7 +10,7 @@ users equals the offered request rate. Every request has a 2 s timeout;
 timeouts and non-2xx responses count as failures.
 
 Environment:
-    SCENARIO   spike | diurnal | bursty | calibrate | train
+    SCENARIO   spike | diurnal | bursty | constant | calibrate | train
     PEAK_RPS   offered load at the scenario peak (req/s)
     SEED       RNG seed for the per-run multiplicative noise (+-15 %, 10 s steps)
     DURATION   total seconds (default 360)
@@ -64,6 +64,9 @@ def base_profile(t: float) -> float:
         # Training trace (disjoint from the test scenarios): slow random walk.
         rng = random.Random(10_000 + int(t // 30))
         return 0.1 + 0.9 * rng.random()
+    if SCENARIO == "constant":
+        # Self-healing study: steady load (~4 replicas at r*); faults are injected separately.
+        return 0.25
     if SCENARIO == "calibrate":
         # Staircase: +PEAK/10 every 30 s (used against a fixed replica count).
         return min(1.0, 0.1 * (1 + int(t // 30)))

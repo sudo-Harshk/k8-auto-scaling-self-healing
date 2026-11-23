@@ -166,7 +166,7 @@ thesis: ## Build M.Tech thesis PDF (pandoc from docs/thesis/)
 
 .PHONY: deck
 deck: ## Build 20-slide defense deck
-	python scripts/build_deck.py --output defense_deck.pdf
+	python scripts/build_deck.py --output docs/presentations/defense_deck.pdf
 
 # --------------------------------------------------------------- student-viva
 

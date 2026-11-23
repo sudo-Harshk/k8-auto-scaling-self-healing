@@ -98,6 +98,67 @@ ENGINE_MAX_REPLICAS = int(os.environ.get("MAX_REPLICAS", "10"))
 REPLICA_MODEL_OUT = os.environ.get("REPLICA_MODEL_OUT")  # save trained model here
 LEARN_MODE = os.environ.get("LEARN_MODE", "forecast")  # forecast | legacy
 
+# Heal criterion (paper revision, self-healing study).
+#   legacy  : heal if anomaly_score > 2 x threshold and the predictor agrees (v1).
+#             Unreachable once the threshold exceeds 0.5, since HST scores lie in [0, 1].
+#   outlier : heal the pod whose p95 latency is an outlier among the replicas
+#             (> OUTLIER_MIN_MS and > OUTLIER_RATIO x median of the other pods)
+#             in OUTLIER_PERSIST consecutive windows, while anomaly_score >
+#             threshold. Takes priority over scaling: one slow pod is not
+#             explained by load, which the Service spreads evenly over pods.
+#             A pod also counts as faulty if it is Running but NOT Ready while at
+#             least one sibling is Ready (kube-state-metrics); without a liveness
+#             probe Kubernetes removes such a pod from the Service but never
+#             replaces it. (Added after two pilot runs showed that podinfo's
+#             handler-time histogram does not reflect CPU starvation.)
+#   off     : never heal (ablation)
+# The constants were fixed before the main fault-injection runs.
+HEAL_MODE = os.environ.get("HEAL_MODE", "legacy")
+OUTLIER_RATIO = float(os.environ.get("OUTLIER_RATIO", "3"))
+OUTLIER_MIN_MS = float(os.environ.get("OUTLIER_MIN_MS", "250"))
+OUTLIER_PERSIST = int(os.environ.get("OUTLIER_PERSIST", "2"))
+# HEAL_GATE=anomaly (default, pre-registered): also require anomaly_score > threshold.
+# HEAL_GATE=none: localisation alone. Added after pilot 3, where the aggregate
+# HST score stayed below threshold (0.17-0.73) while one pod was frozen; both
+# variants are evaluated and reported.
+HEAL_GATE = os.environ.get("HEAL_GATE", "anomaly")
+POD_P95_QUERY = (
+    'histogram_quantile(0.95, sum by (le, pod) (rate('
+    'http_request_duration_seconds_bucket{namespace="%s"}[30s]))) * 1000'
+)
+
+
+def find_outlier_pod(pod_p95: dict[str, float],
+                     ratio: float = OUTLIER_RATIO,
+                     min_ms: float = OUTLIER_MIN_MS) -> str | None:
+    """Return the pod whose p95 is an outlier among the replicas, else None."""
+    vals = {p: v for p, v in pod_p95.items() if v == v}  # drop NaN
+    if len(vals) < 2:
+        return None
+    worst = max(vals, key=vals.get)
+    others = sorted(v for p, v in vals.items() if p != worst)
+    mid = len(others) // 2
+    med = others[mid] if len(others) % 2 else (others[mid - 1] + others[mid]) / 2
+    if vals[worst] > min_ms and vals[worst] > ratio * max(med, 1e-6):
+        return worst
+    return None
+
+
+# Running pods that are not being deleted (excludes scale-down and start-up pods)
+POD_READY_QUERY = (
+    'kube_pod_status_ready{namespace="%(ns)s", condition="true"}'
+    ' and on (pod) (kube_pod_status_phase{namespace="%(ns)s", phase="Running"} == 1)'
+    ' unless on (pod) kube_pod_deletion_timestamp{namespace="%(ns)s"}'
+)
+
+
+def find_unready_pod(pod_ready: dict[str, float]) -> str | None:
+    """Return a pod that is not Ready while at least one sibling is Ready."""
+    unready = sorted(p for p, v in pod_ready.items() if v < 0.5)
+    if unready and any(v >= 0.5 for v in pod_ready.values()):
+        return unready[0]
+    return None
+
 
 def demand_replicas(features: dict, lo: int, hi: int) -> int:
     """Replicas the observed load needs (same rule as the offline label,
@@ -153,6 +214,52 @@ class DecisionEngine:
         self._producer: KafkaProducer | None = None
         self._feature_means: dict[str, float] | None = None
         self.decisions_log_path.parent.mkdir(parents=True, exist_ok=True)
+        self._outlier_pod: str | None = None
+        self._outlier_streak = 0
+        self._last_pod_p95: dict[str, float] = {}
+        self._last_pod_ready: dict[str, float] = {}
+
+    # --------------------------------------------------------- heal localisation
+
+    def _query_pod_p95(self) -> dict[str, float]:
+        """Per-pod p95 latency (ms) from Prometheus; {} if unavailable."""
+        ns = os.environ.get("WORKLOAD_NAMESPACE", "podinfo")
+        return self._prom_by_pod(POD_P95_QUERY % ns)
+
+    def _query_pod_ready(self) -> dict[str, float]:
+        """Ready condition (1/0) of the Running, non-terminating pods."""
+        ns = os.environ.get("WORKLOAD_NAMESPACE", "podinfo")
+        return self._prom_by_pod(POD_READY_QUERY % {"ns": ns})
+
+    def _prom_by_pod(self, promql: str) -> dict[str, float]:
+        import urllib.parse
+        import urllib.request
+        url = os.environ.get("PROMETHEUS_URL", "http://localhost:9090")
+        q = urllib.parse.urlencode({"query": promql})
+        try:
+            with urllib.request.urlopen(f"{url}/api/v1/query?{q}", timeout=3) as r:
+                res = json.loads(r.read())["data"]["result"]
+            return {x["metric"].get("pod", "?"): float(x["value"][1]) for x in res}
+        except Exception as exc:  # noqa: BLE001
+            LOG.warning("per-pod query failed: %s", exc)
+            return {}
+
+    def _outlier_heal_candidate(self, anomaly_score: float) -> str | None:
+        """Track the outlier pod across windows; return it once the heal
+        criterion holds (persistence + anomaly score above threshold)."""
+        self._last_pod_p95 = self._query_pod_p95()
+        self._last_pod_ready = self._query_pod_ready()
+        pod = find_outlier_pod(self._last_pod_p95) or find_unready_pod(self._last_pod_ready)
+        if pod is not None and pod == self._outlier_pod:
+            self._outlier_streak += 1
+        else:
+            self._outlier_pod, self._outlier_streak = pod, (1 if pod else 0)
+        thr = self.anomaly.threshold or 0.0
+        gate_ok = HEAL_GATE == "none" or anomaly_score > thr
+        if pod is not None and self._outlier_streak >= OUTLIER_PERSIST and gate_ok:
+            self._outlier_pod, self._outlier_streak = None, 0  # one heal per detection
+            return pod
+        return None
 
     # --------------------------------------------------------------- model glue
 
@@ -285,13 +392,26 @@ class DecisionEngine:
         # The previous order (heal-first) caused the Day-15 failure where
         # load-driven windows were flagged as anomalous and the engine
         # emitted heal actions instead of scaling.
-        if predicted_replicas != current_replicas:
+        heal_pod = (self._outlier_heal_candidate(anomaly_score)
+                    if HEAL_MODE == "outlier" else None)
+
+        if heal_pod is not None:
+            action = "heal"
+            target_replicas = current_replicas
+            reason = (
+                f"faulty pod {heal_pod} in {OUTLIER_PERSIST} windows "
+                f"(ready={self._last_pod_ready.get(heal_pod, 'n/a')}) "
+                f"(p95={self._last_pod_p95.get(heal_pod, float('nan')):.0f} ms), "
+                f"anomaly_score={anomaly_score:.4f} "
+                f"(gate={HEAL_GATE}, threshold={self.anomaly.threshold:.4f})"
+            )
+        elif predicted_replicas != current_replicas:
             action = "scale"
             target_replicas = predicted_replicas
             reason = (
                 f"predictor says {predicted_replicas} (current={current_replicas})"
             )
-        elif anomaly_score > heal_threshold:
+        elif HEAL_MODE == "legacy" and anomaly_score > heal_threshold:
             action = "heal"
             target_replicas = current_replicas
             reason = (
@@ -318,7 +438,8 @@ class DecisionEngine:
             anomaly_score=round(anomaly_score, 4),
             predicted_replicas_raw=round(predicted_raw, 4),
             timestamp=datetime.now(timezone.utc).isoformat(),
-            features=features,
+            # the actuator reads target_pod; the learning loop strips it
+            features=(dict(features, target_pod=heal_pod) if heal_pod else features),
         )
 
     # --------------------------------------------------------------- learning
@@ -427,14 +548,15 @@ def _run_online(engine: DecisionEngine, kafka_bootstrap: str, topic: str) -> Non
             # to the identity (predict = current) and never scaled. Instead we
             # learn (features_{t-1} -> replicas demanded by the load at t),
             # i.e. a one-window-ahead demand forecast.
+            feats = {k: v for k, v in decision.features.items() if k != "target_pod"}
             demand_now = demand_replicas(
-                decision.features, ENGINE_MIN_REPLICAS, ENGINE_MAX_REPLICAS)
+                feats, ENGINE_MIN_REPLICAS, ENGINE_MAX_REPLICAS)
             if prev_features is not None:
                 engine.replica.learn(prev_features, demand_now)
                 n_learned += 1
             if decision.action == "noop":
-                engine.anomaly.learn(decision.features)
-            prev_features = dict(decision.features)
+                engine.anomaly.learn(feats)
+            prev_features = dict(feats)
         elif decision.action == "noop":  # legacy v1 behaviour
             engine.learn(decision.features, decision.current_replicas)
             n_learned += 1
