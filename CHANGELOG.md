@@ -4,6 +4,34 @@ All notable changes to this project are documented here. Versions follow
 loose [semver](https://semver.org/). The format is based on
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [v2.0.0] - 2026-11-23 (paper revision)
+
+### Added
+- Safety shield v2 specification (`specs/SafetyShieldV2.tla`) with untrusted ML
+  output, history-based invariants, action properties and liveness; TLC
+  safety/liveness runs and 7 mutation runs.
+- Live evaluation harness (`scripts/eval/live/`) and 75 live runs (HPA, KEDA,
+  MT, ML-only, SHIELD-AI × spike/diurnal/bursty × 5 seeds) with statistics.
+- Anomaly-detector ROC/PR evaluation, pipeline-latency measurement and a
+  hardware-blocked robustness check.
+- Self-healing study: per-pod fault localisation (`HEAL_MODE=outlier`),
+  hung-pod fault injection (`run_heal.sh`) and its analysis.
+- Evidence package for the review (`Paper/REVIEW_EVIDENCE/`).
+
+### Fixed
+- The online-learning label collapsed the replica model to the identity function.
+- A no-op decision restarted the shield cooldown and blocked real scaling.
+- The actuator validated against a stale replica count.
+- The 2× heal gate was unreachable for Half-Space Trees scores in [0, 1].
+
+### Changed
+- Asymmetric HPA-style step limit and direction-aware cooldowns (15 s up, 60 s down).
+- v1 handover documents moved to `docs/archive/v1/` (superseded);
+  development log moved to `docs/development/`.
+
+### Withdrawn
+- v1 offline N = 10 comparison (deterministic replay), `results_N10/`.
+
 ## [v1.0.1] - 2026-09-15
 
 ### Fixed

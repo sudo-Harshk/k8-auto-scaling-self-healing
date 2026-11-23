@@ -65,13 +65,14 @@ DEFAULT_MODEL_PATH = ROOT / "data" / "replica_model.pkl"
 class ReplicaPredictor:
     """Online replica-count predictor backed by a HoeffdingAdaptiveTreeRegressor."""
 
-    def __init__(self, min_replicas: int = 1, max_replicas: int = 10) -> None:
+    def __init__(self, min_replicas: int = 1, max_replicas: int = 10,
+                 grace_period: int = 50) -> None:
         self.min_replicas = min_replicas
         self.max_replicas = max_replicas
         self.model = compose.Pipeline(
             preprocessing.StandardScaler(),
             tree.HoeffdingAdaptiveTreeRegressor(
-                grace_period=50,
+                grace_period=grace_period,
                 max_depth=8,
                 seed=42,
             ),

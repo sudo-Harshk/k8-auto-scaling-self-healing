@@ -1,0 +1,7 @@
+Method,Name,Error,Occurrences
+GET,GET /,"ConnectionRefusedError(111, 'Connection refused')",5
+POST,POST /api/echo,HTTPConnectionClosed('connection closed.'),5
+GET,GET /api/info,"ConnectionRefusedError(111, 'Connection refused')",2
+GET,GET /api/info,"RetriesExceeded('http://podinfo.podinfo.svc:9898/api/info', 0, original=timed out)",6164
+POST,POST /api/echo,"RetriesExceeded('http://podinfo.podinfo.svc:9898/api/echo', 0, original=timed out)",2004
+GET,GET /,"RetriesExceeded('http://podinfo.podinfo.svc:9898/', 0, original=timed out)",11948

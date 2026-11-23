@@ -76,4 +76,59 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # ===== Docker =====
-ops/docker/.docker/
+ops/docker/.docker/*.pem
+
+# SSH keys
+*.pem
+
+# ===== Keys, certificates and credentials (never commit) =====
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
+id_ecdsa*
+id_ed25519*
+*.ppk
+kubeconfig
+*.kubeconfig
+.kube/
+.azure/
+.aws/
+.gcloud/
+credentials*.json
+service-account*.json
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# ===== Local tools and caches =====
+tools/*
+!tools/README.md
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+landing-page/node_modules/
+landing-page/dist/
+
+# ===== Unpublished manuscripts and third-party documents =====
+# The paper is under review; drafts stay local until publication.
+Paper/*.docx
+Paper/*.pdf
+Paper/SHIELD_AI_revised.md
+Paper/RESPONSE_TO_REVIEWER.md
+Paper/REVIEW_ANSWERS.md
+docs/SHIELD_AI_PAPER.md
+docs/figures/
+reference/
+SUB-ID-*.pdf
+*.bak
+
+# ===== Evaluation data duplicated locally =====
+# The 75 raw runs are committed once, under results_live/runs/
+Paper/REVIEW_EVIDENCE/04_live_experiments/runs/

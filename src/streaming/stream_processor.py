@@ -39,7 +39,7 @@ import faust
 BROKER_URL = f"kafka://{os.environ.get('KAFKA_BOOTSTRAP', 'localhost:9094')}"
 TOPIC_IN = os.environ.get("KAFKA_TOPIC_IN", "k8s-metrics")
 TOPIC_OUT = os.environ.get("KAFKA_TOPIC_OUT", "k8s-features")
-WINDOW_S = 30
+WINDOW_S = int(os.environ.get("WINDOW_SECONDS", "30"))
 
 # The metric fields from Day-3 QUERIES (+ p95_latency_ms added Day 6); these are
 # averaged per window.

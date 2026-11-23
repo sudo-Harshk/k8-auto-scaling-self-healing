@@ -1,0 +1,35 @@
+{
+  "data": "data/features_v2.csv",
+  "train_normal_windows": 69,
+  "test_normal_windows": 46,
+  "test_abnormal_windows": 170,
+  "roc_auc": 0.806,
+  "pr_auc_average_precision": 0.95,
+  "threshold_p99": {
+    "threshold": 0.9094,
+    "TP": 38,
+    "FP": 0,
+    "FN": 132,
+    "TN": 46,
+    "precision": 1.0,
+    "recall": 0.224,
+    "FPR": 0.0,
+    "F1": 0.365
+  },
+  "threshold_2x_p99_heal_gate": {
+    "threshold": 1.8188,
+    "TP": 0,
+    "FP": 0,
+    "FN": 170,
+    "TN": 46,
+    "precision": NaN,
+    "recall": 0.0,
+    "FPR": 0.0,
+    "F1": 0.0
+  },
+  "per_regime_detection_at_p99": {
+    "idle": 0.091,
+    "spike": 0.287,
+    "steady": 0.0
+  }
+}

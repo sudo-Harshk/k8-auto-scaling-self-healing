@@ -1,0 +1,37 @@
+Mutation testing of SafetyShieldV2 (each run disables one shield rule).
+Reduced range 2..10, ML output 0..12; TypeOK omitted so the semantic invariant fires.
+
+===== MUTANT no_min_clamp
+Error: Invariant SafetyMinReplicas is violated.
+115 states generated, 25 distinct states found, 19 states left on queue.
+The depth of the complete state graph search is 4.
+
+===== MUTANT no_max_clamp
+Error: Invariant SafetyMaxReplicas is violated.
+20024 states generated, 1877 distinct states found, 1047 states left on queue.
+The depth of the complete state graph search is 8.
+
+===== MUTANT no_step_limit
+Error: Invariant SafetyScalingStep is violated.
+877 states generated, 123 distinct states found, 88 states left on queue.
+The depth of the complete state graph search is 4.
+
+===== MUTANT no_shield_ml_only
+Error: Invariant SafetyMinReplicas is violated.
+283 states generated, 43 distinct states found, 31 states left on queue.
+The depth of the complete state graph search is 4.
+
+===== MUTANT no_cooldown_up
+Error: Invariant SafetyBoundedRate is violated.
+9246 states generated, 733 distinct states found, 375 states left on queue.
+The depth of the complete state graph search is 6.
+
+===== MUTANT no_cooldown_down
+Error: Invariant SafetyBoundedRate is violated.
+11976 states generated, 971 distinct states found, 496 states left on queue.
+The depth of the complete state graph search is 7.
+
+===== MUTANT heal_changes_replicas
+Error: Invariant SafetyHealNoScale is violated.
+1330 states generated, 136 distinct states found, 85 states left on queue.
+The depth of the complete state graph search is 4.

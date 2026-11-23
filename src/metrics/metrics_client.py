@@ -46,6 +46,7 @@ DEFAULT_PROM_URL = os.environ.get("PROMETHEUS_URL", "http://host.docker.internal
 # Day 6-15 podinfo behavior.
 WORKLOAD_NAMESPACE = os.environ.get("WORKLOAD_NAMESPACE", "podinfo")
 WORKLOAD_DEPLOYMENT = os.environ.get("WORKLOAD_DEPLOYMENT", "podinfo")
+RATE_WINDOW = os.environ.get("RATE_WINDOW", "1m")
 
 # PromQL queries used throughout the project (locked here so every consumer agrees
 # on what each metric means).
@@ -78,6 +79,9 @@ QUERIES = {
         'histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket'
         '{namespace="%s"}[1m])) by (le)) * 1000' % WORKLOAD_NAMESPACE,
 }
+
+# Paper revision: PromQL rate window configurable (RATE_WINDOW, default 1m).
+QUERIES = {k: v.replace("[1m]", f"[{RATE_WINDOW}]") for k, v in QUERIES.items()}
 
 
 class PodinfoMetricsClient:

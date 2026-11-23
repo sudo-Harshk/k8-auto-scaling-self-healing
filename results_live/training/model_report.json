@@ -1,0 +1,11 @@
+{
+  "training_windows": 87,
+  "anomaly_threshold_p99": 0.882054011741683,
+  "anomaly_score_mean": 0.48750095305868274,
+  "anomaly_score_p50": 0.467866927592955,
+  "anomaly_score_p95": 0.8670684931506849,
+  "predictor_prequential_MAE": 3.2209302325581395,
+  "predictor_prequential_RMSE": 4.1132231462884175,
+  "naive_last_value_MAE": 6.313953488372093,
+  "req_per_replica": 62.9
+}

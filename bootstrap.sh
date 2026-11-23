@@ -213,7 +213,7 @@ alias demo='"'"'cd ~/k8-auto-scaling-self-healing && make demo'"'"'
 alias demo-quick='"'"'cd ~/k8-auto-scaling-self-healing && bash scripts/demo/quick.sh'"'"'
 alias demo-viva='"'"'cd ~/k8-auto-scaling-self-healing && make demo-viva'"'"'
 alias demo-reset='"'"'cd ~/k8-auto-scaling-self-healing && make reset && make bootstrap'"'"'
-alias demo-help='"'"'cat ~/k8-auto-scaling-self-healing/RUN_DEMO.md'"'"'
+alias demo-help='"'"'cat ~/k8-auto-scaling-self-healing/docs/archive/v1/RUN_DEMO.md'"'"'
 alias tlac='"'"'cd ~/k8-auto-scaling-self-healing && make tla-composition'"'"'
 alias paper='"'"'cd ~/k8-auto-scaling-self-healing && make paper && xdg-open docs/paper/main.pdf'"'"'
 '
@@ -221,7 +221,7 @@ alias paper='"'"'cd ~/k8-auto-scaling-self-healing && make paper && xdg-open doc
 if grep -q "SHIELD-AI demo aliases" "$HOME/.bashrc" 2>/dev/null; then
   skip "SHIELD-AI aliases already present in ~/.bashrc"
   if ! grep -q 'alias demo-help' "$HOME/.bashrc" 2>/dev/null; then
-    printf '\nalias demo-help='"'"'cat ~/k8-auto-scaling-self-healing/RUN_DEMO.md'"'"'\n' >> "$HOME/.bashrc"
+    printf '\nalias demo-help='"'"'cat ~/k8-auto-scaling-self-healing/docs/archive/v1/RUN_DEMO.md'"'"'\n' >> "$HOME/.bashrc"
     ok "added missing demo-help alias"
   fi
 else
