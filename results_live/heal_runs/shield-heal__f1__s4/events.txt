@@ -1,0 +1,281 @@
+T                      R                        O                         M
+2026-11-23T06:45:19Z   Unhealthy                podinfo-fb7b48876-4rj4k   Readiness probe failed: Get "http://10.244.0.66:9898/readyz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-23T06:45:35Z   Scheduled                podinfo-fb7b48876-cm5f6   Successfully assigned podinfo/podinfo-fb7b48876-cm5f6 to shield-eval-worker2
+2026-11-23T06:45:37Z   Pulled                   podinfo-fb7b48876-cm5f6   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:45:37Z   Created                  podinfo-fb7b48876-cm5f6   Created container podinfo
+2026-11-23T06:45:38Z   Started                  podinfo-fb7b48876-cm5f6   Started container podinfo
+2026-11-23T06:45:39Z   Unhealthy                podinfo-fb7b48876-cm5f6   Readiness probe failed: Get "http://10.244.0.68:9898/readyz": dial tcp 10.244.0.68:9898: connect: connection refused
+2026-11-23T06:46:06Z   Killing                  podinfo-fb7b48876-mn45r   Stopping container podinfo
+2026-11-23T06:46:06Z   Killing                  podinfo-fb7b48876-cm5f6   Stopping container podinfo
+2026-11-23T06:46:08Z   Unhealthy                podinfo-fb7b48876-cm5f6   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T06:46:08Z   Unhealthy                podinfo-fb7b48876-mn45r   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T06:46:11Z   Scheduled                podinfo-fb7b48876-2nkcg   Successfully assigned podinfo/podinfo-fb7b48876-2nkcg to shield-eval-worker2
+2026-11-23T06:46:11Z   Scheduled                podinfo-fb7b48876-b5xs6   Successfully assigned podinfo/podinfo-fb7b48876-b5xs6 to shield-eval-worker2
+2026-11-23T06:46:12Z   Pulled                   podinfo-fb7b48876-2nkcg   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:46:12Z   Pulled                   podinfo-fb7b48876-b5xs6   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:46:13Z   Created                  podinfo-fb7b48876-2nkcg   Created container podinfo
+2026-11-23T06:46:13Z   Created                  podinfo-fb7b48876-b5xs6   Created container podinfo
+2026-11-23T06:46:14Z   Started                  podinfo-fb7b48876-b5xs6   Started container podinfo
+2026-11-23T06:46:14Z   Started                  podinfo-fb7b48876-2nkcg   Started container podinfo
+2026-11-23T06:47:20Z   Killing                  podinfo-fb7b48876-2nkcg   Stopping container podinfo
+2026-11-23T06:47:20Z   FailedToUpdateEndpoint   podinfo                   Failed to update endpoint podinfo/podinfo: Operation cannot be fulfilled on endpoints "podinfo": the object has been modified; please apply your changes to the latest version and try again
+2026-11-23T06:47:20Z   Killing                  podinfo-fb7b48876-b5xs6   Stopping container podinfo
+2026-11-23T06:47:21Z   Unhealthy                podinfo-fb7b48876-2nkcg   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T06:47:21Z   Unhealthy                podinfo-fb7b48876-b5xs6   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T06:47:23Z   Unhealthy                podinfo-fb7b48876-2nkcg   Readiness probe failed: Get "http://10.244.0.70:9898/readyz": dial tcp 10.244.0.70:9898: connect: connection refused
+2026-11-23T06:47:23Z   Unhealthy                podinfo-fb7b48876-b5xs6   Readiness probe failed: Get "http://10.244.0.69:9898/readyz": dial tcp 10.244.0.69:9898: connect: connection refused
+2026-11-23T06:47:35Z   Scheduled                podinfo-fb7b48876-55cws   Successfully assigned podinfo/podinfo-fb7b48876-55cws to shield-eval-worker2
+2026-11-23T06:47:35Z   Scheduled                podinfo-fb7b48876-tvskn   Successfully assigned podinfo/podinfo-fb7b48876-tvskn to shield-eval-worker2
+2026-11-23T06:47:36Z   Pulled                   podinfo-fb7b48876-tvskn   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:47:36Z   Created                  podinfo-fb7b48876-tvskn   Created container podinfo
+2026-11-23T06:47:36Z   Pulled                   podinfo-fb7b48876-55cws   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:47:37Z   Created                  podinfo-fb7b48876-55cws   Created container podinfo
+2026-11-23T06:47:37Z   Started                  podinfo-fb7b48876-tvskn   Started container podinfo
+2026-11-23T06:47:38Z   Started                  podinfo-fb7b48876-55cws   Started container podinfo
+2026-11-23T06:48:45Z   Scheduled                podinfo-fb7b48876-25dkr   Successfully assigned podinfo/podinfo-fb7b48876-25dkr to shield-eval-worker
+2026-11-23T06:48:45Z   Killing                  podinfo-fb7b48876-xs2wt   Stopping container podinfo
+2026-11-23T06:48:47Z   Pulled                   podinfo-fb7b48876-25dkr   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:48:47Z   Created                  podinfo-fb7b48876-25dkr   Created container podinfo
+2026-11-23T06:48:49Z   Started                  podinfo-fb7b48876-25dkr   Started container podinfo
+2026-11-23T06:49:01Z   Unhealthy                podinfo-fb7b48876-xs2wt   Readiness probe failed: Get "http://10.244.2.32:9898/readyz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-23T06:52:34Z   Killing                  podinfo-fb7b48876-tvskn   Stopping container podinfo
+2026-11-23T06:52:34Z   Killing                  podinfo-fb7b48876-25dkr   Stopping container podinfo
+2026-11-23T06:52:35Z   Unhealthy                podinfo-fb7b48876-tvskn   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T06:52:36Z   Unhealthy                podinfo-fb7b48876-25dkr   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T06:52:39Z   Unhealthy                podinfo-fb7b48876-tvskn   Readiness probe failed: Get "http://10.244.0.71:9898/readyz": dial tcp 10.244.0.71:9898: connect: connection refused
+2026-11-23T06:52:40Z   Unhealthy                podinfo-fb7b48876-25dkr   Readiness probe failed: Get "http://10.244.2.33:9898/readyz": dial tcp 10.244.2.33:9898: connect: connection refused
+2026-11-23T06:52:43Z   Scheduled                podinfo-fb7b48876-hv4fp   Successfully assigned podinfo/podinfo-fb7b48876-hv4fp to shield-eval-worker2
+2026-11-23T06:52:43Z   Scheduled                podinfo-fb7b48876-rwmz8   Successfully assigned podinfo/podinfo-fb7b48876-rwmz8 to shield-eval-worker
+2026-11-23T06:52:45Z   Pulled                   podinfo-fb7b48876-hv4fp   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:52:45Z   Pulled                   podinfo-fb7b48876-rwmz8   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:52:47Z   Created                  podinfo-fb7b48876-hv4fp   Created container podinfo
+2026-11-23T06:52:47Z   Created                  podinfo-fb7b48876-rwmz8   Created container podinfo
+2026-11-23T06:52:48Z   Started                  podinfo-fb7b48876-rwmz8   Started container podinfo
+2026-11-23T06:52:48Z   Started                  podinfo-fb7b48876-hv4fp   Started container podinfo
+2026-11-23T06:53:32Z   Scheduled                podinfo-fb7b48876-pjdwv   Successfully assigned podinfo/podinfo-fb7b48876-pjdwv to shield-eval-worker2
+2026-11-23T06:53:34Z   Pulled                   podinfo-fb7b48876-pjdwv   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:53:34Z   Created                  podinfo-fb7b48876-pjdwv   Created container podinfo
+2026-11-23T06:53:35Z   Started                  podinfo-fb7b48876-pjdwv   Started container podinfo
+2026-11-23T06:54:32Z   Killing                  podinfo-fb7b48876-hv4fp   Stopping container podinfo
+2026-11-23T06:54:32Z   Killing                  podinfo-fb7b48876-pjdwv   Stopping container podinfo
+2026-11-23T06:54:35Z   Unhealthy                podinfo-fb7b48876-hv4fp   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T06:54:35Z   Unhealthy                podinfo-fb7b48876-pjdwv   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T06:54:37Z   Unhealthy                podinfo-fb7b48876-hv4fp   Readiness probe failed: Get "http://10.244.0.73:9898/readyz": dial tcp 10.244.0.73:9898: connect: connection refused
+2026-11-23T06:54:37Z   Unhealthy                podinfo-fb7b48876-pjdwv   Readiness probe failed: Get "http://10.244.0.74:9898/readyz": dial tcp 10.244.0.74:9898: connect: connection refused
+2026-11-23T06:55:18Z   Scheduled                podinfo-fb7b48876-j5qkm   Successfully assigned podinfo/podinfo-fb7b48876-j5qkm to shield-eval-worker2
+2026-11-23T06:55:20Z   Pulled                   podinfo-fb7b48876-j5qkm   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:55:20Z   Created                  podinfo-fb7b48876-j5qkm   Created container podinfo
+2026-11-23T06:55:21Z   Started                  podinfo-fb7b48876-j5qkm   Started container podinfo
+2026-11-23T06:57:38Z   Unhealthy                podinfo-fb7b48876-55cws   Readiness probe failed: Get "http://10.244.0.72:9898/readyz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-23T06:59:06Z   Scheduled                podinfo-fb7b48876-nfvcr   Successfully assigned podinfo/podinfo-fb7b48876-nfvcr to shield-eval-worker2
+2026-11-23T06:59:07Z   Pulled                   podinfo-fb7b48876-nfvcr   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:59:07Z   Created                  podinfo-fb7b48876-nfvcr   Created container podinfo
+2026-11-23T06:59:09Z   Started                  podinfo-fb7b48876-nfvcr   Started container podinfo
+2026-11-23T06:59:38Z   Killing                  podinfo-fb7b48876-j5qkm   Stopping container podinfo
+2026-11-23T06:59:38Z   Killing                  podinfo-fb7b48876-nfvcr   Stopping container podinfo
+2026-11-23T06:59:40Z   Unhealthy                podinfo-fb7b48876-j5qkm   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T06:59:41Z   Unhealthy                podinfo-fb7b48876-nfvcr   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T06:59:42Z   Scheduled                podinfo-fb7b48876-77vvb   Successfully assigned podinfo/podinfo-fb7b48876-77vvb to shield-eval-worker2
+2026-11-23T06:59:42Z   Scheduled                podinfo-fb7b48876-pfl99   Successfully assigned podinfo/podinfo-fb7b48876-pfl99 to shield-eval-worker2
+2026-11-23T06:59:43Z   Pulled                   podinfo-fb7b48876-pfl99   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:59:44Z   Pulled                   podinfo-fb7b48876-77vvb   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T06:59:44Z   Created                  podinfo-fb7b48876-77vvb   Created container podinfo
+2026-11-23T06:59:44Z   Created                  podinfo-fb7b48876-pfl99   Created container podinfo
+2026-11-23T06:59:45Z   Started                  podinfo-fb7b48876-pfl99   Started container podinfo
+2026-11-23T06:59:45Z   Started                  podinfo-fb7b48876-77vvb   Started container podinfo
+2026-11-23T07:01:22Z   SuccessfulRescale        podinfo-hpa               New size: 2; reason: All metrics below target
+2026-11-23T07:01:22Z   Killing                  podinfo-fb7b48876-77vvb   Stopping container podinfo
+2026-11-23T07:01:23Z   Killing                  podinfo-fb7b48876-pfl99   Stopping container podinfo
+2026-11-23T07:01:25Z   Unhealthy                podinfo-fb7b48876-77vvb   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:01:25Z   Unhealthy                podinfo-fb7b48876-pfl99   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:02:46Z   Unhealthy                podinfo-fb7b48876-rwmz8   Readiness probe failed: Get "http://10.244.2.34:9898/readyz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-23T07:05:43Z   Scheduled                podinfo-fb7b48876-ngbkv   Successfully assigned podinfo/podinfo-fb7b48876-ngbkv to shield-eval-worker2
+2026-11-23T07:05:44Z   Created                  podinfo-fb7b48876-ngbkv   Created container podinfo
+2026-11-23T07:05:44Z   Pulled                   podinfo-fb7b48876-ngbkv   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:05:45Z   Started                  podinfo-fb7b48876-ngbkv   Started container podinfo
+2026-11-23T07:06:14Z   ScalingReplicaSet        podinfo                   Scaled up replica set podinfo-fb7b48876 to 4 from 2
+2026-11-23T07:06:14Z   Scheduled                podinfo-fb7b48876-phgnw   Successfully assigned podinfo/podinfo-fb7b48876-phgnw to shield-eval-worker2
+2026-11-23T07:06:14Z   Scheduled                podinfo-fb7b48876-wkt7m   Successfully assigned podinfo/podinfo-fb7b48876-wkt7m to shield-eval-worker
+2026-11-23T07:06:15Z   Pulled                   podinfo-fb7b48876-phgnw   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:06:15Z   Created                  podinfo-fb7b48876-phgnw   Created container podinfo
+2026-11-23T07:06:15Z   Pulled                   podinfo-fb7b48876-wkt7m   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:06:15Z   Created                  podinfo-fb7b48876-wkt7m   Created container podinfo
+2026-11-23T07:06:16Z   Started                  podinfo-fb7b48876-phgnw   Started container podinfo
+2026-11-23T07:06:16Z   Started                  podinfo-fb7b48876-wkt7m   Started container podinfo
+2026-11-23T07:07:53Z   SuccessfulRescale        podinfo-hpa               New size: 2; reason: All metrics below target
+2026-11-23T07:07:54Z   Killing                  podinfo-fb7b48876-ngbkv   Stopping container podinfo
+2026-11-23T07:07:54Z   Killing                  podinfo-fb7b48876-phgnw   Stopping container podinfo
+2026-11-23T07:07:55Z   Unhealthy                podinfo-fb7b48876-ngbkv   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:07:56Z   Unhealthy                podinfo-fb7b48876-phgnw   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:08:02Z   Unhealthy                podinfo-fb7b48876-phgnw   Readiness probe failed: Get "http://10.244.0.80:9898/readyz": dial tcp 10.244.0.80:9898: connect: connection refused
+2026-11-23T07:08:03Z   Unhealthy                podinfo-fb7b48876-ngbkv   Readiness probe failed: Get "http://10.244.0.79:9898/readyz": dial tcp 10.244.0.79:9898: connect: connection refused
+2026-11-23T07:12:10Z   SuccessfulRescale        podinfo-hpa               New size: 3; reason: cpu resource utilization (percentage of request) above target
+2026-11-23T07:12:10Z   Scheduled                podinfo-fb7b48876-nzdks   Successfully assigned podinfo/podinfo-fb7b48876-nzdks to shield-eval-worker2
+2026-11-23T07:12:11Z   Pulled                   podinfo-fb7b48876-nzdks   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:12:12Z   Created                  podinfo-fb7b48876-nzdks   Created container podinfo
+2026-11-23T07:12:13Z   Started                  podinfo-fb7b48876-nzdks   Started container podinfo
+2026-11-23T07:12:16Z   Killing                  podinfo-fb7b48876-wkt7m   Stopping container podinfo
+2026-11-23T07:12:18Z   Unhealthy                podinfo-fb7b48876-wkt7m   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:12:21Z   Scheduled                podinfo-fb7b48876-bsm2w   Successfully assigned podinfo/podinfo-fb7b48876-bsm2w to shield-eval-worker2
+2026-11-23T07:12:21Z   Scheduled                podinfo-fb7b48876-ls8pc   Successfully assigned podinfo/podinfo-fb7b48876-ls8pc to shield-eval-worker
+2026-11-23T07:12:22Z   Created                  podinfo-fb7b48876-ls8pc   Created container podinfo
+2026-11-23T07:12:22Z   Pulled                   podinfo-fb7b48876-ls8pc   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:12:22Z   Created                  podinfo-fb7b48876-bsm2w   Created container podinfo
+2026-11-23T07:12:22Z   Pulled                   podinfo-fb7b48876-bsm2w   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:12:24Z   Started                  podinfo-fb7b48876-bsm2w   Started container podinfo
+2026-11-23T07:12:24Z   Started                  podinfo-fb7b48876-ls8pc   Started container podinfo
+2026-11-23T07:13:05Z   Scheduled                podinfo-fb7b48876-dxwvm   Successfully assigned podinfo/podinfo-fb7b48876-dxwvm to shield-eval-worker2
+2026-11-23T07:13:06Z   Pulled                   podinfo-fb7b48876-dxwvm   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:13:07Z   Created                  podinfo-fb7b48876-dxwvm   Created container podinfo
+2026-11-23T07:13:08Z   Started                  podinfo-fb7b48876-dxwvm   Started container podinfo
+2026-11-23T07:14:15Z   Killing                  podinfo-fb7b48876-dxwvm   Stopping container podinfo
+2026-11-23T07:14:15Z   Killing                  podinfo-fb7b48876-bsm2w   Stopping container podinfo
+2026-11-23T07:14:17Z   Unhealthy                podinfo-fb7b48876-dxwvm   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:14:17Z   Unhealthy                podinfo-fb7b48876-bsm2w   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:14:21Z   Unhealthy                podinfo-fb7b48876-dxwvm   Readiness probe failed: Get "http://10.244.0.83:9898/readyz": dial tcp 10.244.0.83:9898: connect: connection refused
+2026-11-23T07:14:21Z   Unhealthy                podinfo-fb7b48876-bsm2w   Readiness probe failed: Get "http://10.244.0.82:9898/readyz": dial tcp 10.244.0.82:9898: connect: connection refused
+2026-11-23T07:14:45Z   Scheduled                podinfo-fb7b48876-8qktj   Successfully assigned podinfo/podinfo-fb7b48876-8qktj to shield-eval-worker2
+2026-11-23T07:14:46Z   Pulled                   podinfo-fb7b48876-8qktj   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:14:47Z   Created                  podinfo-fb7b48876-8qktj   Created container podinfo
+2026-11-23T07:14:48Z   Started                  podinfo-fb7b48876-8qktj   Started container podinfo
+2026-11-23T07:18:42Z   Killing                  podinfo-fb7b48876-8qktj   Stopping container podinfo
+2026-11-23T07:18:42Z   Killing                  podinfo-fb7b48876-ls8pc   Stopping container podinfo
+2026-11-23T07:18:43Z   Unhealthy                podinfo-fb7b48876-8qktj   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:18:43Z   Unhealthy                podinfo-fb7b48876-ls8pc   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:18:45Z   Unhealthy                podinfo-fb7b48876-8qktj   Readiness probe failed: Get "http://10.244.0.84:9898/readyz": dial tcp 10.244.0.84:9898: connect: connection refused
+2026-11-23T07:18:47Z   Unhealthy                podinfo-fb7b48876-ls8pc   Readiness probe failed: Get "http://10.244.2.36:9898/readyz": dial tcp 10.244.2.36:9898: connect: connection refused
+2026-11-23T07:18:49Z   Scheduled                podinfo-fb7b48876-wftkd   Successfully assigned podinfo/podinfo-fb7b48876-wftkd to shield-eval-worker2
+2026-11-23T07:18:50Z   Scheduled                podinfo-fb7b48876-87xlx   Successfully assigned podinfo/podinfo-fb7b48876-87xlx to shield-eval-worker
+2026-11-23T07:18:51Z   Pulled                   podinfo-fb7b48876-87xlx   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:18:51Z   Pulled                   podinfo-fb7b48876-wftkd   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:18:53Z   Created                  podinfo-fb7b48876-wftkd   Created container podinfo
+2026-11-23T07:18:53Z   Created                  podinfo-fb7b48876-87xlx   Created container podinfo
+2026-11-23T07:18:54Z   Started                  podinfo-fb7b48876-87xlx   Started container podinfo
+2026-11-23T07:18:55Z   Started                  podinfo-fb7b48876-wftkd   Started container podinfo
+2026-11-23T07:18:55Z   Unhealthy                podinfo-fb7b48876-87xlx   Readiness probe failed: Get "http://10.244.2.37:9898/readyz": dial tcp 10.244.2.37:9898: connect: connection refused
+2026-11-23T07:19:45Z   Killing                  podinfo-fb7b48876-wftkd   Stopping container podinfo
+2026-11-23T07:19:45Z   Killing                  podinfo-fb7b48876-87xlx   Stopping container podinfo
+2026-11-23T07:19:48Z   Unhealthy                podinfo-fb7b48876-wftkd   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:19:48Z   Unhealthy                podinfo-fb7b48876-87xlx   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:20:00Z   Scheduled                podinfo-fb7b48876-qc9dr   Successfully assigned podinfo/podinfo-fb7b48876-qc9dr to shield-eval-worker
+2026-11-23T07:20:00Z   Scheduled                podinfo-fb7b48876-ddhmt   Successfully assigned podinfo/podinfo-fb7b48876-ddhmt to shield-eval-worker2
+2026-11-23T07:20:01Z   Pulled                   podinfo-fb7b48876-qc9dr   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:20:01Z   Created                  podinfo-fb7b48876-ddhmt   Created container podinfo
+2026-11-23T07:20:01Z   Pulled                   podinfo-fb7b48876-ddhmt   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:20:01Z   Created                  podinfo-fb7b48876-qc9dr   Created container podinfo
+2026-11-23T07:20:03Z   Started                  podinfo-fb7b48876-ddhmt   Started container podinfo
+2026-11-23T07:20:03Z   Started                  podinfo-fb7b48876-qc9dr   Started container podinfo
+2026-11-23T07:21:01Z   Killing                  podinfo-fb7b48876-ddhmt   Stopping container podinfo
+2026-11-23T07:21:03Z   Unhealthy                podinfo-fb7b48876-ddhmt   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:21:05Z   Unhealthy                podinfo-fb7b48876-ddhmt   Readiness probe failed: Get "http://10.244.0.86:9898/readyz": dial tcp 10.244.0.86:9898: connect: connection refused
+2026-11-23T07:21:31Z   Scheduled                podinfo-fb7b48876-wrkh7   Successfully assigned podinfo/podinfo-fb7b48876-wrkh7 to shield-eval-worker2
+2026-11-23T07:21:33Z   Pulled                   podinfo-fb7b48876-wrkh7   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:21:33Z   Created                  podinfo-fb7b48876-wrkh7   Created container podinfo
+2026-11-23T07:21:35Z   Started                  podinfo-fb7b48876-wrkh7   Started container podinfo
+2026-11-23T07:25:11Z   Killing                  podinfo-fb7b48876-qc9dr   Stopping container podinfo
+2026-11-23T07:25:11Z   Killing                  podinfo-fb7b48876-wrkh7   Stopping container podinfo
+2026-11-23T07:25:13Z   Unhealthy                podinfo-fb7b48876-qc9dr   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:25:13Z   Unhealthy                podinfo-fb7b48876-wrkh7   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:25:16Z   Scheduled                podinfo-fb7b48876-jq9bs   Successfully assigned podinfo/podinfo-fb7b48876-jq9bs to shield-eval-worker
+2026-11-23T07:25:16Z   Scheduled                podinfo-fb7b48876-zww2m   Successfully assigned podinfo/podinfo-fb7b48876-zww2m to shield-eval-worker2
+2026-11-23T07:25:17Z   Created                  podinfo-fb7b48876-zww2m   Created container podinfo
+2026-11-23T07:25:17Z   Pulled                   podinfo-fb7b48876-zww2m   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:25:17Z   Created                  podinfo-fb7b48876-jq9bs   Created container podinfo
+2026-11-23T07:25:17Z   Pulled                   podinfo-fb7b48876-jq9bs   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:25:18Z   Started                  podinfo-fb7b48876-jq9bs   Started container podinfo
+2026-11-23T07:25:18Z   Started                  podinfo-fb7b48876-zww2m   Started container podinfo
+2026-11-23T07:25:19Z   Unhealthy                podinfo-fb7b48876-zww2m   Readiness probe failed: Get "http://10.244.0.88:9898/readyz": dial tcp 10.244.0.88:9898: connect: connection refused
+2026-11-23T07:26:09Z   Scheduled                podinfo-fb7b48876-v6mtd   Successfully assigned podinfo/podinfo-fb7b48876-v6mtd to shield-eval-worker
+2026-11-23T07:26:09Z   Scheduled                podinfo-fb7b48876-p6gkl   Successfully assigned podinfo/podinfo-fb7b48876-p6gkl to shield-eval-worker2
+2026-11-23T07:26:09Z   Scheduled                podinfo-fb7b48876-c8cg2   Successfully assigned podinfo/podinfo-fb7b48876-c8cg2 to shield-eval-worker2
+2026-11-23T07:26:09Z   Scheduled                podinfo-fb7b48876-snsmk   Successfully assigned podinfo/podinfo-fb7b48876-snsmk to shield-eval-worker
+2026-11-23T07:26:10Z   Created                  podinfo-fb7b48876-c8cg2   Created container podinfo
+2026-11-23T07:26:10Z   Pulled                   podinfo-fb7b48876-p6gkl   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:26:10Z   Created                  podinfo-fb7b48876-p6gkl   Created container podinfo
+2026-11-23T07:26:10Z   Pulled                   podinfo-fb7b48876-snsmk   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:26:10Z   Created                  podinfo-fb7b48876-snsmk   Created container podinfo
+2026-11-23T07:26:10Z   Created                  podinfo-fb7b48876-v6mtd   Created container podinfo
+2026-11-23T07:26:10Z   Pulled                   podinfo-fb7b48876-c8cg2   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:26:10Z   Pulled                   podinfo-fb7b48876-v6mtd   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:26:11Z   Started                  podinfo-fb7b48876-v6mtd   Started container podinfo
+2026-11-23T07:26:11Z   Started                  podinfo-fb7b48876-c8cg2   Started container podinfo
+2026-11-23T07:26:11Z   Started                  podinfo-fb7b48876-snsmk   Started container podinfo
+2026-11-23T07:26:12Z   Started                  podinfo-fb7b48876-p6gkl   Started container podinfo
+2026-11-23T07:27:16Z   Killing                  podinfo-fb7b48876-v6mtd   Stopping container podinfo
+2026-11-23T07:27:16Z   Killing                  podinfo-fb7b48876-p6gkl   Stopping container podinfo
+2026-11-23T07:27:19Z   Unhealthy                podinfo-fb7b48876-v6mtd   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:27:46Z   Unhealthy                podinfo-fb7b48876-p6gkl   Readiness probe failed: Get "http://10.244.0.90:9898/readyz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-23T07:28:16Z   Killing                  podinfo-fb7b48876-c8cg2   Stopping container podinfo
+2026-11-23T07:28:16Z   Killing                  podinfo-fb7b48876-snsmk   Stopping container podinfo
+2026-11-23T07:28:19Z   Unhealthy                podinfo-fb7b48876-c8cg2   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:28:19Z   Unhealthy                podinfo-fb7b48876-snsmk   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:28:21Z   Unhealthy                podinfo-fb7b48876-snsmk   Readiness probe failed: Get "http://10.244.2.41:9898/readyz": dial tcp 10.244.2.41:9898: connect: connection refused
+2026-11-23T07:28:21Z   Unhealthy                podinfo-fb7b48876-c8cg2   Readiness probe failed: Get "http://10.244.0.89:9898/readyz": dial tcp 10.244.0.89:9898: connect: connection refused
+2026-11-23T07:31:24Z   Killing                  podinfo-fb7b48876-jq9bs   Stopping container podinfo
+2026-11-23T07:31:24Z   Killing                  podinfo-fb7b48876-zww2m   Stopping container podinfo
+2026-11-23T07:31:26Z   Unhealthy                podinfo-fb7b48876-jq9bs   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:31:26Z   Unhealthy                podinfo-fb7b48876-zww2m   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:31:31Z   Scheduled                podinfo-fb7b48876-sg25l   Successfully assigned podinfo/podinfo-fb7b48876-sg25l to shield-eval-worker2
+2026-11-23T07:31:31Z   Scheduled                podinfo-fb7b48876-mzcjw   Successfully assigned podinfo/podinfo-fb7b48876-mzcjw to shield-eval-worker
+2026-11-23T07:31:32Z   Pulled                   podinfo-fb7b48876-sg25l   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:31:32Z   Created                  podinfo-fb7b48876-mzcjw   Created container podinfo
+2026-11-23T07:31:32Z   Pulled                   podinfo-fb7b48876-mzcjw   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:31:33Z   Created                  podinfo-fb7b48876-sg25l   Created container podinfo
+2026-11-23T07:31:34Z   Started                  podinfo-fb7b48876-mzcjw   Started container podinfo
+2026-11-23T07:31:34Z   Started                  podinfo-fb7b48876-sg25l   Started container podinfo
+2026-11-23T07:32:17Z   Scheduled                podinfo-fb7b48876-tnrcj   Successfully assigned podinfo/podinfo-fb7b48876-tnrcj to shield-eval-worker2
+2026-11-23T07:32:17Z   ScalingReplicaSet        podinfo                   (combined from similar events): Scaled up replica set podinfo-fb7b48876 to 5 from 4
+2026-11-23T07:32:19Z   Created                  podinfo-fb7b48876-tnrcj   Created container podinfo
+2026-11-23T07:32:19Z   Pulled                   podinfo-fb7b48876-tnrcj   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:32:21Z   Started                  podinfo-fb7b48876-tnrcj   Started container podinfo
+2026-11-23T07:33:18Z   Killing                  podinfo-fb7b48876-tnrcj   Stopping container podinfo
+2026-11-23T07:33:18Z   Killing                  podinfo-fb7b48876-sg25l   Stopping container podinfo
+2026-11-23T07:33:19Z   Unhealthy                podinfo-fb7b48876-sg25l   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:33:20Z   Unhealthy                podinfo-fb7b48876-tnrcj   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:34:48Z   Scheduled                podinfo-fb7b48876-pvc25   Successfully assigned podinfo/podinfo-fb7b48876-pvc25 to shield-eval-worker2
+2026-11-23T07:34:48Z   SuccessfulCreate         podinfo-fb7b48876         (combined from similar events): Created pod: podinfo-fb7b48876-pvc25
+2026-11-23T07:34:50Z   Pulled                   podinfo-fb7b48876-pvc25   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:34:51Z   Created                  podinfo-fb7b48876-pvc25   Created container podinfo
+2026-11-23T07:34:53Z   Unhealthy                podinfo-fb7b48876-pvc25   Readiness probe failed: Get "http://10.244.0.93:9898/readyz": dial tcp 10.244.0.93:9898: connect: connection refused
+2026-11-23T07:34:53Z   Started                  podinfo-fb7b48876-pvc25   Started container podinfo
+2026-11-23T07:36:32Z   Unhealthy                podinfo-fb7b48876-mzcjw   Readiness probe failed: Get "http://10.244.2.42:9898/readyz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-23T07:37:49Z   Scheduled                podinfo-fb7b48876-pzksb   Successfully assigned podinfo/podinfo-fb7b48876-pzksb to shield-eval-worker
+2026-11-23T07:37:50Z   Pulled                   podinfo-fb7b48876-pzksb   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:37:50Z   Created                  podinfo-fb7b48876-pzksb   Created container podinfo
+2026-11-23T07:37:52Z   Started                  podinfo-fb7b48876-pzksb   Started container podinfo
+2026-11-23T07:38:21Z   Killing                  podinfo-fb7b48876-pvc25   Stopping container podinfo
+2026-11-23T07:38:21Z   Killing                  podinfo-fb7b48876-pzksb   Stopping container podinfo
+2026-11-23T07:38:21Z   ScalingReplicaSet        podinfo                   Scaled down replica set podinfo-fb7b48876 to 2 from 4
+2026-11-23T07:38:23Z   Unhealthy                podinfo-fb7b48876-pzksb   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:38:23Z   Unhealthy                podinfo-fb7b48876-pvc25   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:38:28Z   Scheduled                podinfo-fb7b48876-q5wdp   Successfully assigned podinfo/podinfo-fb7b48876-q5wdp to shield-eval-worker
+2026-11-23T07:38:28Z   Scheduled                podinfo-fb7b48876-zp9cz   Successfully assigned podinfo/podinfo-fb7b48876-zp9cz to shield-eval-worker2
+2026-11-23T07:38:30Z   Pulled                   podinfo-fb7b48876-q5wdp   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:38:30Z   Pulled                   podinfo-fb7b48876-zp9cz   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:38:31Z   Created                  podinfo-fb7b48876-q5wdp   Created container podinfo
+2026-11-23T07:38:31Z   Created                  podinfo-fb7b48876-zp9cz   Created container podinfo
+2026-11-23T07:38:32Z   Started                  podinfo-fb7b48876-zp9cz   Started container podinfo
+2026-11-23T07:38:33Z   Started                  podinfo-fb7b48876-q5wdp   Started container podinfo
+2026-11-23T07:39:18Z   Killing                  podinfo-fb7b48876-q5wdp   Stopping container podinfo
+2026-11-23T07:39:18Z   Killing                  podinfo-fb7b48876-zp9cz   Stopping container podinfo
+2026-11-23T07:39:18Z   SuccessfulDelete         podinfo-fb7b48876         (combined from similar events): Deleted pod: podinfo-fb7b48876-q5wdp
+2026-11-23T07:39:20Z   Unhealthy                podinfo-fb7b48876-zp9cz   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:39:21Z   Unhealthy                podinfo-fb7b48876-q5wdp   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:39:22Z   Unhealthy                podinfo-fb7b48876-zp9cz   Readiness probe failed: Get "http://10.244.0.94:9898/readyz": dial tcp 10.244.0.94:9898: connect: connection refused
+2026-11-23T07:39:23Z   Unhealthy                podinfo-fb7b48876-q5wdp   Readiness probe failed: Get "http://10.244.2.44:9898/readyz": dial tcp 10.244.2.44:9898: connect: connection refused
+2026-11-23T07:39:34Z   Scheduled                podinfo-fb7b48876-7vkc2   Successfully assigned podinfo/podinfo-fb7b48876-7vkc2 to shield-eval-worker2
+2026-11-23T07:39:34Z   Scheduled                podinfo-fb7b48876-987v9   Successfully assigned podinfo/podinfo-fb7b48876-987v9 to shield-eval-worker
+2026-11-23T07:39:38Z   Pulled                   podinfo-fb7b48876-7vkc2   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:39:39Z   Pulled                   podinfo-fb7b48876-987v9   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:39:41Z   Created                  podinfo-fb7b48876-7vkc2   Created container podinfo
+2026-11-23T07:39:42Z   Created                  podinfo-fb7b48876-987v9   Created container podinfo
+2026-11-23T07:39:43Z   Started                  podinfo-fb7b48876-987v9   Started container podinfo
+2026-11-23T07:39:43Z   Started                  podinfo-fb7b48876-7vkc2   Started container podinfo
+2026-11-23T07:40:33Z   Killing                  podinfo-fb7b48876-987v9   Stopping container podinfo
+2026-11-23T07:40:35Z   Unhealthy                podinfo-fb7b48876-987v9   Readiness probe failed: HTTP probe failed with statuscode: 503
+2026-11-23T07:40:37Z   Unhealthy                podinfo-fb7b48876-987v9   Readiness probe failed: Get "http://10.244.2.45:9898/readyz": dial tcp 10.244.2.45:9898: connect: connection refused
+2026-11-23T07:41:36Z   Unhealthy                podinfo-fb7b48876-gflxs   Readiness probe failed: Get "http://10.244.2.20:9898/readyz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-23T07:41:48Z   Scheduled                podinfo-fb7b48876-cjhnz   Successfully assigned podinfo/podinfo-fb7b48876-cjhnz to shield-eval-worker
+2026-11-23T07:41:50Z   Created                  podinfo-fb7b48876-cjhnz   Created container podinfo
+2026-11-23T07:41:50Z   Pulled                   podinfo-fb7b48876-cjhnz   Container image "ghcr.io/stefanprodan/podinfo:6.14.1" already present on machine
+2026-11-23T07:41:51Z   Started                  podinfo-fb7b48876-cjhnz   Started container podinfo

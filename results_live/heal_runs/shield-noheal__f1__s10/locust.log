@@ -1,0 +1,154 @@
+[2026-11-23 11:01:59,991] locust/INFO/locust.runners: Shape test starting.
+[2026-11-23 11:01:59,992] locust/INFO/locust.runners: Shape worker starting
+[2026-11-23 11:01:59,992] locust/INFO/locust.runners: Shape test updating to 257 users at 257.00 spawn rate
+[2026-11-23 11:01:59,992] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:01:59,992] locust/INFO/locust.runners: Ramping to 257 users at a rate of 257.00 per second
+[2026-11-23 11:02:00,011] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 257} (257 total users)
+[2026-11-23 11:02:10,035] locust/INFO/locust.runners: Shape test updating to 246 users at 246.00 spawn rate
+[2026-11-23 11:02:10,035] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:02:10,037] locust/INFO/locust.runners: Ramping to 246 users at a rate of 246.00 per second
+[2026-11-23 11:02:10,038] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 246} (246 total users)
+[2026-11-23 11:02:20,050] locust/INFO/locust.runners: Shape test updating to 257 users at 257.00 spawn rate
+[2026-11-23 11:02:20,050] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:02:20,050] locust/INFO/locust.runners: Ramping to 257 users at a rate of 257.00 per second
+[2026-11-23 11:02:20,051] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 257} (257 total users)
+[2026-11-23 11:02:30,069] locust/INFO/locust.runners: Shape test updating to 229 users at 229.00 spawn rate
+[2026-11-23 11:02:30,069] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:02:30,069] locust/INFO/locust.runners: Ramping to 229 users at a rate of 229.00 per second
+[2026-11-23 11:02:30,072] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 229} (229 total users)
+[2026-11-23 11:02:40,089] locust/INFO/locust.runners: Shape test updating to 275 users at 275.00 spawn rate
+[2026-11-23 11:02:40,089] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:02:40,089] locust/INFO/locust.runners: Ramping to 275 users at a rate of 275.00 per second
+[2026-11-23 11:02:40,090] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 275} (275 total users)
+[2026-11-23 11:02:50,112] locust/INFO/locust.runners: Shape test updating to 276 users at 276.00 spawn rate
+[2026-11-23 11:02:50,112] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:02:50,112] locust/INFO/locust.runners: Ramping to 276 users at a rate of 276.00 per second
+[2026-11-23 11:02:50,113] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 276} (276 total users)
+[2026-11-23 11:03:00,132] locust/INFO/locust.runners: Shape test updating to 263 users at 263.00 spawn rate
+[2026-11-23 11:03:00,132] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:03:00,132] locust/INFO/locust.runners: Ramping to 263 users at a rate of 263.00 per second
+[2026-11-23 11:03:00,133] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 263} (263 total users)
+[2026-11-23 11:03:10,155] locust/INFO/locust.runners: Shape test updating to 226 users at 226.00 spawn rate
+[2026-11-23 11:03:10,155] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:03:10,156] locust/INFO/locust.runners: Ramping to 226 users at a rate of 226.00 per second
+[2026-11-23 11:03:10,158] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 226} (226 total users)
+[2026-11-23 11:03:20,178] locust/INFO/locust.runners: Shape test updating to 253 users at 253.00 spawn rate
+[2026-11-23 11:03:20,178] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:03:20,178] locust/INFO/locust.runners: Ramping to 253 users at a rate of 253.00 per second
+[2026-11-23 11:03:20,179] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 253} (253 total users)
+[2026-11-23 11:03:30,201] locust/INFO/locust.runners: Shape test updating to 239 users at 239.00 spawn rate
+[2026-11-23 11:03:30,201] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:03:30,201] locust/INFO/locust.runners: Ramping to 239 users at a rate of 239.00 per second
+[2026-11-23 11:03:30,203] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 239} (239 total users)
+[2026-11-23 11:03:40,236] locust/INFO/locust.runners: Shape test updating to 233 users at 233.00 spawn rate
+[2026-11-23 11:03:40,236] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:03:40,236] locust/INFO/locust.runners: Ramping to 233 users at a rate of 233.00 per second
+[2026-11-23 11:03:40,237] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 233} (233 total users)
+[2026-11-23 11:03:50,273] locust/INFO/locust.runners: Shape test updating to 286 users at 286.00 spawn rate
+[2026-11-23 11:03:50,273] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:03:50,274] locust/INFO/locust.runners: Ramping to 286 users at a rate of 286.00 per second
+[2026-11-23 11:03:50,275] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 286} (286 total users)
+[2026-11-23 11:04:00,315] locust/INFO/locust.runners: Shape test updating to 289 users at 289.00 spawn rate
+[2026-11-23 11:04:00,315] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:04:00,315] locust/INFO/locust.runners: Ramping to 289 users at a rate of 289.00 per second
+[2026-11-23 11:04:00,315] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 289} (289 total users)
+[2026-11-23 11:04:10,336] locust/INFO/locust.runners: Shape test updating to 217 users at 217.00 spawn rate
+[2026-11-23 11:04:10,336] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:04:10,337] locust/INFO/locust.runners: Ramping to 217 users at a rate of 217.00 per second
+[2026-11-23 11:04:10,341] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 217} (217 total users)
+[2026-11-23 11:04:20,358] locust/INFO/locust.runners: Shape test updating to 279 users at 279.00 spawn rate
+[2026-11-23 11:04:20,358] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:04:20,358] locust/INFO/locust.runners: Ramping to 279 users at a rate of 279.00 per second
+[2026-11-23 11:04:20,360] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 279} (279 total users)
+[2026-11-23 11:04:30,383] locust/INFO/locust.runners: Shape test updating to 259 users at 259.00 spawn rate
+[2026-11-23 11:04:30,383] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:04:30,383] locust/INFO/locust.runners: Ramping to 259 users at a rate of 259.00 per second
+[2026-11-23 11:04:30,384] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 259} (259 total users)
+[2026-11-23 11:04:40,404] locust/INFO/locust.runners: Shape test updating to 243 users at 243.00 spawn rate
+[2026-11-23 11:04:40,404] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:04:40,404] locust/INFO/locust.runners: Ramping to 243 users at a rate of 243.00 per second
+[2026-11-23 11:04:40,405] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 243} (243 total users)
+[2026-11-23 11:04:50,425] locust/INFO/locust.runners: Shape test updating to 235 users at 235.00 spawn rate
+[2026-11-23 11:04:50,425] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:04:50,425] locust/INFO/locust.runners: Ramping to 235 users at a rate of 235.00 per second
+[2026-11-23 11:04:50,426] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 235} (235 total users)
+[2026-11-23 11:05:00,448] locust/INFO/locust.runners: Shape test updating to 265 users at 265.00 spawn rate
+[2026-11-23 11:05:00,448] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:05:00,448] locust/INFO/locust.runners: Ramping to 265 users at a rate of 265.00 per second
+[2026-11-23 11:05:00,449] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 265} (265 total users)
+[2026-11-23 11:05:10,472] locust/INFO/locust.runners: Shape test updating to 248 users at 248.00 spawn rate
+[2026-11-23 11:05:10,472] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:05:10,472] locust/INFO/locust.runners: Ramping to 248 users at a rate of 248.00 per second
+[2026-11-23 11:05:10,473] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 248} (248 total users)
+[2026-11-23 11:05:20,497] locust/INFO/locust.runners: Shape test updating to 266 users at 266.00 spawn rate
+[2026-11-23 11:05:20,497] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:05:20,497] locust/INFO/locust.runners: Ramping to 266 users at a rate of 266.00 per second
+[2026-11-23 11:05:20,498] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 266} (266 total users)
+[2026-11-23 11:05:30,516] locust/INFO/locust.runners: Shape test updating to 264 users at 264.00 spawn rate
+[2026-11-23 11:05:30,516] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:05:30,517] locust/INFO/locust.runners: Ramping to 264 users at a rate of 264.00 per second
+[2026-11-23 11:05:30,517] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 264} (264 total users)
+[2026-11-23 11:05:40,547] locust/INFO/locust.runners: Shape test updating to 224 users at 224.00 spawn rate
+[2026-11-23 11:05:40,547] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:05:40,547] locust/INFO/locust.runners: Ramping to 224 users at a rate of 224.00 per second
+[2026-11-23 11:05:40,549] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 224} (224 total users)
+[2026-11-23 11:05:50,569] locust/INFO/locust.runners: Shape test updating to 272 users at 272.00 spawn rate
+[2026-11-23 11:05:50,569] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:05:50,570] locust/INFO/locust.runners: Ramping to 272 users at a rate of 272.00 per second
+[2026-11-23 11:05:50,571] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 272} (272 total users)
+[2026-11-23 11:06:00,594] locust/INFO/locust.runners: Shape test updating to 288 users at 288.00 spawn rate
+[2026-11-23 11:06:00,594] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:06:00,595] locust/INFO/locust.runners: Ramping to 288 users at a rate of 288.00 per second
+[2026-11-23 11:06:00,595] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 288} (288 total users)
+[2026-11-23 11:06:10,616] locust/INFO/locust.runners: Shape test updating to 287 users at 287.00 spawn rate
+[2026-11-23 11:06:10,616] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:06:10,616] locust/INFO/locust.runners: Ramping to 287 users at a rate of 287.00 per second
+[2026-11-23 11:06:10,616] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 287} (287 total users)
+[2026-11-23 11:06:20,638] locust/INFO/locust.runners: Shape test updating to 260 users at 260.00 spawn rate
+[2026-11-23 11:06:20,638] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:06:20,638] locust/INFO/locust.runners: Ramping to 260 users at a rate of 260.00 per second
+[2026-11-23 11:06:20,640] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 260} (260 total users)
+[2026-11-23 11:06:30,659] locust/INFO/locust.runners: Shape test updating to 217 users at 217.00 spawn rate
+[2026-11-23 11:06:30,659] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:06:30,659] locust/INFO/locust.runners: Ramping to 217 users at a rate of 217.00 per second
+[2026-11-23 11:06:30,661] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 217} (217 total users)
+[2026-11-23 11:06:40,681] locust/INFO/locust.runners: Shape test updating to 214 users at 214.00 spawn rate
+[2026-11-23 11:06:40,681] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:06:40,681] locust/INFO/locust.runners: Ramping to 214 users at a rate of 214.00 per second
+[2026-11-23 11:06:40,682] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 214} (214 total users)
+[2026-11-23 11:06:50,705] locust/INFO/locust.runners: Shape test updating to 224 users at 224.00 spawn rate
+[2026-11-23 11:06:50,705] locust/WARNING/locust.runners: Your selected spawn rate is very high (>100), and this is known to sometimes cause issues. Do you really need to ramp up that fast?
+[2026-11-23 11:06:50,705] locust/INFO/locust.runners: Ramping to 224 users at a rate of 224.00 per second
+[2026-11-23 11:06:50,706] locust/INFO/locust.runners: All users spawned: {"PodinfoUser": 224} (224 total users)
+[2026-11-23 11:07:00,727] locust/INFO/locust.runners: Shape test stopping
+[2026-11-23 11:07:00,755] locust/INFO/locust.main: --run-time limit reached, shutting down
+[2026-11-23 11:07:00,755] locust/INFO/locust.main: Starting Locust 2.31.1
+[2026-11-23 11:07:00,755] locust/INFO/locust.main: Shutting down (exit code 1)
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /                                                                          45509   209(0.46%) |    107       0    2003     48 |  151.34        0.70
+GET      GET /api/info                                                                  23233   131(0.56%) |    111       0    2003     53 |   77.26        0.44
+POST     POST /api/echo                                                                  7658    30(0.39%) |    109       0    2001     53 |   25.47        0.10
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                     76400   370(0.48%) |    108       0    2003     52 |  254.06        1.23
+
+Response time percentiles (approximated)
+Type     Name                                                                                  50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET      GET /                                                                                  48     92    170    190    350    390    550    580    770    970   2000  45509
+GET      GET /api/info                                                                          53    120    170    200    350    450    560    590    790   2000   2000  23233
+POST     POST /api/echo                                                                         53    110    170    190    350    390    520    580    790   2000   2000   7658
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+         Aggregated                                                                             52     96    170    190    350    400    550    590    770   1200   2000  76400
+
+Error report
+# occurrences      Error                                                                                               
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+127                GET GET /api/info: ConnectionRefusedError(111, 'Connection refused')                                
+29                 POST POST /api/echo: ConnectionRefusedError(111, 'Connection refused')                              
+207                GET GET /: ConnectionRefusedError(111, 'Connection refused')                                        
+2                  GET GET /: RetriesExceeded('http://podinfo.podinfo.svc:9898/', 0, original=timed out)               
+4                  GET GET /api/info: RetriesExceeded('http://podinfo.podinfo.svc:9898/api/info', 0, original=timed out)
+1                  POST POST /api/echo: RetriesExceeded('http://podinfo.podinfo.svc:9898/api/echo', 0, original=timed out)
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+

@@ -1,0 +1,5 @@
+Method,Name,Error,Occurrences
+POST,POST /api/echo,HTTPConnectionClosed('connection closed.'),1
+GET,GET /api/info,"RetriesExceeded('http://podinfo.podinfo.svc:9898/api/info', 0, original=timed out)",167
+POST,POST /api/echo,"RetriesExceeded('http://podinfo.podinfo.svc:9898/api/echo', 0, original=timed out)",53
+GET,GET /,"RetriesExceeded('http://podinfo.podinfo.svc:9898/', 0, original=timed out)",361

@@ -82,9 +82,14 @@ def cliffs(a, b):
 def main(src, out):
     out = Path(out); out.mkdir(parents=True, exist_ok=True)
     runs = sorted(p for p in Path(src).iterdir() if (p / "DONE").exists() and "__s99" not in p.name)
+    # A fault run without fault.json means the injection failed: no pod was frozen.
+    bad = [p for p in runs if "__f1__" in p.name and not (p / "fault.json").exists()]
+    runs = [p for p in runs if p not in bad]
     df = pd.DataFrame([run_metrics(d) for d in runs])
     df.to_csv(out / "heal_per_run.csv", index=False)
     lines = ["# Self-healing study\n", f"Runs: {len(df)} (pilot seed 99 excluded).\n"]
+    if bad:
+        lines.append("Excluded (fault injection failed, no fault.json): " + ", ".join(p.name for p in bad) + "\n")
     for fault in (1, 0):
         sub = df[df.fault == fault]
         if sub.empty:
@@ -116,6 +121,19 @@ def main(src, out):
         st.to_csv(out / "heal_significance.csv", index=False)
         lines += ["\n## Pairwise tests (fault runs; two-sided Mann–Whitney U, Holm within metric)\n",
                   st.round(4).to_markdown(index=False)]
+    # Pre-registered extension test (PREREGISTRATION.md): heal vs no heal, all seeds
+    h = f1[f1.arm == "shield-heal"]; n = f1[f1.arm == "shield-noheal"]
+    if len(h) >= 2 and len(n) >= 2:
+        from scipy.stats import fisher_exact
+        p1 = mannwhitneyu(h.recovery_s, n.recovery_s, alternative="two-sided").pvalue
+        dh = int((h.recovery_s >= 230).sum()); dn = int((n.recovery_s >= 230).sum())
+        p2 = fisher_exact([[dh, len(h) - dh], [dn, len(n) - dn]]).pvalue
+        lines += ["\n## Pre-registered test: heal vs no heal (fault runs, all seeds)\n",
+                  f"n = {len(h)} vs {len(n)}",
+                  f"- Primary, time to recover: median {h.recovery_s.median():.0f} s vs {n.recovery_s.median():.0f} s, "
+                  f"Mann–Whitney p = {p1:.4f}, Cliff's δ = {cliffs(h.recovery_s, n.recovery_s):.2f}",
+                  f"- Secondary, still degraded at end (recovery ≥ 230 s): {dh}/{len(h)} vs {dn}/{len(n)}, "
+                  f"Fisher exact p = {p2:.4f}"]
     (out / "HEAL_RESULTS.md").write_text("\n".join(lines), encoding="utf-8")
     print("\n".join(lines))
 

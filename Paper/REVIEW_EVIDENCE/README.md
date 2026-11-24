@@ -91,5 +91,17 @@ Threats to Validity added, Section VI numbering fixed, ethics section rewritten 
 | F6 | More than 10 replicas / multi-node | 4-node cluster, replicas 2–20; spike peaks 16–20 replicas | `04_live_experiments/analysis/per_run_metrics.csv` (`max_replicas`) | — |
 | F7 | Old Figs. 2–4 with unreadable source notes | Removed; replaced by Listings 1–3, Table IV and live data | — | — |
 
+## Section G: Self-healing study (fault injection)
+
+| # | Question | Answer | Evidence | How it was produced |
+|---|---|---|---|---|
+| G1 | Does self-healing work live? | Localisation yes, recovery no. 10 heals in 15 fault runs, all on the frozen pod; 0 false heals in 15 fault-free runs. Pre-registered recovery test null (18 s vs 17 s, p = 0.95) | `10_self_healing/heal_analysis/HEAL_RESULTS.md`, `heal_per_run.csv`, `PREREGISTRATION.md` | `run_heal.sh` on VM B (seeds 1–5: 35 runs; extension seeds 6–15: heal and no-heal fault arms), then `python scripts/eval/live/analyze_heal.py results_live/heal_runs results_live/heal_analysis` |
+| G2 | Does the anomaly detector trigger healing? | No: with the anomaly gate, 0/5 heals; an aggregate score does not see a single-pod fault | same, row "heal, anomaly-gated" | same |
+| G3 | Is recovery faster with healing? | No. Mann–Whitney p = 0.95; still degraded at end 1/15 vs 4/15 (Fisher p = 0.33). Cause: ReplicaSet scale-down deletes unready pods first (frozen pod removed in 9/15 no-heal runs) | `heal_analysis/HEAL_RESULTS.md` (section "Pre-registered test"), run `events.txt` | pre-registered tests in `analyze_heal.py` |
+| G5 | Failed injections | 5 runs froze no pod (target pod was terminating); excluded and repeated after a script fix | `results_live/heal_runs_invalid/`, `PREREGISTRATION.md` (deviation log), `heal2_main.log` | — |
+| G4 | Figure | Fig. 5 | `10_self_healing/fig_heal.png` | `python Paper/figures/make_fig_heal.py` |
+
+Raw run folders: `results_live/heal_runs/<arm>__f<fault>__s<seed>/` (Locust stats, decision/actuator logs, `fault.json`, `pods_end.json`, `events.txt`).
+
 ## Note
 The raw folders of the 75 runs are committed once, at `results_live/runs/` (the local copy in `04_live_experiments/runs/` is not duplicated in git).

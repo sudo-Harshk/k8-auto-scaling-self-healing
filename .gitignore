@@ -123,9 +123,13 @@ Paper/*.pdf
 Paper/SHIELD_AI_revised.md
 Paper/RESPONSE_TO_REVIEWER.md
 Paper/REVIEW_ANSWERS.md
+Paper/SHIELD_AI_v3.md
+Paper/SHIELD_AI_final.md
+Paper/CHANGE_GUIDE.md
 docs/SHIELD_AI_PAPER.md
 docs/figures/
 reference/
+*.doc
 SUB-ID-*.pdf
 *.bak
 
