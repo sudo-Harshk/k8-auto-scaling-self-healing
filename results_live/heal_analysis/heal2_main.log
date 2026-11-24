@@ -1,0 +1,19 @@
+[1;34m[09:24:05][0m self-healing study: arms=[shield-heal shield-noheal] faults=[1] seeds=[6 7 8 9 10 11 12 13 14 15] dur=300s fault_at=60s
+[1;34m[09:24:09][0m === arm=shield-heal fault=1 seed=6
+[1;34m[09:30:38][0m === arm=shield-noheal fault=1 seed=6
+[1;34m[09:37:10][0m === arm=shield-noheal fault=1 seed=7
+[1;34m[09:44:12][0m === arm=shield-heal fault=1 seed=7
+time="2026-11-23T09:46:30Z" level=fatal msg="getting the status of the container \"\": ID cannot be empty"
+[1;34m[09:50:39][0m === arm=shield-heal fault=1 seed=8
+[1;34m[09:56:51][0m === arm=shield-noheal fault=1 seed=8
+time="2026-11-23T09:59:05Z" level=fatal msg="getting the status of the container \"\": ID cannot be empty"
+[1;34m[10:03:17][0m === arm=shield-noheal fault=1 seed=9
+[1;34m[10:09:27][0m === arm=shield-heal fault=1 seed=9
+[1;34m[10:15:49][0m === arm=shield-noheal fault=1 seed=10
+time="2026-11-23T10:18:03Z" level=fatal msg="getting the status of the container \"\": ID cannot be empty"
+[1;34m[10:22:18][0m === arm=shield-heal fault=1 seed=10
+[1;34m[10:28:53][0m === arm=shield-noheal fault=1 seed=11
+time="2026-11-23T10:30:58Z" level=fatal msg="getting the status of the container \"\": ID cannot be empty"
+[1;34m[10:35:09][0m === arm=shield-heal fault=1 seed=11
+[1;34m[10:41:31][0m === arm=shield-noheal fault=1 seed=12
+time="2026-11-23T10:43:45Z" level=fatal msg="getting the status of the container \"\": ID cannot be empty"

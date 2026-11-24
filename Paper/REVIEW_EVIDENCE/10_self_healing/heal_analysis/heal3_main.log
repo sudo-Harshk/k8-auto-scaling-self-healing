@@ -1,0 +1,22 @@
+[1;34m[10:47:18][0m self-healing study: arms=[shield-heal shield-noheal] faults=[1] seeds=[6 7 8 9 10 11 12 13 14 15] dur=300s fault_at=60s
+[1;34m[10:47:22][0m skip /home/azureuser/k8-auto-scaling-self-healing/results_live/heal_runs/shield-heal__f1__s6
+[1;34m[10:47:22][0m skip /home/azureuser/k8-auto-scaling-self-healing/results_live/heal_runs/shield-noheal__f1__s6
+[1;34m[10:47:22][0m skip /home/azureuser/k8-auto-scaling-self-healing/results_live/heal_runs/shield-noheal__f1__s7
+[1;34m[10:47:22][0m === arm=shield-heal fault=1 seed=7
+[1;34m[10:54:25][0m skip /home/azureuser/k8-auto-scaling-self-healing/results_live/heal_runs/shield-heal__f1__s8
+[1;34m[10:54:25][0m === arm=shield-noheal fault=1 seed=8
+[1;34m[11:00:46][0m skip /home/azureuser/k8-auto-scaling-self-healing/results_live/heal_runs/shield-noheal__f1__s9
+[1;34m[11:00:46][0m skip /home/azureuser/k8-auto-scaling-self-healing/results_live/heal_runs/shield-heal__f1__s9
+[1;34m[11:00:46][0m === arm=shield-noheal fault=1 seed=10
+[1;34m[11:07:13][0m skip /home/azureuser/k8-auto-scaling-self-healing/results_live/heal_runs/shield-heal__f1__s10
+[1;34m[11:07:13][0m === arm=shield-noheal fault=1 seed=11
+[1;34m[11:13:24][0m skip /home/azureuser/k8-auto-scaling-self-healing/results_live/heal_runs/shield-heal__f1__s11
+[1;34m[11:13:24][0m === arm=shield-noheal fault=1 seed=12
+[1;34m[11:19:40][0m === arm=shield-heal fault=1 seed=12
+[1;34m[11:26:07][0m === arm=shield-noheal fault=1 seed=13
+[1;34m[11:32:33][0m === arm=shield-heal fault=1 seed=13
+[1;34m[11:38:54][0m === arm=shield-noheal fault=1 seed=14
+[1;34m[11:45:27][0m === arm=shield-heal fault=1 seed=14
+[1;34m[11:51:56][0m === arm=shield-noheal fault=1 seed=15
+[1;34m[11:58:27][0m === arm=shield-heal fault=1 seed=15
+[1;34m[12:05:37][0m self-healing study finished -> /home/azureuser/k8-auto-scaling-self-healing/results_live/heal_runs

@@ -41,8 +41,19 @@ Four-node kind cluster, replicas 2–20, Locust load up to 1,006 req/s. Controll
 
 Full tables: [`results_live/analysis/RESULTS.md`](results_live/analysis/RESULTS.md). Per-seed hardware-blocked check: [`ROBUSTNESS.md`](results_live/analysis/ROBUSTNESS.md).
 
-### Self-healing study (in progress)
-A fault-injection study is running: a hung pod (SIGSTOP) under constant load, comparing SHIELD-AI with and without healing, an anomaly-gated variant and HPA, with no-fault controls for false heals. Four pilot runs settled the method: an in-pod CPU hog did not degrade service, and the aggregate anomaly score did not flag a single-pod failure. Pilot data is kept in `results_live/heal_pilots/` (not counted). Results will be added to `results_live/heal_analysis/`.
+### Self-healing study
+One pod is frozen (SIGSTOP) 60 s into constant load. Heal and no-heal arms have 15 runs each, the anomaly-gated arm and HPA 5 each, and 15 fault-free runs measure false heals. The analysis plan was fixed before the extension ([`PREREGISTRATION.md`](results_live/heal_analysis/PREREGISTRATION.md)).
+
+| Arm (fault runs) | Runs | Heals (on frozen pod) | Median time over SLO | Median time to recover | Frozen pod left at end |
+|---|---|---|---|---|---|
+| SHIELD-AI (heal) | 15 | 10 (10) | 19.2 % | 18 s | 0/15 |
+| SHIELD-AI (no heal) | 15 | — | 7.5 % | 17 s | 6/15 |
+| SHIELD-AI (heal, anomaly-gated) | 5 | 0 | 89.4 % | 234 s | 5/5 |
+| HPA | 5 | — | 100 % | 235 s | 5/5 |
+
+- **Localisation works:** every heal targeted the frozen pod, with 0 false heals in 15 fault-free runs. The aggregate anomaly score never localised the fault.
+- **No recovery benefit (pre-registered test):** 18 s vs 17 s, p = 0.95. Kubernetes deletes unready pods first on scale-down, so the autoscaler's scale-down removed the frozen pod in 9 of 15 no-heal runs.
+- Two heals were blocked by the shield's shared cooldown. Five runs with a failed injection were excluded and repeated (see the deviation log).
 
 ---
 
@@ -59,6 +70,11 @@ specs/                   TLA+ specifications, TLC configs and outputs, safety po
 tests/                   unit and conformance tests
 scripts/eval/live/       live evaluation harness (cluster setup, calibration, training, run matrix, analysis)
 results_live/            raw data of all live runs + analysis outputs
+  runs/ analysis/        scaling evaluation (75 runs) and its statistics
+  heal_runs/             self-healing study (fault and fault-free runs)
+  heal_analysis/         healing results, pre-registration and deviation log, run logs
+  heal_pilots/           four pilot runs that settled the method (not counted)
+  heal_runs_invalid/     five runs whose fault injection failed (excluded, kept as evidence)
 Paper/REVIEW_EVIDENCE/   evidence package for the paper revision (one folder per reviewer topic)
 Paper/figures/           paper figures and the scripts that generate them
 ops/                     Docker image, kind config, Kubernetes manifests
@@ -78,6 +94,15 @@ bash scripts/eval/live/calibrate.sh                 # per-replica capacity -> ca
 bash scripts/eval/live/train_ml.sh                  # train models on a disjoint trace
 SEEDS="1 2 3 4 5" bash scripts/eval/live/run_matrix.sh      # 75 live runs (~9 h on one VM)
 python scripts/eval/live/analyze.py results_live/runs results_live/analysis
+```
+
+Self-healing study (after the cluster setup, calibration and training above):
+
+```bash
+SEEDS="1 2 3 4 5" bash scripts/eval/live/run_heal.sh                     # 4 arms with fault + 3 fault-free arms
+ARMS="shield-heal shield-noheal" FAULTS=1 SEEDS="6 7 8 9 10 11 12 13 14 15" \n  bash scripts/eval/live/run_heal.sh                                     # pre-registered extension
+python scripts/eval/live/analyze_heal.py results_live/heal_runs results_live/heal_analysis
+python Paper/figures/make_fig_heal.py                                  # Fig. 5
 ```
 
 Formal verification (download the TLA+ tools first, see [`tools/README.md`](tools/README.md)):
@@ -163,7 +188,7 @@ The paper was revised in response to a detailed review. Each comment is listed w
 - The cluster is kind on a single VM per seed group; seeds 1–3 and 4–5 ran on two VM types (disclosed and blocked in the analysis).
 - MT is a FIRM-*inspired* threshold controller, not the original RL-based FIRM.
 - SLO and error improvements over the baselines have large effect sizes but are not statistically significant at n = 5.
-- The aggregate anomaly detector does not flag single-pod failures; self-healing relies on per-pod localisation (study in progress).
+- The aggregate anomaly detector does not flag single-pod failures; per-pod localisation does, but healing did not shorten recovery in our setup, because Kubernetes' scale-down removes unready pods first.
 
 ## License
 [MIT](LICENSE)

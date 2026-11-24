@@ -1,0 +1,4 @@
+Method,Name,Error,Occurrences
+GET,GET /,"ConnectionRefusedError(111, 'Connection refused')",229
+GET,GET /api/info,"ConnectionRefusedError(111, 'Connection refused')",95
+POST,POST /api/echo,"ConnectionRefusedError(111, 'Connection refused')",38

@@ -32,14 +32,20 @@ port_forwards
 inject_fault() {   # $1 run dir, $2 seed
   local rd=$1 seed=$2
   sleep "$FAULT_AT"
+  # Running pods that are not terminating (a terminating pod has no container to freeze)
   mapfile -t pods < <(kubectl -n $NS get pods -l app=podinfo --field-selector=status.phase=Running \
-                        -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | sort)
-  local pod=${pods[$(( seed % ${#pods[@]} ))]}
-  local node cid pid
-  node=$(kubectl -n $NS get pod "$pod" -o jsonpath='{.spec.nodeName}')
-  cid=$(docker exec "$node" crictl ps -q --name podinfo --pod "$(docker exec "$node" crictl pods -q --name "$pod")")
+                        -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.metadata.deletionTimestamp}{"\n"}{end}' \
+                      | awk 'NF==1{print $1}' | sort)
+  local n=${#pods[@]} i pod node cid pid
+  for (( i=0; i<n; i++ )); do              # seed picks the first candidate; skip any without a container
+    pod=${pods[$(( (seed + i) % n ))]}
+    node=$(kubectl -n $NS get pod "$pod" -o jsonpath='{.spec.nodeName}')
+    cid=$(docker exec "$node" crictl ps -q --name podinfo --pod "$(docker exec "$node" crictl pods -q --name "$pod")")
+    [[ -n $cid ]] && break
+  done
+  if [[ -z $cid ]]; then LOG "fault injection FAILED (no running container); run is invalid"; return 1; fi
   pid=$(docker exec "$node" crictl inspect --output go-template --template '{{.info.pid}}' "$cid")
-  docker exec "$node" kill -STOP "$pid"
+  docker exec "$node" kill -STOP "$pid" || { LOG "fault injection FAILED (kill)"; return 1; }
   printf '{"epoch": %s, "pod": "%s", "pods_at_injection": %s}\n' \
     "$(date +%s)" "$pod" "${#pods[@]}" > "$rd/fault.json"
 }
