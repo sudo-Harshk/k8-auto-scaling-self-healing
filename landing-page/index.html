@@ -3,19 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="SHIELD-AI: An intelligent Kubernetes control system for autonomous autoscaling and self-healing. ML recommends. Formal safety constraints decide. Kubernetes executes." />
-    <meta name="theme-color" content="#0D0D0D" />
-    <meta property="og:title" content="SHIELD-AI — Kubernetes that reasons before it acts" />
-    <meta property="og:description" content="An intelligent Kubernetes control system for autonomous autoscaling and self-healing. Combines real-time observability, streaming ML, anomaly detection, and a formally verified safety layer." />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="SHIELD-AI: online-learning autoscaling and self-healing for Kubernetes, with a runtime safety shield whose rules are model-checked in TLA+. Code, specifications and raw data of every live run." />
+    
+    <meta property="og:title" content="SHIELD-AI — safe online-learning autoscaling for Kubernetes" />
+    <meta property="og:description" content="An ML model proposes scaling and healing actions; a TLA+-verified shield decides which ones reach the cluster." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://github.com/sudo-Harshk/k8-auto-scaling-self-healing" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>SHIELD-AI — Kubernetes that reasons before it acts</title>
+    <script>try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t } catch (e) {}</script>
+    <title>SHIELD-AI — safe online-learning autoscaling for Kubernetes</title>
   </head>
-  <body class="font-sans antialiased text-text-primary bg-bg">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
